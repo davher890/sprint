@@ -1,4 +1,4 @@
-package com.backend.sprint.model;
+package com.backend.sprint.model.dao;
 
 import java.util.Date;
 
