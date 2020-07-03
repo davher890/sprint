@@ -1,17 +1,13 @@
 import React, { Component } from "react";
-import "./User.css";
 import { Form, Button } from 'react-bootstrap';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-class CreateUser extends Component {
+class CreateAthlete extends Component {
     constructor(props) {
         super(props);
         this.state = {
-        	id : 0,
-            name : "",
-            email : ""
         };
         this.handleInputChange = this.handleInputChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -23,7 +19,7 @@ class CreateUser extends Component {
             this.setState({ id : id})
 
             const headers = { 'Content-Type': 'application/json' }
-            fetch("http://localhost:9000/users/" + id,  { headers })
+            fetch("http://localhost:9000/athletes/" + id,  { headers })
                 .then(res => res.json())
                 .then(data => this.setState(data[0]));
         }
@@ -45,7 +41,7 @@ class CreateUser extends Component {
             body: JSON.stringify(this.state)
         }
 
-        fetch('http://localhost:9000/users', requestOptions)
+        fetch('http://localhost:9000/athletes', requestOptions)
             .then(response => console.log(response))
             .then(data => this.setState(data));
     }
@@ -83,4 +79,4 @@ class CreateUser extends Component {
     }
 }
 
-export default CreateUser;
+export default CreateAthlete;

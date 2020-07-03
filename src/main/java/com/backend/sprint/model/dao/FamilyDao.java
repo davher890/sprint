@@ -1,4 +1,4 @@
-package com.backend.sprint.model;
+package com.backend.sprint.model.dao;
 
 import java.util.Date;
 
@@ -21,21 +21,17 @@ import lombok.ToString;
 @Setter
 @ToString
 @Entity
-@Table(name = "users")
-public class UserDao {
+@Table(name = "families")
+public class FamilyDao {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
-
+	
+	private long trainerId;
+	
 	@NotNull
 	private String name;
-	
-	@NotNull
-	private String email;
-	
-	@NotNull
-	private String password;
 	
 	@CreationTimestamp
 	private Date createdAt;
