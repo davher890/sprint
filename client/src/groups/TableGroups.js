@@ -7,9 +7,19 @@ class TableGroups extends Component {
     constructor(props) {
         super(props);
         this.state = { 
-        	headers : ['Id', 'Nombre'],
+        	headers : ['Nombre'],
+        	filters : [
+	        	{ field : "name", type : "text", name : "Nombre"}
+        	],
     		entityName : 'groups'
         };
+    }
+
+    dataConversor(d) {
+    	return {
+			name : d.name,
+			id : d.id
+		}
     }
 
     render() {
@@ -17,8 +27,10 @@ class TableGroups extends Component {
 			<Container>
 				<Table 
 					headers={this.state.headers} 
-					entityName={this.state.entityName}></Table>
-				<Button href={this.state.entityName}>Crear</Button>
+					filters={this.state.filters}
+					entityName={this.state.entityName}
+					dataConversor={this.dataConversor}>
+				</Table>
 			</Container>
 		)
 	}

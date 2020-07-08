@@ -40,8 +40,8 @@ public class AthleteService {
 	}
 
 	public List<AthleteDto> findAll() {
-		Iterable<AthleteDao> findAll = repository.findAll();
-		return StreamSupport.stream(findAll.spliterator(), false).map(this::convertToDto).collect(Collectors.toList());
+		return StreamSupport.stream(repository.findAll().spliterator(), false).map(this::convertToDto)
+				.collect(Collectors.toList());
 	}
 
 	public AthleteDto findById(long id) {

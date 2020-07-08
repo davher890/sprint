@@ -3,9 +3,13 @@ package com.backend.sprint.service;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.backend.sprint.model.dao.FamilyDao;
@@ -22,8 +26,14 @@ public class FamilyService {
 	@Autowired
 	private AthleteService athleteService;
 
+	public Page<FamilyDto> findPagintation(Specification<FamilyDao> specification, Pageable pageable) {
+		Page<FamilyDao> daoPage = repository.findAll(specification, pageable);
+		return daoPage.map(dao -> convertToDto(dao));
+	}
+
 	public List<FamilyDto> findAll() {
-		return repository.findAll().stream().map(this::convertToDto).collect(Collectors.toList());
+		return StreamSupport.stream(repository.findAll().spliterator(), false).map(this::convertToDto)
+				.collect(Collectors.toList());
 	}
 
 	public FamilyDto findById(long id) {

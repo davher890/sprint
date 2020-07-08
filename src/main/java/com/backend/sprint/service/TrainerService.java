@@ -2,9 +2,13 @@ package com.backend.sprint.service;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.backend.sprint.model.dao.GroupDao;
@@ -18,10 +22,14 @@ public class TrainerService {
 	@Autowired
 	private TrainerRepository repository;
 
+	public Page<TrainerDto> findPagintation(Specification<TrainerDao> specification, Pageable pageable) {
+		Page<TrainerDao> daoPage = repository.findAll(specification, pageable);
+		return daoPage.map(dao -> convertToDto(dao));
+	}
+
 	public List<TrainerDto> findAll() {
-		return repository.findAll().stream().map(dao -> {
-			return convertToDto(dao);
-		}).collect(Collectors.toList());
+		return StreamSupport.stream(repository.findAll().spliterator(), false).map(this::convertToDto)
+				.collect(Collectors.toList());
 	}
 
 	public TrainerDto findById(long id) {

@@ -8,38 +8,32 @@ class TableSchedules extends Component {
     constructor(props) {
         super(props);
         this.state = {
-        	items : [],
-        	headers : ['Id', 'Día', 'Inicio', 'Fin'],
+        	headers : ['Día', 'Inicio', 'Fin'],
+        	filters : [
+	        	{ field : "day", type : "text", name : "Día"}
+        	],
         	entityName : 'schedules'
         }
     }
 
-    componentDidMount() {
-
-		const headers = { 'Content-Type': 'application/json' }
-		fetch(process.env.REACT_APP_SERVER_URL + "/" + this.state.entityName,  { headers })
-			.then(res => res.json())
-			.then(data => {
-
-				let items = data.map(d => {
-					return {
-						id : d.id, 
-						day: d.day, 
-						start: d.startHour + ':' + d.startMinute,
-						end: d.endHour + ':' + d.endMinute
-					}
-				})
-				this.setState({
-					items: items
-				})
-			});
+    dataConversor(d){
+    	return {
+			id : d.id, 
+			day: d.day, 
+			start: d.startHour + ':' + d.startMinute,
+			end: d.endHour + ':' + d.endMinute
+		}
     }
 
 	render() {
 		return (
 			<Container>
-				<Table items={this.state.items} headers={this.state.headers} entityName={this.state.entityName}></Table>
-				<Button href="/schedules">Crear</Button>
+				<Table 
+					headers={this.state.headers} 
+					filters={this.state.filters}
+					entityName={this.state.entityName}
+					dataConversor={this.dataConversor}>
+				</Table>
 			</Container>
 		)
 	}
