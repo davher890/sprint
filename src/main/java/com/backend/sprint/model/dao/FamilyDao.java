@@ -27,16 +27,23 @@ public class FamilyDao {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
-	
-	private long trainerId;
-	
+
 	@NotNull
-	private String name;
-	
+	private String firstSurname;
+
+	@NotNull
+	private String secondSurname;
+
+	private String fatherMail;
+
+	private String motherMail;
+
+	private long code;
+
 	@CreationTimestamp
 	private Date createdAt;
 
 	@UpdateTimestamp
 	private Date updatedAt;
-	
+
 }

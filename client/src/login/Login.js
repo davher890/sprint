@@ -23,7 +23,7 @@ class CreateUser extends Component {
             this.setState({ id : id})
 
             const headers = { 'Content-Type': 'application/json' }
-            fetch("http://localhost:9000/users/" + id,  { headers })
+            fetch(process.env.REACT_APP_SERVER_URL + "/users/" + id,  { headers })
                 .then(res => res.json())
                 .then(data => this.setState(data[0]));
         }
@@ -45,7 +45,7 @@ class CreateUser extends Component {
             body: JSON.stringify(this.state)
         }
 
-        fetch('http://localhost:9000/users', requestOptions)
+        fetch(process.env.REACT_APP_SERVER_URL + "/users" + , requestOptions)
             .then(response => console.log(response))
             .then(data => this.setState(data));
     }

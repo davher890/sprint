@@ -1,66 +1,46 @@
 import React, { Component } from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Button } from 'react-bootstrap';
+import { Button, Container } from 'react-bootstrap';
+import Table from "../utils/Table";
 
-import { Link } from "react-router-dom";
 
 class TableSchedules extends Component {
     constructor(props) {
         super(props);
         this.state = {
-        	items : []
+        	items : [],
+        	headers : ['Id', 'Día', 'Inicio', 'Fin'],
+        	entityName : 'schedules'
         }
-
-        this.renderTableHeader = this.renderTableHeader.bind(this);
-		this.renderTableData = this.renderTableData.bind(this);
     }
 
     componentDidMount() {
 
 		const headers = { 'Content-Type': 'application/json' }
-		fetch("http://localhost:9000/schedules",  { headers })
+		fetch(process.env.REACT_APP_SERVER_URL + "/" + this.state.entityName,  { headers })
 			.then(res => res.json())
-			.then(data => this.setState({items: data}));
+			.then(data => {
+
+				let items = data.map(d => {
+					return {
+						id : d.id, 
+						day: d.day, 
+						start: d.startHour + ':' + d.startMinute,
+						end: d.endHour + ':' + d.endMinute
+					}
+				})
+				this.setState({
+					items: items
+				})
+			});
     }
-
-    renderTableData() {
-    	if (this.state.items.length > 0){
-			return this.state.items.map((entity, index) => {
-				const { id, day, startHour, startMinute, endHour, endMinute } = entity //destructuring
-				return (
-					<tr key={id}>
-					<td>{id}</td>
-					<td>{day}</td>
-					<td>{startHour}</td>
-					<td>{endHour}</td>
-					<td>{startMinute}</td>
-					<td>{endMinute}</td>
-					<td><Link to={`/schedule/${id}`}>
-							<Button>Edit</Button>
-						</Link></td>
-					</tr>
-				)
-			})
-		}
-	}
-
-	renderTableHeader() {
-		if (this.state.items.length > 0){
-			let header = Object.keys(this.state.items[0])
-			return header.map((key, index) => {
-				return <th key={index}>{key.toUpperCase()}</th>
-			})
-		}
-	}
 
 	render() {
 		return (
-			<table>
-				<thead>
-					<tr>{this.renderTableHeader()}</tr>
-				</thead>
-				<tbody>{this.renderTableData()}</tbody>
-			</table>
+			<Container>
+				<Table items={this.state.items} headers={this.state.headers} entityName={this.state.entityName}></Table>
+				<Button href="/schedules">Crear</Button>
+			</Container>
 		)
 	}
 }

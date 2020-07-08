@@ -19,7 +19,7 @@ class CreateTrainer extends Component {
             this.setState({ id : id})
 
             const headers = { 'Content-Type': 'application/json' }
-            fetch("http://localhost:9000/athletes/" + id,  { headers })
+            fetch(process.env.REACT_APP_SERVER_URL + "/athletes/" + id,  { headers })
                 .then(res => res.json())
                 .then(data => this.setState(data[0]));
         }
@@ -41,7 +41,7 @@ class CreateTrainer extends Component {
             body: JSON.stringify(this.state)
         }
 
-        fetch('http://localhost:9000/athletes', requestOptions)
+        fetch(process.env.REACT_APP_SERVER_URL + "/athletes", requestOptions)
             .then(response => console.log(response))
             .then(data => this.setState(data));
     }
