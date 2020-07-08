@@ -8,7 +8,7 @@ import TableGroups from './groups/TableGroups';
 import CreateTrainer from './trainers/CreateTrainer';
 import TableTrainers from './trainers/TableTrainers';
 import CreateSchedule from './schedules/CreateSchedule';
-import TableSchedules from './schedules/TableSchedules2';
+import TableSchedules from './schedules/TableSchedules';
 
 import { 
   Navbar, Nav, NavDropdown, Container 
@@ -31,14 +31,13 @@ return (
           <Navbar.Toggle aria-controls="responsive-navbar-nav" />
           <Navbar.Collapse id="responsive-navbar-nav">
             <Nav className="mr-auto">
-              <Nav.Link href="/athletes">Atletas</Nav.Link>
-              <Nav.Link href="/groups">Grupos</Nav.Link>
+              <Nav.Link href="/athletes/list">Atletas</Nav.Link>
               <NavDropdown title="Entrandores" id="collasible-nav-dropdown">
-                <NavDropdown.Item href="/trainers">Listado</NavDropdown.Item>
+                <NavDropdown.Item href="/trainers/list">Listado</NavDropdown.Item>
                 <NavDropdown.Divider />
-                <NavDropdown.Item href="/groups">Grupos</NavDropdown.Item>
+                <NavDropdown.Item href="/groups/list">Grupos</NavDropdown.Item>
                 <NavDropdown.Divider />
-                <NavDropdown.Item href="schedules">Horarios</NavDropdown.Item>
+                <NavDropdown.Item href="/schedules/list">Horarios</NavDropdown.Item>
               </NavDropdown>
             </Nav>
             <Nav>
@@ -51,21 +50,21 @@ return (
         </Navbar>
         <Container>
           <Switch>
-            <Route exact path="/athete/:id" component={CreateAthlete} />
-            <Route exact path="/athete" component={CreateAthlete}/>
-            <Route exact path="/athetes" component={TableAthletes}/>
-
-            <Route exact path="/group/:id" component={CreateGroup} />
-            <Route exact path="/group" component={CreateGroup}/>
-            <Route exact path="/groups" component={TableGroups}/>
-
-            <Route exact path="/trainer/:id" component={CreateTrainer} />
-            <Route exact path="/trainer" component={CreateTrainer}/>
-            <Route exact path="/trainers" component={TableTrainers}/>
+            <Route exact path="/athletes/list" component={TableAthletes}/>
+            <Route exact path="/athletes/:id" component={CreateAthlete} />
+            <Route exact path="/athletes" component={CreateAthlete}/>
             
-            <Route exact path="/schedule/:id" component={CreateSchedule} />
-            <Route exact path="/schedule" component={CreateSchedule}/>
-            <Route exact path="/schedules" component={TableSchedules}/>
+            <Route exact path="/groups/list" component={TableGroups}/>
+            <Route exact path="/groups/:id" component={CreateGroup} />
+            <Route exact path="/groups" component={CreateGroup}/>
+            
+            <Route exact path="/trainers/list" component={TableTrainers}/>
+            <Route exact path="/trainers/:id" component={CreateTrainer} />
+            <Route exact path="/trainers" component={CreateTrainer}/>
+            
+            <Route exact path="/schedules/list" component={TableSchedules}/>
+            <Route exact path="/schedules/:id" component={CreateSchedule} />
+            <Route exact path="/schedules" component={CreateSchedule}/>
             
 
           </Switch>

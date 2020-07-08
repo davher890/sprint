@@ -19,18 +19,36 @@ public class ScheduleService {
 
 	public List<ScheduleDto> findAll() {
 		return repository.findAll().stream().map(dao -> {
-			return new ModelMapper().map(dao, ScheduleDto.class);
+			return convertToDto(dao);
 		}).collect(Collectors.toList());
 	}
 
 	public ScheduleDto findById(long id) {
-		ScheduleDao dao = repository.findById(id).get();
-		return new ModelMapper().map(dao, ScheduleDto.class);
+		return convertToDto(repository.findById(id).orElse(null));
+	}
+
+	public ScheduleDto findByTime(String day, int startHour, int startMinute, int endHour, int endMinute) {
+		ScheduleDao dao = repository.findByTime(day, startHour, startMinute, endHour, endMinute);
+		return convertToDto(dao);
 	}
 
 	public ScheduleDto save(ScheduleDto dto) {
-		ScheduleDao dao = new ModelMapper().map(dto, ScheduleDao.class);
-		return new ModelMapper().map(repository.save(dao), ScheduleDto.class);
+		ScheduleDao dao = convertToDao(dto);
+		return convertToDto(repository.save(dao));
+	}
+
+	private ScheduleDto convertToDto(ScheduleDao dao) {
+		if (dao == null) {
+			return null;
+		}
+		return new ModelMapper().map(dao, ScheduleDto.class);
+	}
+
+	private ScheduleDao convertToDao(ScheduleDto dto) {
+		if (dto == null) {
+			return null;
+		}
+		return new ModelMapper().map(dto, ScheduleDao.class);
 	}
 
 }

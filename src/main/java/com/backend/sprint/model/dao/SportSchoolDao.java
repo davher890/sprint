@@ -27,16 +27,16 @@ public class SportSchoolDao {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
-	
-	private long trainerId;
-	
+
 	@NotNull
 	private String name;
-	
+
+	private String address;
+
 	@CreationTimestamp
 	private Date createdAt;
 
 	@UpdateTimestamp
 	private Date updatedAt;
-	
+
 }

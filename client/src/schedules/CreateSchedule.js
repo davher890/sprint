@@ -1,8 +1,6 @@
 import React, { Component } from "react";
-import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { useForm } from 'react-hook-form'
 
 import { 
     Form, 
@@ -21,13 +19,13 @@ class CreateSchedule extends Component {
     }
 
     componentDidMount(){
-        if (this.props.match.params) {
+        if (this.props.match.params.id) {
             let id = this.props.match.params.id
             this.setState({ id : id})
 
             if (id){
                 const headers = { 'Content-Type': 'application/json' }
-                fetch("http://localhost:9000/schedules/" + id,  { headers })
+                fetch(process.env.REACT_APP_SERVER_URL + "/schedules/" + id,  { headers })
                     .then(res => res.json())
                     .then(data => this.setState(data[0]));
             }
@@ -35,7 +33,7 @@ class CreateSchedule extends Component {
     }
 
     formValidation(){
-        if (this.state.day && this.state.day != "" &&
+        if (this.state.day && this.state.day !== "" &&
             this.state.startHour >=0 && this.state.startHour <25 &&
             this.state.startMinute >=0 && this.state.endMinute <61){
             return true;
@@ -55,7 +53,7 @@ class CreateSchedule extends Component {
                 body: JSON.stringify(this.state)
             }
 
-            fetch('http://localhost:9000/schedules', requestOptions)
+            fetch(process.env.REACT_APP_SERVER_URL + "/schedules", requestOptions)
                 .then(response => console.log(response))
                 .then(data => this.setState(data));
         }
@@ -95,7 +93,7 @@ class CreateSchedule extends Component {
                             </Form.Group>
                         </Col>
                         <Col>
-                            <InputGroup >
+                            <InputGroup>
                                 <Form.Control as="input" name="startHour" type="number" min="0" max="23" placeholder="Hora Inicio" value={this.state.startHour} onChange={this.handleInputChange}/>
                                 <InputGroup.Append>
                                     <InputGroup.Text>:</InputGroup.Text>

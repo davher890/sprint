@@ -1,43 +1,37 @@
 import React, { Component } from "react";
-import {
-    Form, 
+import { 
+    Form, InputGroup,
     Button,
-    Row,
-    Container
+    Col, Row
 } from 'react-bootstrap';
-import TimeRangePicker from '../utils/TimeRangePicker'
 
 class CreateGroup extends Component {
     constructor(props) {
         super(props);
         this.state = {
-        	id : 0,
-            name : "",
-            days : []
+        	group : {},
+            schedules : []
         };
-        this.startDate = new Date()
         this.handleInputChange = this.handleInputChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
-        this.addDay = this.addDay.bind(this);
+        this.handleMultipleSelectChange = this.handleMultipleSelectChange.bind(this);
     }
 
     componentDidMount(){
         if (this.props.match.params) {
             let id = this.props.match.params.id
-            this.setState({ 
-                id : id
-            })
+            if (id){
+                const headers = { 'Content-Type': 'application/json' }
+                fetch(process.env.REACT_APP_SERVER_URL + "/groups/" + id,  { headers })
+                    .then(res => res.json())
+                    .then(data => this.setState({ group : data}));
 
-            const headers = { 'Content-Type': 'application/json' }
-            fetch("http://localhost:9000/groups/" + id,  { headers })
-                .then(res => res.json())
-                .then(data => this.setState(data[0]));
-        }
-    }
-
-    componentDidUpdate(prevProps) {
-        if (prevProps.id !== this.props.id) {
-            console.log(prevProps.id, this.props.id)
+                fetch(process.env.REACT_APP_SERVER_URL + "/schedules",  { headers })
+                    .then(res => res.json())
+                    .then(data => {
+                        this.setState({ schedules : data})
+                    });
+            }
         }
     }
 
@@ -48,52 +42,79 @@ class CreateGroup extends Component {
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(this.state)
+            body: JSON.stringify(this.state.group)
         }
 
-        fetch('http://localhost:9000/groups', requestOptions)
+        fetch(process.env.REACT_APP_SERVER_URL + "/groups", requestOptions)
             .then(response => console.log(response))
             .then(data => this.setState(data));
     }
 
     handleInputChange(event) {
+
+        event.preventDefault();
+
         const target = event.target;
         const value = target.value;
         const name = target.name;
- 
+
+        let group = this.state.group
+        group[name] = value
+
         this.setState({
-        	[name] : value
+            group : group
         });
     }
 
-    addDay(event) {
+    handleMultipleSelectChange(event){
+
         event.preventDefault();
-        console.log('event')
-        this.setState({days : this.state.days.concat({week_day:'Lunes'})})
+
+        var options = event.target.options;
+        var value = [];
+        for (var i = 0, l = options.length; i < l; i++) {
+            if (options[i].selected) {
+                value.push(options[i].value);
+            }
+        }
+        let group = this.state.group
+        group.scheduleIds = value
+
+        this.setState({
+            group : group
+        });
     }
 
     render() {
         return (
             <Form onSubmit={this.handleSubmit}>
-                <Container>
-                    <Row>
-                        <Form.Group>
-                            <Form.Control id='name' name="name" type="text" placeholder="Name" value={this.state.name} onChange={this.handleInputChange}/>
-                        </Form.Group>
-                    </Row>
-                    <Row>
-                        <Button onClick={this.addDay}>Añadir horario</Button>
-                        {
-                            this.state.days.map((day, i) => 
-
-                                (<TimeRangePicker key={i} name={`range_${i}`}/>)
-                            )
-                        }
-                    </Row>
-                    <Row>
-                        <Button type="submit">Submit</Button>
-                    </Row>
-                </Container>
+                <Row>
+                    <Col>
+                        <InputGroup>
+                            <InputGroup.Prepend>
+                                <InputGroup.Text>Nombre</InputGroup.Text>
+                            </InputGroup.Prepend>
+                            <Form.Control key="name" id='name' name="name" type="text" value={this.state.group.name} onChange={this.handleInputChange}/>
+                        </InputGroup>
+                    </Col>
+                    <Col>
+                        <InputGroup>
+                            <InputGroup.Prepend>
+                              <InputGroup.Text>Horario</InputGroup.Text>
+                            </InputGroup.Prepend>
+                            <Form.Control name="schedules" value={this.state.group.scheduleIds} as="select" multiple onChange={this.handleMultipleSelectChange}>
+                                {
+                                    this.state.schedules.map(sch => {
+                                        return <option key={sch.id} value={sch.id}>{sch.day} {sch.startHour}:{sch.startMinute} - {sch.endHour}:{sch.endMinute}</option>
+                                    })
+                                }
+                            </Form.Control>
+                        </InputGroup>
+                    </Col>
+                </Row>
+                <Row>
+                    <Button type="submit">Submit</Button>
+                </Row>
             </Form>
         );
     }

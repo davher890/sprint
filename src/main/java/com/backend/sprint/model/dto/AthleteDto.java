@@ -3,8 +3,6 @@ package com.backend.sprint.model.dto;
 import java.util.Date;
 import java.util.Set;
 
-import com.backend.sprint.model.dao.FamilyDao;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -16,9 +14,11 @@ public class AthleteDto {
 
 	private long id;
 
-	private FamilyDao family;
+	private long sportSchoolId;
 
-	private Set<GroupDto> groups;
+	private long familyId;
+
+	private Set<Long> groupIds;
 
 	private boolean imageAuth;
 
@@ -30,7 +30,13 @@ public class AthleteDto {
 
 	private String category;
 
-	private String licence;
+	private String license;
+
+	private String licenseType;
+
+	private String dorsalCategory;
+
+	private long dorsalNumber;
 
 	private String phone1;
 
@@ -44,9 +50,7 @@ public class AthleteDto {
 
 	private String address;
 
-	private String fatherMail;
-
-	private String motherMail;
+	private String postalCode;
 
 	private String mail;
 
@@ -56,9 +60,11 @@ public class AthleteDto {
 
 	private String name;
 
-	private String surname;
+	private long code;
 
-	private String lastName;
+	private String feeType;
+
+	private int numDays;
 
 	private Date createdAt;
 

@@ -19,9 +19,13 @@ public class GroupDto {
 
 	private long id;
 
-	private Set<AthleteDto> athletes;
+	private long sportSchoolId;
 
-	private Set<ScheduleDto> schedules;
+	private Set<Long> athleteIds;
+
+	private Set<Long> scheduleIds;
+
+	private long trainerId;
 
 	@NotNull
 	private String name;

@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.Set;
 
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -33,64 +32,69 @@ public class AthleteDao {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
-	
-	@ManyToOne(fetch = FetchType.LAZY)
+
+	@ManyToOne
+	@JoinColumn(name = "sport_school_id")
+	private SportSchoolDao sportSchool;
+
+	@ManyToOne // (cascade = { CascadeType.ALL })
 	@JoinColumn(name = "family_id")
 	private FamilyDao family;
-	
+
 	@ManyToMany
-	@JoinTable(name = "groups_athletes", 
-			  joinColumns = @JoinColumn(name = "athlete_id"), 
-			  inverseJoinColumns = @JoinColumn(name = "group_id"))
+	@JoinTable(name = "groups_athletes", joinColumns = @JoinColumn(name = "athlete_id"), inverseJoinColumns = @JoinColumn(name = "group_id"))
 	private Set<GroupDao> groups;
-	
+
 	private boolean imageAuth;
-	
+
 	private Date birthDate;
-	
+
 	private String gender;
-	
+
 	private String dni;
-	
+
 	private String category;
-	
-	private String licence;
-	
+
+	private String license;
+
+	private String licenseType;
+
+	private String dorsalCategory;
+
+	private long dorsalNumber;
+
 	private String phone1;
 
 	private String phone2;
-	
+
 	private String phone3;
-	
+
 	private String country;
-	
+
 	private String municipality;
-	
+
 	private String address;
-	
-	private String fatherMail;
-	
-	private String motherMail;
-	
+
 	private String mail;
-	
+
 	private String iban;
-	
-	private String payMethod;	
-	
+
+	private String payMethod;
+
 	@NotNull
 	private String name;
-	
+
 	@NotNull
-	private String surname;
-	
-	@NotNull
-	private String lastName;
-	
+	private long code;
+
+	private String feeType;
+
+	private int numDays;
+
 	@CreationTimestamp
 	private Date createdAt;
 
 	@UpdateTimestamp
 	private Date updatedAt;
-	
+
 }
