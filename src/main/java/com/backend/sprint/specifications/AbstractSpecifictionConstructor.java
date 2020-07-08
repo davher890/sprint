@@ -34,7 +34,7 @@ public abstract class AbstractSpecifictionConstructor<E> implements Specificatio
 
 				Predicate predicate = null;
 				if (operation.equals("like")) {
-					predicate = builder.like(root.get(field), value);
+					predicate = builder.like(root.get(field), "%" + value + "%");
 				}
 				if (operation.equals("equals")) {
 					predicate = builder.equal(root.get(field), value);

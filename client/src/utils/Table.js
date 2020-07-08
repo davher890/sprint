@@ -27,24 +27,17 @@ class Table extends Component {
     }
 
     componentDidMount() {
-    	this.fetchData()
+    	this.fetchData('')
     }
 
-    fetchData (){
+    fetchData (urlParams){
 		const headers = { 'Content-Type': 'application/json' }
-		fetch(process.env.REACT_APP_SERVER_URL + "/" + this.props.entityName + this.state.urlParams,  { headers })
+		fetch(process.env.REACT_APP_SERVER_URL + "/" + this.props.entityName + urlParams,  { headers })
 			.then(res => res.json())
 			.then(data => {
 
 				let items = data.content.map(d => {
-					return {
-						name : d.name, 
-						birth_date: d.birthDate, 
-						gender: d.gender,
-						category : d.category,
-						license : d.license,
-						dorsal : d.dorsalNumber
-					}
+					return this.props.dataConversor(d)
 				})
 				data.content = items
 				this.setState({
@@ -60,13 +53,14 @@ class Table extends Component {
 				return (
 					<tr key={entity.id}>
 					
-						{ Object.keys(entity).map(key => {
+						{ 
+							Object.keys(entity).filter(x => x != 'id').map(key => {
 								return <td key={key}>{entity[key]}</td>
 							})
 						}
 
 						<td>
-							<Link to={`/${this.state.entityName}/${entity.id}`}>
+							<Link to={`/${this.props.entityName}/${entity.id}`}>
 								<Button>Edit</Button>
 							</Link>
 						</td>
@@ -79,7 +73,7 @@ class Table extends Component {
 	renderTableHeader() {
 		if (this.props.headers && this.props.headers.length > 0){
 			return this.props.headers.map((key, index) => {
-				return <th key={index}>{key.toUpperCase()}</th>
+				return <th key={index}>{key}</th>
 			})
 		}
 	}
@@ -118,11 +112,10 @@ class Table extends Component {
 		if (filterParams && filterParams.length > 0){
 		
 			let urlParams = '?filters=' + filterParams.reduce((accumulator, currentValue) => accumulator + ',' + currentValue)
-
-			this.setState({
-	        	urlParams : urlParams
-	        })
-	        this.fetchData()
+	        this.fetchData(urlParams)
+	    }
+	    else {
+	    	this.fetchData('')
 	    }
 	}
 
@@ -136,12 +129,21 @@ class Table extends Component {
 					})
 				}
 				</Row>
-				<TableB striped bordered hover>
-					<thead>
-						<tr>{this.renderTableHeader()}</tr>
-					</thead>
-					<tbody>{this.renderTableData()}</tbody>
-				</TableB>
+				<Row>
+					<Col>
+						<TableB striped bordered hover>
+							<thead>
+								<tr>{this.renderTableHeader()}</tr>
+							</thead>
+							<tbody>{this.renderTableData()}</tbody>
+						</TableB>
+					</Col>
+				</Row>
+				<Row>
+					<Col>
+						<Button href={this.props.entityName}>Crear</Button>
+					</Col>
+				</Row>
 			</Container>
 		)
 	}
