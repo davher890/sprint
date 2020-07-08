@@ -8,7 +8,7 @@ class TableAthletes extends Component {
         super(props);
         this.state = {
         	headers : [
-	        	'Name', 'Fecha de Nacimiento', 'Genero', 
+	        	'Nombre', 'Fecha de Nacimiento', 'Genero', 
 	        	'Categoria', 'Licencia', 'Dorsal'
         	],
         	filters : [
@@ -20,15 +20,27 @@ class TableAthletes extends Component {
         }
     }
 
+    dataConversor(d) {
+    	return {
+			name : d.name, 
+			birth_date: d.birthDate, 
+			gender: d.gender,
+			category : d.category,
+			license : d.license,
+			dorsal : d.dorsalNumber,
+			id : d.id
+		}
+    }
+
 	render() {
 		return (
 			<Container>
 				<Table 
 					headers={this.state.headers} 
 					filters={this.state.filters}
-					entityName={this.state.entityName} >
+					entityName={this.state.entityName}
+					dataConversor={this.dataConversor} >
 				</Table>
-				<Button href="/athletes">Crear</Button>
 			</Container>
 		)
 	}
