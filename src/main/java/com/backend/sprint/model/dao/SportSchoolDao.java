@@ -31,6 +31,8 @@ public class SportSchoolDao {
 	@NotNull
 	private String name;
 
+	private String municipality;
+
 	private String address;
 
 	@CreationTimestamp

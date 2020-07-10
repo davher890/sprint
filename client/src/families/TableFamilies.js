@@ -4,21 +4,25 @@ import { Container } from 'react-bootstrap';
 import Table from "../utils/Table";
 import { textFilter } from 'react-bootstrap-table2-filter';
 
-class TableTrainers extends Component {
+class TableFamilies extends Component {
     constructor(props) {
         super(props);
         this.state = {
         	columns : [
-        		{ dataField: 'name', text: 'Nombre', filter: textFilter() }
-    		],
-    		entityName : 'trainers'
+	        	{ dataField: 'firstSurname', text : 'Primer Apellido', filter: textFilter() }, 
+	        	{ dataField: 'secondSurname', text : 'Segundo Apellido',filter: textFilter() },
+	        	{ dataField: 'count', text : 'Número de familiares' }
+        	],
+        	entityName : 'families',
         }
     }
 
-    dataConversor(d){
+    dataConversor(d) {
     	return {
-			id : d.id, 
-			name: d.name
+			id : d.id,
+			firstSurname : d.firstSurname, 
+			secondSurname : d.secondSurname,
+			count : d.count
 		}
     }
 
@@ -28,13 +32,13 @@ class TableTrainers extends Component {
 				<Table 
 					columns={this.state.columns} 
 					entityName={this.state.entityName}
-					dataConversor={this.dataConversor}>
+					dataConversor={this.dataConversor} >
 				</Table>
 			</Container>
 		)
 	}
 }
 
-export default TableTrainers;
+export default TableFamilies;
 
 

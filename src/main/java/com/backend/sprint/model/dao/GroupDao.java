@@ -9,6 +9,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -37,10 +38,8 @@ public class GroupDao {
 	@JoinColumn(name = "sport_school_id")
 	private SportSchoolDao sportSchool;
 
-	@ManyToMany(mappedBy = "groups")
-	private Set<AthleteDao> athletes;
-
-	@ManyToMany(mappedBy = "groups")
+	@ManyToMany
+	@JoinTable(joinColumns = @JoinColumn(name = "group_id"), inverseJoinColumns = @JoinColumn(name = "schedule_id"))
 	private Set<ScheduleDao> schedules;
 
 	@ManyToOne(cascade = CascadeType.ALL)

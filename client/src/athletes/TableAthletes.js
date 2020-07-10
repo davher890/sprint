@@ -1,20 +1,20 @@
 import React, { Component } from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Button, Container } from 'react-bootstrap';
+import { Container } from 'react-bootstrap';
 import Table from "../utils/Table";
+import { textFilter } from 'react-bootstrap-table2-filter';
 
 class TableAthletes extends Component {
     constructor(props) {
         super(props);
         this.state = {
-        	headers : [
-	        	'Nombre', 'Fecha de Nacimiento', 'Genero', 
-	        	'Categoria', 'Licencia', 'Dorsal'
-        	],
-        	filters : [
-	        	{ field : "name", type : "text", name : "Nombre"}, { field : "birthDate", type : "text", name : "Fecha de Nacimiento"}, 
-	        	{ field : "gender", type : "text", name : "Genero"}, { field : "category", type : "text", name : "Categoria"}, 
-	        	{ field : "license", type : "text", name : "Licencia"}, { field : "dorsalNumber", type : "number", name : "Dorsal"}
+        	columns : [
+	        	{ dataField: 'name', text : 'Nombre', filter: textFilter() }, 
+	        	{ dataField: 'birthDate', text : 'Fecha de Nacimiento' }, 
+	        	{ dataField: 'gender', text : 'Genero', filter: textFilter() }, 
+	        	{ dataField: 'category', text : 'Categoria', filter: textFilter() }, 
+	        	{ dataField: 'license', text : 'Licencia' }, 
+	        	{ dataField: 'dorsalNumber', text : 'Dorsal'}
         	],
         	entityName : 'athletes',
         }
@@ -22,13 +22,13 @@ class TableAthletes extends Component {
 
     dataConversor(d) {
     	return {
+			id : d.id,
 			name : d.name, 
 			birth_date: d.birthDate, 
 			gender: d.gender,
 			category : d.category,
 			license : d.license,
-			dorsal : d.dorsalNumber,
-			id : d.id
+			dorsal : d.dorsalNumber
 		}
     }
 
@@ -36,8 +36,7 @@ class TableAthletes extends Component {
 		return (
 			<Container>
 				<Table 
-					headers={this.state.headers} 
-					filters={this.state.filters}
+					columns={this.state.columns} 
 					entityName={this.state.entityName}
 					dataConversor={this.dataConversor} >
 				</Table>

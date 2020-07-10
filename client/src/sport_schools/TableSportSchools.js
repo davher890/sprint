@@ -4,21 +4,25 @@ import { Container } from 'react-bootstrap';
 import Table from "../utils/Table";
 import { textFilter } from 'react-bootstrap-table2-filter';
 
-class TableGroups extends Component {
+class TableSportSchools extends Component {
     constructor(props) {
         super(props);
         this.state = { 
         	columns : [
-        		{ dataField: 'name', text: 'Nombre', filter: textFilter() }
+        		{ dataField: 'name', text: 'Nombre', filter: textFilter() },
+        		{ dataField: 'municipality', text: 'Municipio', filter: textFilter() },
+        		{ dataField: 'address', text: 'Dirección', filter: textFilter() }
     		],
-    		entityName : 'groups'
+    		entityName : 'sport_schools'
         };
     }
 
     dataConversor(d) {
     	return {
 			id : d.id,
-			name : d.name
+			name : d.name,
+			municipality : d.municipality,
+			address : d.address
 		}
     }
 
@@ -35,6 +39,6 @@ class TableGroups extends Component {
 	}
 }
 
-export default TableGroups;
+export default TableSportSchools;
 
 

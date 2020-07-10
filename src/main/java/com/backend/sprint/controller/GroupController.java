@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.backend.sprint.model.dto.GroupDto;
+import com.backend.sprint.model.dto.ScheduleDto;
 import com.backend.sprint.service.GroupService;
 import com.backend.sprint.specifications.GroupSpecificationConstructor;
 
@@ -38,6 +39,11 @@ public class GroupController {
 	@GetMapping("/{id}")
 	public GroupDto findById(@PathVariable int id) {
 		return service.findById(id);
+	}
+
+	@GetMapping("/{id}/schedules")
+	public List<ScheduleDto> findGroupSchedules(@PathVariable int id) {
+		return service.findGroupSchedules(id);
 	}
 
 	@PostMapping("")

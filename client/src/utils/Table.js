@@ -7,141 +7,113 @@ import {
 	Form, 
 	Col 
 } from 'react-bootstrap';
-import { Link } from "react-router-dom";
-import  TableB  from 'react-bootstrap/table';
-
+import BootstrapTable  from 'react-bootstrap-table-next';
+import Paginator from 'react-bootstrap-table2-paginator'
+import Filter, { textFilter } from 'react-bootstrap-table2-filter';
 
 class Table extends Component {
     constructor(props) {
         super(props);
         this.state = {
-        	filters : props.filters,
+        	columns : props.columns,
+        	entityName : props.entityName,
+        	data : [],
         	urlParams : '',
-        	data : {},
+        	size : 10,
+        	page : 1,
+        	total : 0
     	}
-        this.renderTableHeader = this.renderTableHeader.bind(this);
-		this.renderTableData = this.renderTableData.bind(this);
-		this.handleInputChange = this.handleInputChange.bind(this);
-		this.fetchData = this.fetchData.bind(this);
-        this.filterData = this.filterData.bind(this);
+		this.fetchData = this.fetchData.bind(this)
+        this.handleTableChange = this.handleTableChange.bind(this)
     }
 
-    componentDidMount() {
-    	this.fetchData('')
+    async componentDidMount() {
+    	await this.fetchData()
     }
 
-    fetchData (urlParams){
+    async fetchData (){
 		const headers = { 'Content-Type': 'application/json' }
-		fetch(process.env.REACT_APP_SERVER_URL + "/" + this.props.entityName + urlParams,  { headers })
-			.then(res => res.json())
-			.then(data => {
+		const response = await fetch(process.env.REACT_APP_SERVER_URL + "/" + this.props.entityName + "?page=" + (this.state.page-1) + "&size=" + this.state.size + this.state.urlParams,  { headers })
+		const data = await response.json();	
 
-				let items = data.content.map(d => {
-					return this.props.dataConversor(d)
-				})
-				data.content = items
-				this.setState({
-					data: data
-				})
-			});
-	}
-
-    renderTableData() {
-    	if (this.state.data && this.state.data.content && this.state.data.content.length > 0){
-			return this.state.data.content.map((entity, index) => {
-
-				return (
-					<tr key={entity.id}>
-					
-						{ 
-							Object.keys(entity).filter(x => x != 'id').map(key => {
-								return <td key={key}>{entity[key]}</td>
-							})
-						}
-
-						<td>
-							<Link to={`/${this.props.entityName}/${entity.id}`}>
-								<Button>Edit</Button>
-							</Link>
-						</td>
-					</tr>
-				)
+		let items = []
+		if (data.content && data.content.length > 0){
+			items = data.content.map(d => {
+				return this.props.dataConversor(d)
 			})
 		}
+		this.setState({
+			data: items,
+			total : data.totalElements,
+			page : data.number+1
+		})
 	}
+	
+	async handleTableChange(type, pageProp){
 
-	renderTableHeader() {
-		if (this.props.headers && this.props.headers.length > 0){
-			return this.props.headers.map((key, index) => {
-				return <th key={index}>{key}</th>
-			})
+		console.log(type, pageProp)
+
+		if (type === 'pagination'){
+			let page = pageProp.page;
+			let size = pageProp.sizePerPage;
+			
+		    await this.setState({
+	        	page : page,
+	        	size : size
+	        })
 		}
-	}
+		if (type === 'filter'){
 
-	handleInputChange(event){
+			let filterParams = Object.keys(pageProp.filters).map(field => {
 
-		event.preventDefault();
-		const target = event.target;
-        const value = target.value;
-        const name = target.name;
+				let value = pageProp.filters[field].filterVal.trim()
+				let operator = pageProp.filters[field].comparator
 
-        let filters = this.state.filters.map(filter => {
-        	if (filter.field === name){
-        		filter.value = value
-        	}
-        	return filter
-    	})
+				if (value.length > 0){
+					return field + "__" + operator + "__" + value
+				}
+			}).filter(x => x)
 
-        this.setState({
-        	filters : filters
-        })
-        if (this.filterData){
-	        this.filterData()
-	    }
-	}
-
-
-	filterData(){
-
-		let filterParams = this.state.filters.flatMap(filter => {
-			if (filter.value && filter.value.length > 2){
-				return filter.field + "__like__" + filter.value
+			let urlParams = ''
+			if (filterParams.length > 0){
+				urlParams = '&filters=' + filterParams.reduce((accumulator, currentValue) => accumulator + ',' + currentValue)
 			}
-		}).filter(x => x)
+			await this.setState({
+	        	urlParams : urlParams
+	        })
+		}
 
-		if (filterParams && filterParams.length > 0){
-		
-			let urlParams = '?filters=' + filterParams.reduce((accumulator, currentValue) => accumulator + ',' + currentValue)
-	        this.fetchData(urlParams)
-	    }
-	    else {
-	    	this.fetchData('')
-	    }
+		this.fetchData()
 	}
+
+	rowEvents = {
+		onClick: (e, row, rowIndex) => {
+			window.open("/" + this.props.entityName + "/" + row.id, "_self");
+		}
+	};
 
     render() {
 		return (
 			<Container>
 				<Row>
-				{
-					this.state.filters.map(filter => {
-						return <Col><Form.Control key={filter.field} name={filter.field} type={filter.type} placeholder={filter.name} onChange={this.handleInputChange}/></Col>
-					})
-				}
-				</Row>
-				<Row>
 					<Col>
-						<TableB striped bordered hover>
-							<thead>
-								<tr>{this.renderTableHeader()}</tr>
-							</thead>
-							<tbody>{this.renderTableData()}</tbody>
-						</TableB>
+						<Button href={this.state.entityName}>Crear</Button>
 					</Col>
 				</Row>
 				<Row>
 					<Col>
-						<Button href={this.props.entityName}>Crear</Button>
+						<BootstrapTable striped bordered hover 
+							remote
+							keyField="id" 
+							data={this.state.data}
+							columns={this.state.columns}
+							onTableChange={ this.handleTableChange }
+							filter={ Filter() }
+							pagination={Paginator({page : this.state.page, sizePerPage: this.state.size, totalSize : this.state.total })}
+							noDataIndication="Sin Datos"
+							rowEvents={ this.rowEvents }
+						>
+						</BootstrapTable>
 					</Col>
 				</Row>
 			</Container>

@@ -18,7 +18,9 @@ public class AthleteDto {
 
 	private long familyId;
 
-	private Set<Long> groupIds;
+	private long groupId;
+
+	private Set<Long> scheduleIds;
 
 	private boolean imageAuth;
 

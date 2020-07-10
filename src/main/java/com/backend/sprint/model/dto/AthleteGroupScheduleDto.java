@@ -5,8 +5,6 @@ import java.util.Date;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import com.sun.istack.NotNull;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -14,16 +12,21 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class SportSchoolDto {
+public class AthleteGroupScheduleDto {
 
 	private long id;
 
-	@NotNull
-	private String name;
+	private long athleteId;
 
-	private String address;
+	private AthleteDto athlete;
 
-	private String municipality;
+	private long groupId;
+
+	private GroupDto group;
+
+	private long scheduleId;
+
+	private ScheduleDto schedule;
 
 	@CreationTimestamp
 	private Date createdAt;

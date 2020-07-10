@@ -13,41 +13,35 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.backend.sprint.model.dto.AthleteDto;
-import com.backend.sprint.model.dto.GroupDto;
-import com.backend.sprint.service.AthleteService;
-import com.backend.sprint.specifications.AthleteSpecificationConstructor;
+import com.backend.sprint.model.dto.SportSchoolDto;
+import com.backend.sprint.service.SportSchoolService;
+import com.backend.sprint.specifications.SportSchoolSpecificationConstructor;
 
 @RestController
-@RequestMapping("athletes")
-public class AthleteController {
+@RequestMapping("sport_schools")
+public class SportSchoolController {
 
 	@Autowired
-	private AthleteService service;
+	private SportSchoolService service;
 
 	@GetMapping("")
-	public Page<AthleteDto> findPagintation(@RequestParam(value = "filters", required = false) List<String> filters,
+	public Page<SportSchoolDto> findPagintation(@RequestParam(value = "filters", required = false) List<String> filters,
 			Pageable pageable) {
-		return service.findPagintation(new AthleteSpecificationConstructor<>(filters), pageable);
+		return service.findPagintation(new SportSchoolSpecificationConstructor<>(filters), pageable);
 	}
 
 	@GetMapping("/all")
-	public List<AthleteDto> findAll() {
+	public List<SportSchoolDto> findAll() {
 		return service.findAll();
 	}
 
 	@GetMapping("/{id}")
-	public AthleteDto findById(@PathVariable int id) {
+	public SportSchoolDto findById(@PathVariable int id) {
 		return service.findById(id);
 	}
 
-	@GetMapping("/{id}/groups")
-	public List<GroupDto> findGroupsById(@PathVariable int id) {
-		return service.findGroupsById(id);
-	}
-
 	@PostMapping("")
-	public AthleteDto save(@RequestBody AthleteDto dto) {
+	public SportSchoolDto save(@RequestBody SportSchoolDto dto) {
 		return service.save(dto);
 	}
 }

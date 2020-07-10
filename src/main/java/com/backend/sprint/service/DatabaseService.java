@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.backend.sprint.model.dto.AthleteDto;
+import com.backend.sprint.model.dto.AthleteGroupScheduleDto;
 import com.backend.sprint.model.dto.FamilyDto;
 import com.backend.sprint.model.dto.GroupDto;
 import com.backend.sprint.model.dto.ScheduleDto;
@@ -44,6 +45,9 @@ public class DatabaseService {
 
 	@Autowired
 	private GroupService groupService;
+
+	@Autowired
+	private AthleteGroupScheduleService athleteGroupScheduleService;
 
 	@Autowired
 	private SportSchoolService sportSchoolService;
@@ -99,7 +103,7 @@ public class DatabaseService {
 
 			String feeType = line[31].trim();
 			String iban = line[29].trim();
-			int numDays = Integer.parseInt(line[29].trim());
+			int numDays = Integer.parseInt(line[34].trim().isEmpty() ? "0" : line[34].trim().substring(0, 1));
 
 			// New Family
 			FamilyDto family = familyService.findByCode(familyCode);
@@ -144,16 +148,22 @@ public class DatabaseService {
 			// Sport School
 			athlete.setSportSchoolId(sportSchool.getId());
 
+			final AthleteDto athleteFinal = athleteService.save(athlete);
+			athletes.add(athleteFinal);
+
 			// Group
 			String groupName = line[32];
 			GroupDto group = groupService.findByName(groupName);
 
-			Set<GroupDto> groups = new HashSet<>();
-			groups.add(group);
-			athlete.setGroupIds(groups.stream().map(GroupDto::getId).collect(Collectors.toSet()));
+			group.getScheduleIds().stream().forEach(schId -> {
 
-			athlete = athleteService.save(athlete);
-			athletes.add(athlete);
+				AthleteGroupScheduleDto agsDto = new AthleteGroupScheduleDto();
+				agsDto.setAthleteId(athleteFinal.getId());
+				agsDto.setGroupId(group.getId());
+				agsDto.setScheduleId(schId);
+
+				athleteGroupScheduleService.save(agsDto);
+			});
 		}
 
 		reader.close();
@@ -227,9 +237,9 @@ public class DatabaseService {
 				int endHour = Integer.parseInt(scheduleTrim.split("-")[1].split(":")[0].trim());
 				int endMinute = Integer.parseInt(scheduleTrim.split("-")[1].split(":")[1].trim());
 
-				return scheduleService
-						.findByTime(translateWeekDay(dayStr).name(), startHour, startMinute, endHour, endMinute)
-						.getId();
+				ScheduleDto id = scheduleService.findByTime(translateWeekDay(dayStr).name(), startHour, startMinute,
+						endHour, endMinute);
+				return id.getId();
 			}).collect(Collectors.toSet()));
 		}
 		return groupService.save(group);
@@ -253,6 +263,7 @@ public class DatabaseService {
 
 		schedules.add(scheduleService.save(new ScheduleDto(WeekDays.MONDAY.name(), 17, 30, 18, 30)));
 		schedules.add(scheduleService.save(new ScheduleDto(WeekDays.TUESDAY.name(), 17, 30, 18, 30)));
+		schedules.add(scheduleService.save(new ScheduleDto(WeekDays.WEDNESDAY.name(), 17, 30, 18, 30)));
 
 		schedules.add(scheduleService.save(new ScheduleDto(WeekDays.MONDAY.name(), 17, 30, 19, 0)));
 		schedules.add(scheduleService.save(new ScheduleDto(WeekDays.WEDNESDAY.name(), 17, 30, 19, 0)));
