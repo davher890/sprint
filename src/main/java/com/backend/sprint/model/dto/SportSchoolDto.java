@@ -23,6 +23,8 @@ public class SportSchoolDto {
 
 	private String address;
 
+	private String municipality;
+
 	@CreationTimestamp
 	private Date createdAt;
 

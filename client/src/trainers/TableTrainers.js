@@ -1,39 +1,36 @@
 import React, { Component } from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { Container } from 'react-bootstrap';
 import Table from "../utils/Table";
+import { textFilter } from 'react-bootstrap-table2-filter';
 
 class TableTrainers extends Component {
     constructor(props) {
         super(props);
         this.state = {
-        	items : [],
-        	headers : ['Id', 'Nombre'],
-        	entityName : 'trainers'
+        	columns : [
+        		{ dataField: 'name', text: 'Nombre', filter: textFilter() }
+    		],
+    		entityName : 'trainers'
         }
     }
 
-	componentDidMount() {
-
-		const headers = { 'Content-Type': 'application/json' }
-		fetch(process.env.REACT_APP_SERVER_URL + "/" + this.state.entityName,  { headers })
-			.then(res => res.json())
-			.then(data => {
-
-				let items = data.map(d => {
-					return {
-						id : d.id, 
-						name: d.name
-					}
-				})
-				this.setState({
-					items: items
-				})
-			});
+    dataConversor(d){
+    	return {
+			id : d.id, 
+			name: d.name
+		}
     }
 
 	render() {
 		return (
-			<Table items={this.state.items} headers={this.state.headers} entityName='schedule'></Table>
+			<Container>
+				<Table 
+					columns={this.state.columns} 
+					entityName={this.state.entityName}
+					dataConversor={this.dataConversor}>
+				</Table>
+			</Container>
 		)
 	}
 }

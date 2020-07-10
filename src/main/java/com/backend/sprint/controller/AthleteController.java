@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.backend.sprint.model.dto.AthleteDto;
+import com.backend.sprint.model.dto.GroupDto;
 import com.backend.sprint.service.AthleteService;
 import com.backend.sprint.specifications.AthleteSpecificationConstructor;
 
@@ -38,6 +39,11 @@ public class AthleteController {
 	@GetMapping("/{id}")
 	public AthleteDto findById(@PathVariable int id) {
 		return service.findById(id);
+	}
+
+	@GetMapping("/{id}/groups")
+	public List<GroupDto> findGroupsById(@PathVariable int id) {
+		return service.findGroupsById(id);
 	}
 
 	@PostMapping("")

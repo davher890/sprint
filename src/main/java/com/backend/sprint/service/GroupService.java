@@ -1,6 +1,7 @@
 package com.backend.sprint.service;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -11,11 +12,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import com.backend.sprint.model.dao.AthleteDao;
 import com.backend.sprint.model.dao.GroupDao;
 import com.backend.sprint.model.dao.ScheduleDao;
 import com.backend.sprint.model.dto.GroupDto;
-import com.backend.sprint.repository.AthleteRepository;
+import com.backend.sprint.model.dto.ScheduleDto;
 import com.backend.sprint.repository.GroupRepository;
 import com.backend.sprint.repository.ScheduleRepository;
 import com.backend.sprint.repository.SportSchoolRepository;
@@ -28,13 +28,13 @@ public class GroupService {
 	private GroupRepository repository;
 
 	@Autowired
-	private AthleteRepository athleteRepository;
-
-	@Autowired
 	private TrainerRepository trainerRepository;
 
 	@Autowired
 	private ScheduleRepository scheduleRepository;
+
+	@Autowired
+	private ScheduleService scheduleService;
 
 	@Autowired
 	private SportSchoolRepository sportSchoolRepository;
@@ -51,6 +51,10 @@ public class GroupService {
 
 	public GroupDto findById(long id) {
 		return convertToDto(repository.findById(id).orElse(null));
+	}
+
+	public Set<GroupDto> findByTrainerId(long idtrainer) {
+		return repository.findByTrainerId(idtrainer).stream().map(this::convertToDto).collect(Collectors.toSet());
 	}
 
 	public GroupDto findByName(String name) {
@@ -72,9 +76,6 @@ public class GroupService {
 		if (dao.getSportSchool() != null) {
 			dto.setSportSchoolId(dao.getSportSchool().getId());
 		}
-		if (dao.getAthletes() != null) {
-			dto.setAthleteIds(dao.getAthletes().stream().map(AthleteDao::getId).collect(Collectors.toSet()));
-		}
 		if (dao.getSchedules() != null) {
 			dto.setScheduleIds(dao.getSchedules().stream().map(ScheduleDao::getId).collect(Collectors.toSet()));
 		}
@@ -87,11 +88,6 @@ public class GroupService {
 		}
 
 		GroupDao dao = new ModelMapper().map(dto, GroupDao.class);
-		if (dto.getAthleteIds() != null) {
-			dao.setAthletes(dto.getAthleteIds().stream().map(athleteId -> {
-				return athleteRepository.findById(athleteId).get();
-			}).collect(Collectors.toSet()));
-		}
 		if (dto.getScheduleIds() != null) {
 			dao.setSchedules(dto.getScheduleIds().stream().map(scheduleId -> {
 				return scheduleRepository.findById(scheduleId).get();
@@ -104,6 +100,11 @@ public class GroupService {
 			dao.setSportSchool(sportSchoolRepository.findById(dto.getSportSchoolId()).get());
 		}
 		return dao;
+	}
+
+	public List<ScheduleDto> findGroupSchedules(long id) {
+		return repository.findById(id).get().getSchedules().stream().map(ScheduleDao::getId)
+				.map(scheduleService::findById).collect(Collectors.toList());
 	}
 
 }

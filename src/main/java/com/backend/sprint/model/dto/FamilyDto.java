@@ -21,6 +21,8 @@ public class FamilyDto {
 
 	private Set<Long> athleteIds;
 
+	private int count;
+
 	@NotNull
 	private String firstSurname;
 

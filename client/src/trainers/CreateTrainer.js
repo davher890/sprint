@@ -8,6 +8,8 @@ class CreateTrainer extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            trainer : {},
+            groups : []
         };
         this.handleInputChange = this.handleInputChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -19,15 +21,17 @@ class CreateTrainer extends Component {
             this.setState({ id : id})
 
             const headers = { 'Content-Type': 'application/json' }
-            fetch(process.env.REACT_APP_SERVER_URL + "/athletes/" + id,  { headers })
+            fetch(process.env.REACT_APP_SERVER_URL + "/trainers/" + id,  { headers })
                 .then(res => res.json())
-                .then(data => this.setState(data[0]));
-        }
-    }
+                .then(data => {
+                    this.setState({ trainer : data})
+                });
 
-    componentDidUpdate(prevProps) {
-        if (prevProps.id !== this.props.id) {
-            console.log(prevProps.id, this.props.id)
+            fetch(process.env.REACT_APP_SERVER_URL + "/groups",  { headers })
+                .then(res => res.json())
+                .then(data => {
+                    this.setState({ groups : data.content})
+                });
         }
     }
 
@@ -42,8 +46,8 @@ class CreateTrainer extends Component {
         }
 
         fetch(process.env.REACT_APP_SERVER_URL + "/athletes", requestOptions)
-            .then(response => console.log(response))
-            .then(data => this.setState(data));
+            .then(res => res.json())
+            .then(data => this.setState({ trainer : data}));
     }
 
     handleInputChange(event) {
@@ -51,8 +55,11 @@ class CreateTrainer extends Component {
         const value = target.value;
         const name = target.name;
 
+        let trainer = this.state.trainer
+        trainer[name] = value
+
         this.setState({
-            [name] : value
+            trainer : trainer
         });
     }
 

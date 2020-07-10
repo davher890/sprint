@@ -14,9 +14,10 @@ import org.springframework.stereotype.Service;
 
 import com.backend.sprint.model.dao.AthleteDao;
 import com.backend.sprint.model.dto.AthleteDto;
+import com.backend.sprint.model.dto.AthleteGroupScheduleDto;
+import com.backend.sprint.model.dto.GroupDto;
 import com.backend.sprint.repository.AthleteRepository;
 import com.backend.sprint.repository.FamilyRepository;
-import com.backend.sprint.repository.GroupRepository;
 import com.backend.sprint.repository.SportSchoolRepository;
 
 @Service
@@ -26,13 +27,13 @@ public class AthleteService {
 	private AthleteRepository repository;
 
 	@Autowired
+	private AthleteGroupScheduleService athleteGroupScheduleService;
+
+	@Autowired
 	private SportSchoolRepository sportSchoolRepository;
 
 	@Autowired
 	private FamilyRepository familyRepository;
-
-	@Autowired
-	private GroupRepository groupRepository;
 
 	public Page<AthleteDto> findPagintation(Specification<AthleteDao> specification, Pageable pageable) {
 		Page<AthleteDao> daoPage = repository.findAll(specification, pageable);
@@ -72,11 +73,13 @@ public class AthleteService {
 		if (dao.getFamily() != null) {
 			dto.setFamilyId(dao.getFamily().getId());
 		}
-		if (dao.getGroups() != null) {
-			dto.setGroupIds(dao.getGroups().stream().map(group -> {
-				return group.getId();
-			}).collect(Collectors.toSet()));
+		List<AthleteGroupScheduleDto> athleteGroupScheduleDto = athleteGroupScheduleService.findByAthlete(dto.getId());
+		if (athleteGroupScheduleDto != null && athleteGroupScheduleDto.size() > 0) {
+			dto.setGroupId(athleteGroupScheduleDto.get(0).getGroupId());
+			dto.setScheduleIds(athleteGroupScheduleDto.stream().map(AthleteGroupScheduleDto::getScheduleId)
+					.collect(Collectors.toSet()));
 		}
+
 		return dto;
 	}
 
@@ -91,12 +94,23 @@ public class AthleteService {
 		if (dto.getFamilyId() != 0) {
 			dao.setFamily(familyRepository.findById(dto.getFamilyId()).get());
 		}
-		if (dto.getGroupIds() != null) {
-			dao.setGroups(dto.getGroupIds().stream().map(groupId -> {
-				return groupRepository.findById(groupId).get();
-			}).collect(Collectors.toSet()));
-		}
+
+		athleteGroupScheduleService.deleteByAthlete(dto.getId());
+
+		dto.getScheduleIds().stream().map(schId -> {
+			AthleteGroupScheduleDto agsDto = new AthleteGroupScheduleDto();
+
+			agsDto.setAthleteId(dto.getId());
+			agsDto.setGroupId(dto.getGroupId());
+			agsDto.setScheduleId(schId);
+			return athleteGroupScheduleService.save(agsDto);
+		}).collect(Collectors.toList());
 
 		return dao;
+	}
+
+	public List<GroupDto> findGroupsById(int id) {
+		return athleteGroupScheduleService.findByAthlete(id).stream().map(AthleteGroupScheduleDto::getGroup)
+				.collect(Collectors.toList());
 	}
 }

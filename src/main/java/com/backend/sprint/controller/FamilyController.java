@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.backend.sprint.model.dao.FamilyDao;
 import com.backend.sprint.model.dto.AthleteDto;
 import com.backend.sprint.model.dto.FamilyDto;
 import com.backend.sprint.service.AthleteService;

@@ -29,14 +29,14 @@ public abstract class AbstractSpecifictionConstructor<E> implements Specificatio
 			result = filters.stream().map(filter -> {
 
 				String field = filter.split("__")[0];
-				String operation = filter.split("__")[1];
+				String operator = filter.split("__")[1];
 				String value = filter.split("__")[2];
 
 				Predicate predicate = null;
-				if (operation.equals("like")) {
+				if (operator.equals("LIKE")) {
 					predicate = builder.like(root.get(field), "%" + value + "%");
 				}
-				if (operation.equals("equals")) {
+				if (operator.equals("EQUALS")) {
 					predicate = builder.equal(root.get(field), value);
 				}
 

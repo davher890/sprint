@@ -60,6 +60,7 @@ public class FamilyService {
 		Set<AthleteDto> athletes = athleteService.findByFamily(dto.getId());
 		if (athletes != null) {
 			dto.setAthleteIds(athletes.stream().map(AthleteDto::getId).collect(Collectors.toSet()));
+			dto.setCount(athletes.size());
 		}
 		return dto;
 	}
