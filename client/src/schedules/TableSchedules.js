@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Button, Container } from 'react-bootstrap';
+import { Container } from 'react-bootstrap';
 import Table from "../utils/Table";
 
 
@@ -8,10 +8,11 @@ class TableSchedules extends Component {
     constructor(props) {
         super(props);
         this.state = {
-        	headers : ['Día', 'Inicio', 'Fin'],
-        	filters : [
-	        	{ field : "day", type : "text", name : "Día"}
-        	],
+        	columns : [ 
+        		{ dataField: 'day', text : 'Día'} , 
+        		{ dataField: 'start', text : 'Inicio' }, 
+        		{ dataField: 'end', text : 'Fin' }
+    		],
         	entityName : 'schedules'
         }
     }
@@ -29,8 +30,7 @@ class TableSchedules extends Component {
 		return (
 			<Container>
 				<Table 
-					headers={this.state.headers} 
-					filters={this.state.filters}
+					columns={this.state.columns} 
 					entityName={this.state.entityName}
 					dataConversor={this.dataConversor}>
 				</Table>

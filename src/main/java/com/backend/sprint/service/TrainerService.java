@@ -1,6 +1,7 @@
 package com.backend.sprint.service;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -11,8 +12,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import com.backend.sprint.model.dao.GroupDao;
 import com.backend.sprint.model.dao.TrainerDao;
+import com.backend.sprint.model.dto.GroupDto;
 import com.backend.sprint.model.dto.TrainerDto;
 import com.backend.sprint.repository.TrainerRepository;
 
@@ -21,6 +22,9 @@ public class TrainerService {
 
 	@Autowired
 	private TrainerRepository repository;
+
+	@Autowired
+	private GroupService groupService;
 
 	public Page<TrainerDto> findPagintation(Specification<TrainerDao> specification, Pageable pageable) {
 		Page<TrainerDao> daoPage = repository.findAll(specification, pageable);
@@ -46,10 +50,12 @@ public class TrainerService {
 		if (dao == null) {
 			return null;
 		}
-		if (dao.getGroups() != null) {
-			dao.getGroups().stream().map(GroupDao::getId).collect(Collectors.toSet());
-		}
-		return new ModelMapper().map(dao, TrainerDto.class);
+
+		TrainerDto dto = new ModelMapper().map(dao, TrainerDto.class);
+		Set<Long> groupIds = groupService.findByTrainerId(dao.getId()).stream().map(GroupDto::getId)
+				.collect(Collectors.toSet());
+		dto.setGroupIds(groupIds);
+		return dto;
 	}
 
 	private TrainerDao convertToDao(TrainerDto dto) {

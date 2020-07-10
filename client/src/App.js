@@ -3,12 +3,16 @@ import "./App.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import CreateAthlete from './athletes/CreateAthlete';
 import TableAthletes from './athletes/TableAthletes';
+import CreateFamily from './families/CreateFamily';
+import TableFamilies from './families/TableFamilies';
 import CreateGroup from './groups/CreateGroup';
 import TableGroups from './groups/TableGroups';
 import CreateTrainer from './trainers/CreateTrainer';
 import TableTrainers from './trainers/TableTrainers';
 import CreateSchedule from './schedules/CreateSchedule';
 import TableSchedules from './schedules/TableSchedules';
+import CreateSportSchool from './sport_schools/CreateSportSchool';
+import TableSportSchools from './sport_schools/TableSportSchools';
 
 import { 
   Navbar, Nav, NavDropdown, Container 
@@ -31,7 +35,9 @@ return (
           <Navbar.Toggle aria-controls="responsive-navbar-nav" />
           <Navbar.Collapse id="responsive-navbar-nav">
             <Nav className="mr-auto">
+              <Nav.Link href="/sport_schools/list">Escuelas</Nav.Link>
               <Nav.Link href="/athletes/list">Atletas</Nav.Link>
+              <Nav.Link href="/families/list">Familias</Nav.Link>
               <NavDropdown title="Entrandores" id="collasible-nav-dropdown">
                 <NavDropdown.Item href="/trainers/list">Listado</NavDropdown.Item>
                 <NavDropdown.Divider />
@@ -50,9 +56,17 @@ return (
         </Navbar>
         <Container>
           <Switch>
+            <Route exact path="/sport_schools/list" component={TableSportSchools}/>
+            <Route exact path="/sport_schools/:id" component={CreateSportSchool} />
+            <Route exact path="/sport_schools" component={CreateSportSchool}/>
+
             <Route exact path="/athletes/list" component={TableAthletes}/>
             <Route exact path="/athletes/:id" component={CreateAthlete} />
             <Route exact path="/athletes" component={CreateAthlete}/>
+            
+            <Route exact path="/families/list" component={TableFamilies}/>
+            <Route exact path="/families/:id" component={CreateFamily} />
+            <Route exact path="/families" component={CreateFamily}/>
             
             <Route exact path="/groups/list" component={TableGroups}/>
             <Route exact path="/groups/:id" component={CreateGroup} />
