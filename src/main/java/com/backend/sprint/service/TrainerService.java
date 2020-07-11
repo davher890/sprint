@@ -41,6 +41,11 @@ public class TrainerService {
 		return convertToDto(dao);
 	}
 
+	public TrainerDto findByName(String name) {
+		TrainerDao dao = repository.findByName(name);
+		return convertToDto(dao);
+	}
+
 	public TrainerDto save(TrainerDto dto) {
 		TrainerDao dao = convertToDao(dto);
 		return convertToDto(repository.save(dao));

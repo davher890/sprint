@@ -26,54 +26,52 @@ class CreateAthlete extends Component {
     }
 
     componentDidMount(){
-        if (this.props.match.params.id) {
-            let id = this.props.match.params.id
-            if (id){
-                const headers = { 'Content-Type': 'application/json' }
+        const headers = { 'Content-Type': 'application/json' }
 
-                let groupsPromise = new Promise((resolve, reject) => {
-                    fetch(process.env.REACT_APP_SERVER_URL + "/groups/all",  { headers })
-                        .then(res => res.json())
-                        .then(data => {
-                            this.setState({ groups : data})
-                            resolve()
-                        });
-                    })
+        let groupsPromise = new Promise((resolve, reject) => {
+            fetch(process.env.REACT_APP_SERVER_URL + "/groups/all",  { headers })
+                .then(res => res.json())
+                .then(data => {
+                    this.setState({ groups : data})
+                    resolve()
+                });
+            })
 
-                let familiesPromise = new Promise((resolve, reject) => {
-                    fetch(process.env.REACT_APP_SERVER_URL + "/families/all",  { headers })
-                        .then(res => res.json())
-                        .then(data => {
-                            this.setState({ families : data})
-                            resolve()
-                        });
-                    })
+        let familiesPromise = new Promise((resolve, reject) => {
+            fetch(process.env.REACT_APP_SERVER_URL + "/families/all",  { headers })
+                .then(res => res.json())
+                .then(data => {
+                    this.setState({ families : data})
+                    resolve()
+                });
+            })
 
-                let schoolsPromise = new Promise((resolve, reject) => {
-                    fetch(process.env.REACT_APP_SERVER_URL + "/sport_schools/all",  { headers })
-                        .then(res => res.json())
-                        .then(data => {
-                            this.setState({ sportSchools : data})
-                            resolve()
-                        });
-                    })
+        let schoolsPromise = new Promise((resolve, reject) => {
+            fetch(process.env.REACT_APP_SERVER_URL + "/sport_schools/all",  { headers })
+                .then(res => res.json())
+                .then(data => {
+                    this.setState({ sportSchools : data})
+                    resolve()
+                });
+            })
 
-                Promise.all([groupsPromise, familiesPromise, schoolsPromise]).then(values => {
+        Promise.all([groupsPromise, familiesPromise, schoolsPromise]).then(values => {
+            if (this.props.match.params.id) {
+                let id = this.props.match.params.id
+                if (id){
                     fetch(process.env.REACT_APP_SERVER_URL + "/athletes/" + id,  { headers })
-                        .then(res => res.json())
-                        .then(data => {
-                            data.age = this.ageCalculator(Date.parse(data.birthDate));
+                    .then(res => res.json())
+                    .then(data => {
+                        data.age = this.ageCalculator(Date.parse(data.birthDate));
 
-                            if (data.groupId){
-                                this.fillSchedules(data.groupId)
-                            }
-                            this.setState({ athlete : data})
-                            // var event = new Event('input', { bubbles: true });
-                            // this.myinput.dispatchEvent(event);
-                        });
-                })
+                        if (data.groupId){
+                            this.fillSchedules(data.groupId)
+                        }
+                        this.setState({ athlete : data})
+                    });
+                }
             }
-        }
+        })
     }
 
     handleSubmit(event) {
@@ -193,7 +191,15 @@ class CreateAthlete extends Component {
                                     <InputGroup.Prepend>
                                       <InputGroup.Text>Nombre</InputGroup.Text>
                                     </InputGroup.Prepend>
-                                    <Form.Control name="name" type="text" placeholder="Nombre" value={this.state.athlete.name} onChange={this.handleInputChange}/>
+                                    <Form.Control name="name" type="text" value={this.state.athlete.name} onChange={this.handleInputChange}/>
+                                </InputGroup>
+                            </Col>
+                            <Col>
+                                <InputGroup>
+                                    <InputGroup.Prepend>
+                                      <InputGroup.Text>Dni</InputGroup.Text>
+                                    </InputGroup.Prepend>
+                                    <Form.Control name="dni" type="text" value={this.state.athlete.dni} onChange={this.handleInputChange}/>
                                 </InputGroup>
                             </Col>
                             <Col>
@@ -253,33 +259,10 @@ class CreateAthlete extends Component {
                             <Col>
                                 <InputGroup>
                                     <InputGroup.Prepend>
-                                      <InputGroup.Text>Aut. Imágenes</InputGroup.Text>
-                                    </InputGroup.Prepend>
-                                    <Form.Control name="imageAuth" value={this.state.athlete.imageAuth} as="select" custom onChange={this.handleInputChange}>
-                                        <option></option>
-                                        <option value="false">No</option>
-                                        <option value="true">Si</option>
-                                    </Form.Control>
-                                </InputGroup>
-                            </Col>
-                            <Col>
-                                <InputGroup>
-                                    <InputGroup.Prepend>
-                                        <InputGroup.Text>Mail</InputGroup.Text>
-                                    </InputGroup.Prepend>
-                                    <Form.Control name="mail" type="email" value={this.state.athlete.mail} onChange={this.handleInputChange} />
-                                </InputGroup>
-                            </Col>
-                        </Row>
-                    </Form.Group>
-                    <Form.Group>
-                        <Row>
-                            <Col>
-                                <InputGroup>
-                                    <InputGroup.Prepend>
                                         <InputGroup.Text>Categoria</InputGroup.Text>
                                     </InputGroup.Prepend>
                                     <Form.Control name="category" value={this.state.athlete.category} as="select" onChange={this.handleInputChange}>
+                                        <option value="SENIOR">MASTER</option>
                                         <option value="SENIOR">SENIOR</option>
                                         <option value="SUB23">SUB23</option>
                                         <option value="SUB20">SUB20</option>
@@ -345,6 +328,69 @@ class CreateAthlete extends Component {
                                         <InputGroup.Text>Licencia</InputGroup.Text>
                                     </InputGroup.Prepend>
                                     <Form.Control name="license" type="text" value={this.state.athlete.license} onChange={this.handleInputChange} />
+                                </InputGroup>
+                            </Col>
+                            <Col md="auto">
+                                <InputGroup>
+                                    <InputGroup.Prepend>
+                                        <InputGroup.Text>Tipo de Cuota</InputGroup.Text>
+                                    </InputGroup.Prepend>
+                                    <Form.Control name="feeType" value={this.state.athlete.feeType} as="select" onChange={this.handleInputChange}>
+                                        <option></option>
+                                        <option value="CLUB">Club</option>
+                                        <option value="PISTAS">Pistas</option>
+                                        <option value="LICENCIA">Licencia</option>
+                                        <option value="LIC/PISTAS">Lic. Pistas</option>
+                                        <option value="ENTRENADOR">Entrandor</option>
+                                    </Form.Control>
+                                </InputGroup>
+                            </Col>
+                        </Row>
+                    </Form.Group>
+                    <Form.Group>
+                        <Row>
+                            <Col>
+                                <InputGroup>
+                                    <InputGroup.Prepend>
+                                      <InputGroup.Text>Aut. Imágenes</InputGroup.Text>
+                                    </InputGroup.Prepend>
+                                    <Form.Control name="imageAuth" value={this.state.athlete.imageAuth} as="select" custom onChange={this.handleInputChange}>
+                                        <option></option>
+                                        <option value="false">No</option>
+                                        <option value="true">Si</option>
+                                    </Form.Control>
+                                </InputGroup>
+                            </Col>
+                            <Col>
+                                <InputGroup>
+                                    <InputGroup.Prepend>
+                                        <InputGroup.Text>Mail</InputGroup.Text>
+                                    </InputGroup.Prepend>
+                                    <Form.Control name="mail" type="email" value={this.state.athlete.mail} onChange={this.handleInputChange} />
+                                </InputGroup>
+                            </Col>
+                            <Col>
+                                <InputGroup>
+                                    <InputGroup.Prepend>
+                                        <InputGroup.Text>Teléfono</InputGroup.Text>
+                                    </InputGroup.Prepend>
+                                    <Form.Control name="phone1" type="tel" value={this.state.athlete.phone1} onChange={this.handleInputChange} />
+                                </InputGroup>
+                            </Col>
+                            <Col>
+                                <InputGroup>
+                                    <InputGroup.Prepend>
+                                        <InputGroup.Text>Teléfono 2</InputGroup.Text>
+                                    </InputGroup.Prepend>
+                                    <Form.Control name="phone2" type="tel" value={this.state.athlete.phone2} onChange={this.handleInputChange} />
+                                </InputGroup>
+                            </Col>
+                            <Col>
+                                <InputGroup>
+                                    <InputGroup.Prepend>
+                                        <InputGroup.Text>Teléfono 3</InputGroup.Text>
+                                    </InputGroup.Prepend>
+                                    <Form.Control name="phone3" type="tel" value={this.state.athlete.phone3} onChange={this.handleInputChange} />
                                 </InputGroup>
                             </Col>
                         </Row>
