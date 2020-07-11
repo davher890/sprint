@@ -24,6 +24,7 @@ import com.backend.sprint.model.dto.FamilyDto;
 import com.backend.sprint.model.dto.GroupDto;
 import com.backend.sprint.model.dto.ScheduleDto;
 import com.backend.sprint.model.dto.SportSchoolDto;
+import com.backend.sprint.model.dto.TrainerDto;
 import com.backend.sprint.utils.LicenseType;
 import com.backend.sprint.utils.WeekDays;
 import com.opencsv.CSVParser;
@@ -39,6 +40,9 @@ public class DatabaseService {
 
 	@Autowired
 	private AthleteService athleteService;
+
+	@Autowired
+	private TrainerService trainerService;
 
 	@Autowired
 	private ScheduleService scheduleService;
@@ -75,7 +79,11 @@ public class DatabaseService {
 			boolean authImg = line[0].trim().equals("SI") ? true : false;
 			long familyCode = Long.valueOf(line[1].trim());
 			long athleteCode = Long.valueOf(line[2].trim());
-			String surname = line[4].trim();
+			List<String> split = Arrays.asList(line[4].split(" "));
+			String firstSurname = split.get(0).trim();
+			String secondSurname = split.subList(1, split.size()).stream().reduce((identity, accumulator) -> {
+				return identity.trim() + " " + accumulator.trim();
+			}).get();
 			String name = line[5].trim();
 			Date birthDate = dateFormat.parse(line[6].trim());
 			String gender = line[9].trim().equals("Hombre") ? "male" : "female";
@@ -111,8 +119,8 @@ public class DatabaseService {
 				family = new FamilyDto();
 				family.setCode(familyCode);
 			}
-			family.setFirstSurname(surname);
-			// family.setSecondSurname(secondSurname);
+			family.setFirstSurname(firstSurname);
+			family.setSecondSurname(secondSurname);
 			family.setFatherMail(fatherMail);
 			family.setMotherMail(motherMail);
 			family = familyService.save(family);
@@ -171,7 +179,7 @@ public class DatabaseService {
 		return athletes;
 	}
 
-	public List<GroupDto> dbFillGroupsData() throws IOException, ParseException {
+	public Set<GroupDto> dbFillGroupsData() throws IOException, ParseException {
 
 		String csvFile = "/Users/david/Development/git/sprint/src/main/resources/BD_PARA_PRUEBAS.csv";
 		File file = new File(csvFile);
@@ -183,7 +191,7 @@ public class DatabaseService {
 
 		String[] line;
 
-		List<GroupDto> groups = new ArrayList<>();
+		Set<GroupDto> groups = new HashSet<>();
 		while ((line = csvReader.readNext()) != null) {
 			// Group
 			String groupName = line[32];
@@ -325,4 +333,19 @@ public class DatabaseService {
 		}).collect(Collectors.toSet());
 	}
 
+	public Set<TrainerDto> dbFillTrainersData() {
+
+		List<String> trainerNames = Arrays.asList(new String[] { "WALTER", "SANTAMARÍA", "SANDRA", "PACO", "NOELIA",
+				"MAURICIO", "LAURA", "KATE", "JULIAN", "JOSE", "JESUS", "JAVI", "IRENE", "DAVID", "DANI", "ANGEL",
+				"ANAIS", "ANA", "ALVARO" });
+
+		return trainerNames.stream().map(name -> {
+			TrainerDto dto = trainerService.findByName(name);
+			if (dto == null) {
+				dto = new TrainerDto();
+			}
+			dto.setName(name);
+			return trainerService.save(dto);
+		}).collect(Collectors.toSet());
+	}
 }

@@ -18,27 +18,41 @@ class CreateGroup extends Component {
     }
 
     componentDidMount(){
-        if (this.props.match.params) {
-            let id = this.props.match.params.id
-            if (id){
-                const headers = { 'Content-Type': 'application/json' }
-                fetch(process.env.REACT_APP_SERVER_URL + "/groups/" + id,  { headers })
-                    .then(res => res.json())
-                    .then(data => this.setState({ group : data}));
+                
+        const headers = { 'Content-Type': 'application/json' }
+        let schedulesPromise = new Promise((resolve, reject) => {
+            fetch(process.env.REACT_APP_SERVER_URL + "/schedules/all",  { headers })
+                .then(res => res.json())
+                .then(data => {
+                    this.setState({ schedules : data})
+                    resolve()
+                });
+        })
 
-                fetch(process.env.REACT_APP_SERVER_URL + "/schedules",  { headers })
-                    .then(res => res.json())
-                    .then(data => {
-                        this.setState({ schedules : data})
-                    });
+        let trainersPromise = new Promise((resolve, reject) => {
+            fetch(process.env.REACT_APP_SERVER_URL + "/trainers/all",  { headers })
+                .then(res => res.json())
+                .then(data => {
+                    this.setState({ schedules : data})
+                    resolve()
+                });
+        })
+
+        .then((v) => {
+            if (this.props.match.params) {
+                let id = this.props.match.params.id
+                if (id){
+                    fetch(process.env.REACT_APP_SERVER_URL + "/groups/" + id,  { headers })
+                        .then(res => res.json())
+                        .then(data => this.setState({ group : data}));
+                }
             }
-        }
+        })
     }
 
     handleSubmit(event) {
 
         event.preventDefault();
-
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },

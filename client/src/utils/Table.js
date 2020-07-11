@@ -97,7 +97,7 @@ class Table extends Component {
 			<Container>
 				<Row>
 					<Col>
-						<Button href={this.state.entityName}>Crear</Button>
+						<Button href={`/${this.state.entityName}`}>Crear</Button>
 					</Col>
 				</Row>
 				<Row>

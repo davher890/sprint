@@ -33,6 +33,14 @@ public class FamilyDto {
 
 	private String motherMail;
 
+	private String fatherPhone;
+
+	private String motherPhone;
+
+	private String fatherDni;
+
+	private String motherDni;
+
 	private long code;
 
 	@CreationTimestamp

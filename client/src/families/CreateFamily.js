@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { 
     Form, InputGroup,
-    Button,
+    Button, Container,
     Col, Row
 } from 'react-bootstrap';
 
@@ -37,8 +37,9 @@ class CreateGroup extends Component {
             body: JSON.stringify(this.state.family)
         }
 
+
         fetch(process.env.REACT_APP_SERVER_URL + "/families", requestOptions)
-            .then(response => console.log(response))
+            .then(res => res.json())
             .then(data => this.setState(data));
     }
 
@@ -61,27 +62,93 @@ class CreateGroup extends Component {
     render() {
         return (
             <Form onSubmit={this.handleSubmit}>
-                <Row>
-                    <Col>
-                        <InputGroup>
-                            <InputGroup.Prepend>
-                                <InputGroup.Text>Primer Apellido</InputGroup.Text>
-                            </InputGroup.Prepend>
-                            <Form.Control key="firstSurname" id='firstSurname' name="firstSurname" type="text" value={this.state.family.firstSurname} onChange={this.handleInputChange}/>
-                        </InputGroup>
-                    </Col>
-                    <Col>
-                        <InputGroup>
-                            <InputGroup.Prepend>
-                                <InputGroup.Text>Segundo Apellido</InputGroup.Text>
-                            </InputGroup.Prepend>
-                            <Form.Control key="secondSurname" id='secondSurname' name="secondSurname" type="text" value={this.state.family.secondSurname} onChange={this.handleInputChange}/>
-                        </InputGroup>
-                    </Col>
-                </Row>
-                <Row>
-                    <Button type="submit">Submit</Button>
-                </Row>
+            	<Container fluid>
+                    <Form.Group>
+			            <Row>
+			                <Col>
+			                    <InputGroup>
+			                        <InputGroup.Prepend>
+			                            <InputGroup.Text>Primer Apellido</InputGroup.Text>
+			                        </InputGroup.Prepend>
+			                        <Form.Control key="firstSurname" id='firstSurname' name="firstSurname" type="text" value={this.state.family.firstSurname} onChange={this.handleInputChange}/>
+			                    </InputGroup>
+			                </Col>
+			                <Col>
+			                    <InputGroup>
+			                        <InputGroup.Prepend>
+			                            <InputGroup.Text>Segundo Apellido</InputGroup.Text>
+			                        </InputGroup.Prepend>
+			                        <Form.Control key="secondSurname" id='secondSurname' name="secondSurname" type="text" value={this.state.family.secondSurname} onChange={this.handleInputChange}/>
+			                    </InputGroup>
+			                </Col>
+			            </Row>
+		            </Form.Group>
+                    <Form.Group>
+                        <Row>
+                            <Col>
+                                <InputGroup>
+                                    <InputGroup.Prepend>
+                                        <InputGroup.Text>Mail Padre</InputGroup.Text>
+                                    </InputGroup.Prepend>
+                                    <Form.Control name="fatherEmail" type="mail" value={this.state.family.fatherEmail} onChange={this.handleInputChange} />
+                                </InputGroup>
+                            </Col>
+                            <Col>
+                                <InputGroup>
+                                    <InputGroup.Prepend>
+                                        <InputGroup.Text>Mail Madre</InputGroup.Text>
+                                    </InputGroup.Prepend>
+                                    <Form.Control name="motherEmail" type="mail" value={this.state.family.motherEmail} onChange={this.handleInputChange} />
+                                </InputGroup>
+                            </Col>
+                        </Row>
+                    </Form.Group>
+                    <Form.Group>
+                        <Row>
+                            <Col>
+                                <InputGroup>
+                                    <InputGroup.Prepend>
+                                        <InputGroup.Text>Teléfono Padre</InputGroup.Text>
+                                    </InputGroup.Prepend>
+                                    <Form.Control name="fatherPhone" type="tel" value={this.state.family.fatherPhone} onChange={this.handleInputChange} />
+                                </InputGroup>
+                            </Col>
+                            <Col>
+                                <InputGroup>
+                                    <InputGroup.Prepend>
+                                        <InputGroup.Text>Teléfono Madre</InputGroup.Text>
+                                    </InputGroup.Prepend>
+                                    <Form.Control name="motherPhone" type="tel" value={this.state.family.motherPhone} onChange={this.handleInputChange} />
+                                </InputGroup>
+                            </Col>
+                        </Row>
+                    </Form.Group>
+                    <Form.Group>
+                        <Row>
+                            <Col>
+                                <InputGroup>
+                                    <InputGroup.Prepend>
+                                        <InputGroup.Text>Dni Padre</InputGroup.Text>
+                                    </InputGroup.Prepend>
+                                    <Form.Control name="fatherDni" type="text" value={this.state.family.fatherDni} onChange={this.handleInputChange} />
+                                </InputGroup>
+                            </Col>
+                            <Col>
+                                <InputGroup>
+                                    <InputGroup.Prepend>
+                                        <InputGroup.Text>Dni Madre</InputGroup.Text>
+                                    </InputGroup.Prepend>
+                                    <Form.Control name="motherDni" type="text" value={this.state.family.motherDni} onChange={this.handleInputChange} />
+                                </InputGroup>
+                            </Col>
+                        </Row>
+                    </Form.Group>
+                    <Form.Group>
+			            <Row>
+			                <Button type="submit">Submit</Button>
+			            </Row>
+		            </Form.Group>
+	            </Container>
             </Form>
         );
     }
