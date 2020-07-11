@@ -14,6 +14,7 @@ import com.backend.sprint.model.dto.AthleteDto;
 import com.backend.sprint.model.dto.GroupDto;
 import com.backend.sprint.model.dto.ScheduleDto;
 import com.backend.sprint.model.dto.SportSchoolDto;
+import com.backend.sprint.model.dto.TrainerDto;
 import com.backend.sprint.service.DatabaseService;
 
 @RestController
@@ -28,13 +29,18 @@ public class DatabaseController {
 		return service.dbFillSportSchoolsData();
 	}
 
+	@GetMapping("trainers")
+	public Set<TrainerDto> dbFillTrainersData() throws IOException, ParseException {
+		return service.dbFillTrainersData();
+	}
+
 	@GetMapping("schedules")
 	public Set<ScheduleDto> dbFillSchedulesData() throws IOException, ParseException {
 		return service.dbFillSchedulesData();
 	}
 
 	@GetMapping("groups")
-	public List<GroupDto> dbFillGroupsData() throws IOException, ParseException {
+	public Set<GroupDto> dbFillGroupsData() throws IOException, ParseException {
 		return service.dbFillGroupsData();
 	}
 
