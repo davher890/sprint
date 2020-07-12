@@ -1,0 +1,6 @@
+docker build -f src/main/docker/DockerFile -t sprint-server:latest .
+
+docker tag sprint-server:latest_ registry.heroku.com/club-sprint-app/web
+
+docker push registry.heroku.com/club-sprint-app/web
+
