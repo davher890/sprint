@@ -18,6 +18,7 @@ dependencies {
 	// DataBase
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'mysql:mysql-connector-java'
+	implementation 'org.postgresql:postgresql'
 
 	// Lombok
     compileOnly 'org.projectlombok:lombok:1.18.8'
