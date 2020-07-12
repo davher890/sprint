@@ -40,3 +40,8 @@ dependencies {
 test {
 	useJUnitPlatform()
 }
+
+
+task buildDocker(type: Exec) {
+    commandLine 'docker', 'build', '.', '-f', './src/main/docker/DockerFile', '-t', "infinia/" + project.name
+}
