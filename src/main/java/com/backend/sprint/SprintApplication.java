@@ -9,7 +9,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.Ordered;
-import org.springframework.http.HttpMethod;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
@@ -36,25 +35,26 @@ public class SprintApplication {
 		return bean;
 	}
 
-	@Bean
-	public CorsFilter corsConfigurationSource() {
-
-		CorsConfiguration corsConfiguration = new CorsConfiguration();
-		corsConfiguration.applyPermitDefaultValues();
-
-		corsConfiguration.addAllowedOrigin("*");
-		corsConfiguration.addAllowedHeader("*");
-		corsConfiguration.addAllowedMethod(HttpMethod.OPTIONS);
-		corsConfiguration.addAllowedMethod(HttpMethod.HEAD);
-		corsConfiguration.addAllowedMethod(HttpMethod.GET);
-		corsConfiguration.addAllowedMethod(HttpMethod.PUT);
-		corsConfiguration.addAllowedMethod(HttpMethod.POST);
-		corsConfiguration.addAllowedMethod(HttpMethod.DELETE);
-		corsConfiguration.addAllowedMethod(HttpMethod.PATCH);
-
-		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-		source.registerCorsConfiguration("/**", corsConfiguration);
-
-		return new CorsFilter(source);
-	}
+	// @Bean
+	// public CorsFilter corsConfigurationSource() {
+	//
+	// CorsConfiguration corsConfiguration = new CorsConfiguration();
+	// corsConfiguration.applyPermitDefaultValues();
+	//
+	// corsConfiguration.addAllowedOrigin("*");
+	// corsConfiguration.addAllowedHeader("*");
+	// corsConfiguration.addAllowedMethod(HttpMethod.OPTIONS);
+	// corsConfiguration.addAllowedMethod(HttpMethod.HEAD);
+	// corsConfiguration.addAllowedMethod(HttpMethod.GET);
+	// corsConfiguration.addAllowedMethod(HttpMethod.PUT);
+	// corsConfiguration.addAllowedMethod(HttpMethod.POST);
+	// corsConfiguration.addAllowedMethod(HttpMethod.DELETE);
+	// corsConfiguration.addAllowedMethod(HttpMethod.PATCH);
+	//
+	// UrlBasedCorsConfigurationSource source = new
+	// UrlBasedCorsConfigurationSource();
+	// source.registerCorsConfiguration("/**", corsConfiguration);
+	//
+	// return new CorsFilter(source);
+	// }
 }
