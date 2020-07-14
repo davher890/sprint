@@ -69,7 +69,7 @@ public class SprintApplication {
 		return new WebMvcConfigurer() {
 			@Override
 			public void addCorsMappings(CorsRegistry registry) {
-				registry.addMapping("/*").allowedOrigins("https://club-sprint-front.herokuapp.com");
+				registry.addMapping("/*").allowedOrigins("*");
 			}
 		};
 	}
