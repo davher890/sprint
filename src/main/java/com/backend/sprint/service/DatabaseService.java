@@ -6,7 +6,6 @@ import java.io.Reader;
 import java.nio.file.Files;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
@@ -19,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.backend.sprint.model.dto.AthleteDto;
-import com.backend.sprint.model.dto.AthleteGroupScheduleDto;
 import com.backend.sprint.model.dto.FamilyDto;
 import com.backend.sprint.model.dto.GroupDto;
 import com.backend.sprint.model.dto.ScheduleDto;
@@ -51,15 +49,12 @@ public class DatabaseService {
 	private GroupService groupService;
 
 	@Autowired
-	private AthleteGroupScheduleService athleteGroupScheduleService;
-
-	@Autowired
 	private SportSchoolService sportSchoolService;
 
 	private static SimpleDateFormat dateFormat = new SimpleDateFormat("dd/mm/yyyy");
 
 	@Transactional
-	public List<AthleteDto> dbFillAtheltesData() throws IOException, ParseException {
+	public Set<AthleteDto> dbFillAtheltesData() throws IOException, ParseException {
 
 		String csvFile = "/Users/david/Development/git/sprint/src/main/resources/BD_PARA_PRUEBAS.csv";
 		File file = new File(csvFile);
@@ -73,8 +68,9 @@ public class DatabaseService {
 
 		SportSchoolDto sportSchool = sportSchoolService.findByName("Santa Ana");
 
-		List<AthleteDto> athletes = new ArrayList<>();
+		Set<AthleteDto> athletes = new HashSet<>();
 		while ((line = csvReader.readNext()) != null) {
+			System.out.println(line);
 
 			boolean authImg = line[0].trim().equals("SI") ? true : false;
 			long familyCode = Long.valueOf(line[1].trim());
@@ -83,7 +79,7 @@ public class DatabaseService {
 			String firstSurname = split.get(0).trim();
 			String secondSurname = split.subList(1, split.size()).stream().reduce((identity, accumulator) -> {
 				return identity.trim() + " " + accumulator.trim();
-			}).get();
+			}).orElse(null);
 			String name = line[5].trim();
 			Date birthDate = dateFormat.parse(line[6].trim());
 			String gender = line[9].trim().equals("Hombre") ? "male" : "female";
@@ -156,22 +152,17 @@ public class DatabaseService {
 			// Sport School
 			athlete.setSportSchoolId(sportSchool.getId());
 
-			final AthleteDto athleteFinal = athleteService.save(athlete);
-			athletes.add(athleteFinal);
-
 			// Group
 			String groupName = line[32];
 			GroupDto group = groupService.findByName(groupName);
 
-			group.getScheduleIds().stream().forEach(schId -> {
+			// if (group != null) {
+			// athlete.setGroupId(group.getId());
+			// athlete.setScheduleIds(group.getScheduleIds());
+			// }
+			final AthleteDto athleteFinal = athleteService.save(athlete);
+			athletes.add(athleteFinal);
 
-				AthleteGroupScheduleDto agsDto = new AthleteGroupScheduleDto();
-				agsDto.setAthleteId(athleteFinal.getId());
-				agsDto.setGroupId(group.getId());
-				agsDto.setScheduleId(schId);
-
-				athleteGroupScheduleService.save(agsDto);
-			});
 		}
 
 		reader.close();
