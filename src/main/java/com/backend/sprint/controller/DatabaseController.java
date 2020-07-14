@@ -2,7 +2,6 @@ package com.backend.sprint.controller;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.List;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +44,7 @@ public class DatabaseController {
 	}
 
 	@GetMapping("athletes")
-	public List<AthleteDto> dbFillAtheltesData() throws IOException, ParseException {
+	public Set<AthleteDto> dbFillAtheltesData() throws IOException, ParseException {
 		return service.dbFillAtheltesData();
 	}
 

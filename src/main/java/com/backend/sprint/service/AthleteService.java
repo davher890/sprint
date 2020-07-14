@@ -73,12 +73,14 @@ public class AthleteService {
 		if (dao.getFamily() != null) {
 			dto.setFamilyId(dao.getFamily().getId());
 		}
-		List<AthleteGroupScheduleDto> athleteGroupScheduleDto = athleteGroupScheduleService.findByAthlete(dto.getId());
-		if (athleteGroupScheduleDto != null && athleteGroupScheduleDto.size() > 0) {
-			dto.setGroupId(athleteGroupScheduleDto.get(0).getGroupId());
-			dto.setScheduleIds(athleteGroupScheduleDto.stream().map(AthleteGroupScheduleDto::getScheduleId)
-					.collect(Collectors.toSet()));
-		}
+		// List<AthleteGroupScheduleDto> athleteGroupScheduleDto =
+		// athleteGroupScheduleService.findByAthlete(dto.getId());
+		// if (athleteGroupScheduleDto != null && athleteGroupScheduleDto.size()
+		// > 0) {
+		// dto.setGroupId(athleteGroupScheduleDto.get(0).getGroupId());
+		// dto.setScheduleIds(athleteGroupScheduleDto.stream().map(AthleteGroupScheduleDto::getScheduleId)
+		// .collect(Collectors.toSet()));
+		// }
 
 		return dto;
 	}
@@ -97,14 +99,17 @@ public class AthleteService {
 
 		athleteGroupScheduleService.deleteByAthlete(dto.getId());
 
-		dto.getScheduleIds().stream().map(schId -> {
-			AthleteGroupScheduleDto agsDto = new AthleteGroupScheduleDto();
+		if (dto.getScheduleIds() != null) {
+			dto.getScheduleIds().stream().map(schId -> {
 
-			agsDto.setAthleteId(dto.getId());
-			agsDto.setGroupId(dto.getGroupId());
-			agsDto.setScheduleId(schId);
-			return athleteGroupScheduleService.save(agsDto);
-		}).collect(Collectors.toList());
+				AthleteGroupScheduleDto agsDto = new AthleteGroupScheduleDto();
+
+				agsDto.setAthleteId(dto.getId());
+				agsDto.setGroupId(dto.getGroupId());
+				agsDto.setScheduleId(schId);
+				return athleteGroupScheduleService.save(agsDto);
+			}).collect(Collectors.toList());
+		}
 
 		return dao;
 	}
