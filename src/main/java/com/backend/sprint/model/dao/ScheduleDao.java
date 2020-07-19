@@ -3,6 +3,7 @@ package com.backend.sprint.model.dao;
 import java.util.Date;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -30,7 +31,7 @@ public class ScheduleDao {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 
-	@ManyToMany(mappedBy = "schedules")
+	@ManyToMany(mappedBy = "schedules", cascade = CascadeType.ALL)
 	private Set<GroupDao> groups;
 
 	@NotNull

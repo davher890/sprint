@@ -13,9 +13,11 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.backend.sprint.model.dao.AthleteDao;
+import com.backend.sprint.model.dao.AthleteGroupScheduleDao;
 import com.backend.sprint.model.dto.AthleteDto;
 import com.backend.sprint.model.dto.AthleteGroupScheduleDto;
 import com.backend.sprint.model.dto.GroupDto;
+import com.backend.sprint.repository.AthleteGroupScheduleRepository;
 import com.backend.sprint.repository.AthleteRepository;
 import com.backend.sprint.repository.FamilyRepository;
 import com.backend.sprint.repository.SportSchoolRepository;
@@ -30,6 +32,9 @@ public class AthleteService {
 	private AthleteGroupScheduleService athleteGroupScheduleService;
 
 	@Autowired
+	private AthleteGroupScheduleRepository athleteGroupScheduleRepository;
+
+	@Autowired
 	private SportSchoolRepository sportSchoolRepository;
 
 	@Autowired
@@ -38,6 +43,12 @@ public class AthleteService {
 	public Page<AthleteDto> findPagintation(Specification<AthleteDao> specification, Pageable pageable) {
 		Page<AthleteDao> daoPage = repository.findAll(specification, pageable);
 		return daoPage.map(dao -> convertToDto(dao));
+	}
+
+	public Page<AthleteDto> findByGroupAndSchedule(Specification<AthleteGroupScheduleDao> specification,
+			Pageable pageable) {
+		Page<AthleteGroupScheduleDao> daoPage = athleteGroupScheduleRepository.findAll(specification, pageable);
+		return daoPage.map(dao -> convertToDto(dao.getId().getAthlete()));
 	}
 
 	public List<AthleteDto> findAll() {
@@ -73,15 +84,6 @@ public class AthleteService {
 		if (dao.getFamily() != null) {
 			dto.setFamilyId(dao.getFamily().getId());
 		}
-		// List<AthleteGroupScheduleDto> athleteGroupScheduleDto =
-		// athleteGroupScheduleService.findByAthlete(dto.getId());
-		// if (athleteGroupScheduleDto != null && athleteGroupScheduleDto.size()
-		// > 0) {
-		// dto.setGroupId(athleteGroupScheduleDto.get(0).getGroupId());
-		// dto.setScheduleIds(athleteGroupScheduleDto.stream().map(AthleteGroupScheduleDto::getScheduleId)
-		// .collect(Collectors.toSet()));
-		// }
-
 		return dto;
 	}
 

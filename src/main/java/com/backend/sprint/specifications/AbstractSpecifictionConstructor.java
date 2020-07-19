@@ -15,7 +15,7 @@ public abstract class AbstractSpecifictionConstructor<E> implements Specificatio
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private List<String> filters;
+	protected List<String> filters;
 
 	public AbstractSpecifictionConstructor(List<String> filters) {
 		this.filters = filters;

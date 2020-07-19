@@ -18,4 +18,5 @@ public interface AthleteRepository
 
 	@Query(value = "SELECT * FROM athletes WHERE code = ?1 ", nativeQuery = true)
 	public AthleteDao findByCode(long code);
+
 }
