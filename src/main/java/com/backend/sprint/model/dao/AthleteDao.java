@@ -2,6 +2,7 @@ package com.backend.sprint.model.dao;
 
 import java.util.Date;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -30,11 +31,11 @@ public class AthleteDao {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 
-	@ManyToOne
+	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "sport_school_id")
 	private SportSchoolDao sportSchool;
 
-	@ManyToOne // (cascade = { CascadeType.ALL })
+	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "family_id")
 	private FamilyDao family;
 

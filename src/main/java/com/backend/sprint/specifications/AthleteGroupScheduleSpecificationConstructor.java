@@ -7,23 +7,20 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import org.springframework.data.jpa.domain.Specification;
-
-public abstract class AbstractSpecifictionConstructor<E> implements Specification<E> {
+public class AthleteGroupScheduleSpecificationConstructor<AthleteGroupScheduleDao>
+		extends AbstractSpecifictionConstructor<AthleteGroupScheduleDao> {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	protected List<String> filters;
 
-	public AbstractSpecifictionConstructor(List<String> filters) {
-		this.filters = filters;
+	public AthleteGroupScheduleSpecificationConstructor(List<String> filters) {
+		super(filters);
 	}
 
 	@Override
-	public Predicate toPredicate(Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
-
+	public Predicate toPredicate(Root<AthleteGroupScheduleDao> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
 		Predicate result = null;
 		if (filters != null) {
 			result = filters.stream().map(filter -> {
@@ -32,12 +29,15 @@ public abstract class AbstractSpecifictionConstructor<E> implements Specificatio
 				String operator = filter.split("__")[1];
 				String value = filter.split("__")[2];
 
+				String entityName = field.split("_")[0];
+				String entityField = field.split("_")[1];
+
 				Predicate predicate = null;
 				if (operator.equals("LIKE")) {
-					predicate = builder.like(root.get(field), "%" + value + "%");
+					predicate = builder.like(root.get("id").get(entityName).get(entityField), "%" + value + "%");
 				}
 				if (operator.equals("EQUALS")) {
-					predicate = builder.equal(root.get(field), value);
+					predicate = builder.equal(root.get("id").get(entityName).get(entityField), value);
 				}
 
 				return predicate;
