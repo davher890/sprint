@@ -38,7 +38,7 @@ public class GroupDao {
 	@JoinColumn(name = "sport_school_id")
 	private SportSchoolDao sportSchool;
 
-	@ManyToMany
+	@ManyToMany(cascade = CascadeType.ALL)
 	@JoinTable(joinColumns = @JoinColumn(name = "group_id"), inverseJoinColumns = @JoinColumn(name = "schedule_id"))
 	private Set<ScheduleDao> schedules;
 
