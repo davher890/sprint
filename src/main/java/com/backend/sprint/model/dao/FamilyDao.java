@@ -29,22 +29,22 @@ public class FamilyDao {
 	private long id;
 
 	@NotNull
-	private String firstSurname;
+	private String familiarOneSurname;
 
 	@NotNull
-	private String secondSurname;
+	private String familiarTwoSurname;
 
-	private String fatherMail;
+	private String familiarOneMail;
 
-	private String motherMail;
+	private String familiarTwoMail;
 
-	private String fatherPhone;
+	private String familiarOnePhone;
 
-	private String motherPhone;
+	private String familiarTwoPhone;
 
-	private String fatherDni;
+	private String familiarOneDni;
 
-	private String motherDni;
+	private String familiarTwoDni;
 
 	private long code;
 

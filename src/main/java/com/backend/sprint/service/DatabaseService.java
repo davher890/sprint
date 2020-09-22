@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.backend.sprint.model.dto.AthleteDto;
-import com.backend.sprint.model.dto.FamilyDto;
 import com.backend.sprint.model.dto.GroupDto;
 import com.backend.sprint.model.dto.ScheduleDto;
 import com.backend.sprint.model.dto.SportSchoolDto;
@@ -32,6 +31,29 @@ import com.opencsv.CSVReaderBuilder;
 
 @Service
 public class DatabaseService {
+
+	private static final int AUTH_IMG = 0;
+	private static final int FAMILY_CODE = 1;
+	private static final int ATHLETE_CODE = 2;
+	private static final int ATHLETE_SURNAMES = 4;
+	private static final int ATHLETE_NAME = 5;
+	private static final int BIRTHDATE = 6;
+	private static final int GENDER = 9;
+	private static final int DNI = 10;
+	private static final int CATEGORY = 11;
+	private static final int LICENSE = 12;
+	private static final int LICENSE_TYPE = 13;
+	private static final int DORSAL_CATEGORY = 14;
+	private static final int DORSAL = 15;
+	private static final int PHONE_1 = 16;
+	private static final int PHONE_2 = 17;
+	private static final int PHONE_3 = 18;
+	private static final int FATHER_NAME = 25;
+	private static final int MOTHER_NAME = 26;
+	private static final int HOLDER_NAME = 27;
+	private static final int HOLDER_DNI = 28;
+	private static final int IBAN = 29;
+	private static final int GROUP_NAME = 32;
 
 	@Autowired
 	private FamilyService familyService;
@@ -70,33 +92,36 @@ public class DatabaseService {
 
 		Set<AthleteDto> athletes = new HashSet<>();
 		while ((line = csvReader.readNext()) != null) {
-			System.out.println(line);
+			System.out.println(String.join("_", line));
 
-			boolean authImg = line[0].trim().equals("SI") ? true : false;
-			long familyCode = Long.valueOf(line[1].trim());
-			long athleteCode = Long.valueOf(line[2].trim());
-			List<String> split = Arrays.asList(line[4].split(" "));
+			boolean authImg = line[AUTH_IMG].trim().equals("SI") ? true : false;
+			long familyCode = Long.valueOf(line[FAMILY_CODE].trim());
+			long athleteCode = Long.valueOf(line[ATHLETE_CODE].trim());
+			List<String> split = Arrays.asList(line[ATHLETE_SURNAMES].split(" "));
 			String firstSurname = split.get(0).trim();
-			String secondSurname = split.subList(1, split.size()).stream().reduce((identity, accumulator) -> {
-				return identity.trim() + " " + accumulator.trim();
-			}).orElse(null);
-			String name = line[5].trim();
-			Date birthDate = dateFormat.parse(line[6].trim());
-			String gender = line[9].trim().equals("Hombre") ? "male" : "female";
-			String dni = line[10].trim();
-			String category = line[11].trim();
-			String licence = line[12].trim();
-			String licenceType = line[13].trim().equals("T") ? LicenseType.Territorial.name()
+			String secondSurname = "";
+			if (split.size() > 1) {
+				secondSurname = split.subList(1, split.size()).stream().reduce((identity, accumulator) -> {
+					return identity.trim() + " " + accumulator.trim();
+				}).orElse(null);
+			}
+			String name = line[ATHLETE_NAME].trim();
+			Date birthDate = dateFormat.parse(line[BIRTHDATE].trim());
+			String gender = line[GENDER].trim().equals("Hombre") ? "male" : "female";
+			String dni = line[DNI].trim();
+			String category = line[CATEGORY].trim();
+			String license = line[LICENSE].trim();
+			String licenseType = line[LICENSE_TYPE].trim().equals("T") ? LicenseType.Territorial.name()
 					: LicenseType.National.name();
-			String dorsalCategory = line[14].trim();
-			String dorsalStr = line[15].trim();
+			String dorsalCategory = line[DORSAL_CATEGORY].trim();
+			String dorsalStr = line[DORSAL].trim();
 			long dorsalNumber = 0L;
 			if (!dorsalStr.isEmpty()) {
 				dorsalNumber = Long.valueOf(dorsalStr);
 			}
-			String phone1 = line[16].trim();
-			String phone2 = line[17].trim();
-			String phone3 = line[18].trim();
+			String phone1 = line[PHONE_1].trim();
+			String phone2 = line[PHONE_2].trim();
+			String phone3 = line[PHONE_3].trim();
 
 			String address = line[19].trim();
 			String postalCode = line[20].trim();
@@ -104,22 +129,117 @@ public class DatabaseService {
 
 			String fatherMail = line[22].trim();
 			String motherMail = line[23].trim();
+			String mail = line[24].trim();
 
+			String fatherName = null;
+			String fatherFirstSurname = null;
+			String fatherSecondSurname = null;
+
+			if (line[FATHER_NAME] != null && !line[FATHER_NAME].trim().isEmpty()) {
+				String father = line[FATHER_NAME];
+				if (father.contains(",")) {
+
+					List<String> splitFather = Arrays.asList(father.split(","));
+					fatherName = splitFather.get(1);
+					if (splitFather.get(0).split(" ").length > 1) {
+						List<String> splirSurname = Arrays.asList(splitFather.get(0).split(" "));
+						fatherFirstSurname = splirSurname.get(0);
+						fatherSecondSurname = splirSurname.subList(1, splirSurname.size()).stream()
+								.reduce((identity, accumulator) -> {
+									return identity.trim() + " " + accumulator.trim();
+								}).orElse(null);
+					}
+				} else {
+					List<String> splitFather = Arrays.asList(father.split(" "));
+					fatherName = splitFather.get(0);
+					fatherFirstSurname = splitFather.get(1);
+					if (splitFather.get(0).split(" ").length > 1) {
+						fatherSecondSurname = splitFather.subList(2, splitFather.size()).stream()
+								.reduce((identity, accumulator) -> {
+									return identity.trim() + " " + accumulator.trim();
+								}).orElse(null);
+					}
+				}
+			}
+
+			String motherName = null;
+			String motherFirstSurname = null;
+			String motherSecondSurname = null;
+
+			if (line[MOTHER_NAME] != null && !line[MOTHER_NAME].trim().isEmpty()) {
+				String mother = line[MOTHER_NAME];
+				if (mother.contains(",")) {
+					List<String> splitMother = Arrays.asList(mother.split(","));
+					motherName = splitMother.get(1);
+					if (splitMother.get(0).split(" ").length > 1) {
+						List<String> splirSurname = Arrays.asList(splitMother.get(0).split(" "));
+						motherFirstSurname = splirSurname.get(0);
+						motherSecondSurname = splirSurname.subList(1, splirSurname.size()).stream()
+								.reduce((identity, accumulator) -> {
+									return identity.trim() + " " + accumulator.trim();
+								}).orElse(null);
+					}
+				} else {
+					List<String> splitMother = Arrays.asList(mother.split(" "));
+					motherName = splitMother.get(0);
+					motherFirstSurname = splitMother.get(1);
+					if (splitMother.get(0).split(" ").length > 1) {
+						motherSecondSurname = splitMother.subList(2, splitMother.size()).stream()
+								.reduce((identity, accumulator) -> {
+									return identity.trim() + " " + accumulator.trim();
+								}).orElse(null);
+					}
+				}
+			}
 			String feeType = line[31].trim();
-			String iban = line[29].trim();
+			String iban = line[IBAN].trim();
+
+			String holderName = null;
+			String holderFirstSurname = null;
+			String holderSecondSurname = null;
+			String holder = line[HOLDER_NAME];
+			if (holder != null && !holder.trim().isEmpty()) {
+				if (holder.contains(",")) {
+
+					List<String> splitHolder = Arrays.asList(holder.split(","));
+					holderName = splitHolder.get(1);
+					if (splitHolder.get(0).split(" ").length > 1) {
+						List<String> splirSurname = Arrays.asList(splitHolder.get(0).split(" "));
+						holderFirstSurname = splirSurname.get(0);
+						holderSecondSurname = splirSurname.subList(1, splirSurname.size()).stream()
+								.reduce((identity, accumulator) -> {
+									return identity.trim() + " " + accumulator.trim();
+								}).orElse(null);
+					}
+				} else {
+					List<String> splitHolder = Arrays.asList(holder.split(" "));
+					holderName = splitHolder.get(0);
+					holderFirstSurname = splitHolder.get(1);
+					if (splitHolder.get(0).split(" ").length > 1) {
+						holderSecondSurname = splitHolder.subList(2, splitHolder.size()).stream()
+								.reduce((identity, accumulator) -> {
+									return identity.trim() + " " + accumulator.trim();
+								}).orElse(null);
+					}
+				}
+			}
+
+			String holderDni = line[HOLDER_DNI];
+
+			String paymentType = line[30].trim();
 			int numDays = Integer.parseInt(line[34].trim().isEmpty() ? "0" : line[34].trim().substring(0, 1));
 
 			// New Family
-			FamilyDto family = familyService.findByCode(familyCode);
-			if (family == null) {
-				family = new FamilyDto();
-				family.setCode(familyCode);
-			}
-			family.setFirstSurname(firstSurname);
-			family.setSecondSurname(secondSurname);
-			family.setFatherMail(fatherMail);
-			family.setMotherMail(motherMail);
-			family = familyService.save(family);
+			// FamilyDto family = familyService.findByCode(familyCode);
+			// if (family == null) {
+			// family = new FamilyDto();
+			// family.setCode(familyCode);
+			// }
+			// family.setFamiliarOneSurname(firstSurname);
+			// family.setFamiliarTwoSurname(secondSurname);
+			// family.setFamiliarOneMail(fatherMail);
+			// family.setFamiliarTwoMail(motherMail);
+			// family = familyService.save(family);
 
 			// New Athlete
 			AthleteDto athlete = athleteService.findByCode(athleteCode);
@@ -129,37 +249,65 @@ public class DatabaseService {
 			}
 			athlete.setImageAuth(authImg);
 			athlete.setName(name);
+			athlete.setFirstSurname(firstSurname);
+			athlete.setSecondSurname(secondSurname);
 			athlete.setBirthDate(birthDate);
 			athlete.setGender(gender);
 			athlete.setDni(dni);
-			athlete.setLicense(licence);
-			athlete.setLicenseType(licenceType);
+			athlete.setLicense(license);
+			athlete.setLicenseType(licenseType);
 			athlete.setCategory(category);
 			athlete.setDorsalNumber(dorsalNumber);
 			athlete.setDorsalCategory(dorsalCategory);
+			athlete.setMail(mail);
 			athlete.setPhone1(phone1);
 			athlete.setPhone2(phone2);
 			athlete.setPhone3(phone3);
 			athlete.setAddress(address);
 			athlete.setPostalCode(postalCode);
 			athlete.setMunicipality(municipality);
-			athlete.setFamilyId(family.getId());
+			// athlete.setFamilyId(family.getId());
+
+			// Bank Info
 			athlete.setName(name);
 			athlete.setFeeType(feeType);
 			athlete.setIban(iban);
-			athlete.setNumDays(numDays);
+			athlete.setExtern(false);
+			athlete.setPaymentType(paymentType);
+			athlete.setHolderName(holderName);
+			athlete.setHolderFirstSurname(holderFirstSurname);
+			athlete.setHolderSecondSurname(holderSecondSurname);
+			athlete.setHolderDni(holderDni);
+			// athlete.setNumDays(numDays);
+
+			// FAmiliar Info
+			athlete.setFamiliarOneName(fatherName);
+			athlete.setFamiliarOneFirstSurname(fatherFirstSurname);
+			athlete.setFamiliarOneSecondSurname(fatherSecondSurname);
+			athlete.setFamiliarOneMail(fatherMail);
+
+			athlete.setFamiliarTwoName(motherName);
+			athlete.setFamiliarTwoFirstSurname(motherFirstSurname);
+			athlete.setFamiliarTwoSecondSurname(motherSecondSurname);
+			athlete.setFamiliarTwoMail(motherMail);
+
+			athlete.setFamilyCode(familyCode);
 
 			// Sport School
 			athlete.setSportSchoolId(sportSchool.getId());
 
 			// Group
-			String groupName = line[32];
+			String groupName = line[GROUP_NAME];
 			GroupDto group = groupService.findByName(groupName);
 
-			// if (group != null) {
-			// athlete.setGroupId(group.getId());
-			// athlete.setScheduleIds(group.getScheduleIds());
-			// }
+			if (group != null) {
+				athlete.setGroupId(group.getId());
+				athlete.setScheduleIds(group.getScheduleIds());
+			}
+
+			if (athleteService.findByCode(athlete.getCode()) != null) {
+				athlete.setId(athleteService.findByCode(athlete.getCode()).getId());
+			}
 			final AthleteDto athleteFinal = athleteService.save(athlete);
 			athletes.add(athleteFinal);
 
@@ -312,7 +460,7 @@ public class DatabaseService {
 
 	public Set<SportSchoolDto> dbFillSportSchoolsData() {
 
-		List<String> ssNames = Arrays.asList(new String[] { "Santa Ana", "Paracuellos" });
+		List<String> ssNames = Arrays.asList(new String[] { "Santa Ana", "Paracuellos", "Externo" });
 
 		return ssNames.stream().map(name -> {
 			SportSchoolDto dto = sportSchoolService.findByName(name);

@@ -30,6 +30,8 @@ public class GroupDto {
 	@NotNull
 	private String name;
 
+	private boolean specialization;
+
 	@CreationTimestamp
 	private Date createdAt;
 

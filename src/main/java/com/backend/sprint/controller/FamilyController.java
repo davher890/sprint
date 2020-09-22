@@ -59,8 +59,8 @@ public class FamilyController {
 
 		List<ExcelDataDto> data = families.parallelStream().map(family -> {
 			ExcelDataDto dataDto = new ExcelDataDto();
-			dataDto.getData().add(new ExcelValueDto(family.getFirstSurname(), CellType.STRING));
-			dataDto.getData().add(new ExcelValueDto(family.getSecondSurname(), CellType.STRING));
+			dataDto.getData().add(new ExcelValueDto(family.getFamiliarOneSurname(), CellType.STRING));
+			dataDto.getData().add(new ExcelValueDto(family.getFamiliarTwoSurname(), CellType.STRING));
 			return dataDto;
 		}).collect(Collectors.toList());
 

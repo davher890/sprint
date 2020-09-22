@@ -6,8 +6,6 @@ import java.util.Set;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import com.sun.istack.NotNull;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -21,25 +19,21 @@ public class FamilyDto {
 
 	private Set<Long> athleteIds;
 
-	private int count;
+	private String familiarOneSurname;
 
-	@NotNull
-	private String firstSurname;
+	private String familiarTwoSurname;
 
-	@NotNull
-	private String secondSurname;
+	private String familiarOneMail;
 
-	private String fatherMail;
+	private String familiarTwoMail;
 
-	private String motherMail;
+	private String familiarOnePhone;
 
-	private String fatherPhone;
+	private String familiarTwoPhone;
 
-	private String motherPhone;
+	private String familiarOneDni;
 
-	private String fatherDni;
-
-	private String motherDni;
+	private String familiarTwoDni;
 
 	private long code;
 
