@@ -39,8 +39,13 @@ public class GroupController {
 	}
 
 	@GetMapping("/all")
-	public List<GroupDto> findAll() {
-		return service.findAll();
+	public List<GroupDto> findAll(@RequestParam(value = "specialization", required = false) Boolean specialization) {
+
+		if (specialization == null) {
+			return service.findAll();
+		} else {
+			return service.findBySpecialization(specialization);
+		}
 	}
 
 	@GetMapping("/{id}")

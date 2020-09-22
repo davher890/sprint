@@ -61,6 +61,11 @@ public class GroupService {
 		return convertToDto(repository.findByName(name));
 	}
 
+	public List<GroupDto> findBySpecialization(boolean specialization) {
+		return repository.findBySpecialization(specialization).stream().map(this::convertToDto)
+				.collect(Collectors.toList());
+	}
+
 	public GroupDto save(GroupDto dto) {
 		return convertToDto(repository.save(convertToDao(dto)));
 	}

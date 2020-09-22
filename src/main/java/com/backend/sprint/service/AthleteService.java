@@ -19,7 +19,6 @@ import com.backend.sprint.model.dto.AthleteGroupScheduleDto;
 import com.backend.sprint.model.dto.GroupDto;
 import com.backend.sprint.repository.AthleteGroupScheduleRepository;
 import com.backend.sprint.repository.AthleteRepository;
-import com.backend.sprint.repository.FamilyRepository;
 import com.backend.sprint.repository.SportSchoolRepository;
 
 @Service
@@ -37,8 +36,8 @@ public class AthleteService {
 	@Autowired
 	private SportSchoolRepository sportSchoolRepository;
 
-	@Autowired
-	private FamilyRepository familyRepository;
+	// @Autowired
+	// private FamilyRepository familyRepository;
 
 	public Page<AthleteDto> findPagintation(Specification<AthleteDao> specification, Pageable pageable) {
 		Page<AthleteDao> daoPage = repository.findAll(specification, pageable);
@@ -61,7 +60,21 @@ public class AthleteService {
 	}
 
 	public AthleteDto save(AthleteDto dto) {
-		return convertToDto(repository.save(convertToDao(dto)));
+		AthleteDao dao = repository.save(convertToDao(dto));
+
+		if (dto.getScheduleIds() != null) {
+			dto.getScheduleIds().stream().map(schId -> {
+
+				AthleteGroupScheduleDto agsDto = new AthleteGroupScheduleDto();
+
+				agsDto.setAthleteId(dao.getId());
+				agsDto.setGroupId(dto.getGroupId());
+				agsDto.setScheduleId(schId);
+				return athleteGroupScheduleService.save(agsDto);
+			}).collect(Collectors.toList());
+		}
+
+		return convertToDto(dao);
 	}
 
 	public Set<AthleteDto> findByFamily(long familyId) {
@@ -81,9 +94,26 @@ public class AthleteService {
 		if (dao.getSportSchool() != null) {
 			dto.setSportSchoolId(dao.getSportSchool().getId());
 		}
-		if (dao.getFamily() != null) {
-			dto.setFamilyId(dao.getFamily().getId());
+
+		List<AthleteGroupScheduleDto> athleteGroupSchedules = athleteGroupScheduleService.findByAthlete(dto.getId());
+		if (athleteGroupSchedules.size() > 0) {
+			dto.setGroupId(athleteGroupSchedules.get(0).getGroupId());
+			dto.setScheduleIds(athleteGroupSchedules.parallelStream().map(d -> {
+				return d.getScheduleId();
+			}).collect(Collectors.toSet()));
 		}
+		// FamilyDao family = dao.getFamily();
+		// if (family != null) {
+		// dto.setFamilyId(family.getId());
+		//
+		// dto.setFamiliarOneFirstSurname(family.getFamiliarOneSurname());
+		// dto.setFamiliarOneDni(family.getFamiliarOneDni());
+		// dto.setFamiliarOneMail(family.getFamiliarOneMail());
+		//
+		// dto.setFamiliarTwoFirstSurname(family.getFamiliarTwoSurname());
+		// dto.setFamiliarTwoDni(family.getFamiliarTwoDni());
+		// dto.setFamiliarTwoMail(family.getFamiliarTwoMail());
+		// }
 		return dto;
 	}
 
@@ -95,25 +125,52 @@ public class AthleteService {
 		if (dto.getSportSchoolId() != 0) {
 			dao.setSportSchool(sportSchoolRepository.findById(dto.getSportSchoolId()).get());
 		}
-		if (dto.getFamilyId() != 0) {
-			dao.setFamily(familyRepository.findById(dto.getFamilyId()).get());
+
+		// List<FamilyDao> families =
+		// familyRepository.findBySurnames(dto.getFirstSurname(),
+		// dto.getSecondSurname());
+		// // Create new family
+		// if (families.size() == 0) {
+		// FamilyDao family = new FamilyDao();
+		// family.setFamiliarOneSurname(dto.getFamiliarOneFirstSurname());
+		// family.setFamiliarOneDni(dto.getFamiliarOneDni());
+		// family.setFamiliarOneMail(dto.getFamiliarOneMail());
+		//
+		// family.setFamiliarTwoSurname(dto.getFamiliarTwoFirstSurname());
+		// family.setFamiliarTwoDni(dto.getFamiliarTwoDni());
+		// family.setFamiliarTwoMail(dto.getFamiliarTwoMail());
+		//
+		// family.setCode(familyRepository.findLastCode() + 1);
+		// family = familyRepository.save(family);
+		// dao.setFamily(family);
+		// }
+		// // Assign family
+		// else if (families.size() == 1) {
+		// dao.setFamily(families.get(0));
+		// } else { // (families.size() > 1)
+		// // Calculate family
+		// }
+
+		if (dto.getFamilyCode() == 0) {
+			Set<AthleteDao> relatives = getAthleteFamily(dto);
+			if (relatives.size() > 0) {
+				dto.setFamilyCode(relatives.iterator().next().getFamilyCode());
+				dto.setCode(Long.valueOf(dto.getFamilyCode() + "" + relatives.size()));
+			} else {
+				long findLastFamilyCode = repository.findLastFamilyCode();
+				dto.setFamilyCode(findLastFamilyCode + 1);
+				dto.setCode(Long.valueOf(dto.getFamilyCode() + "" + 1));
+			}
 		}
 
 		athleteGroupScheduleService.deleteByAthlete(dto.getId());
 
-		if (dto.getScheduleIds() != null) {
-			dto.getScheduleIds().stream().map(schId -> {
-
-				AthleteGroupScheduleDto agsDto = new AthleteGroupScheduleDto();
-
-				agsDto.setAthleteId(dto.getId());
-				agsDto.setGroupId(dto.getGroupId());
-				agsDto.setScheduleId(schId);
-				return athleteGroupScheduleService.save(agsDto);
-			}).collect(Collectors.toList());
-		}
-
 		return dao;
+	}
+
+	private Set<AthleteDao> getAthleteFamily(AthleteDto dto) {
+		return repository.findRelatives(dto.getFirstSurname(), dto.getSecondSurname(), dto.getPhone1(), dto.getPhone2(),
+				dto.getPhone3());
 	}
 
 	public List<GroupDto> findGroupsById(int id) {
