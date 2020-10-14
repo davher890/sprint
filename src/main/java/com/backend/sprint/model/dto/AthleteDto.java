@@ -23,6 +23,7 @@ public class AthleteDto {
 	private Set<Long> scheduleIds;
 
 	private boolean imageAuth;
+	private String observations;
 	// Personal info
 	private String name;
 	private String firstSurname;

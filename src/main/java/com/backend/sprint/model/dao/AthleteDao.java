@@ -40,6 +40,8 @@ public class AthleteDao {
 
 	private boolean imageAuth;
 
+	@Column(columnDefinition = "text")
+	private String observations;
 	// Personal info
 	@NotNull
 	private String name;
