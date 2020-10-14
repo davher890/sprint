@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.backend.sprint.model.dto.AthleteDto;
 import com.backend.sprint.model.dto.ExcelDataDto;
 import com.backend.sprint.model.dto.ExcelValueDto;
+import com.backend.sprint.model.dto.FeeDto;
 import com.backend.sprint.model.dto.GroupDto;
 import com.backend.sprint.service.AthleteService;
 import com.backend.sprint.specifications.AthleteSpecificationConstructor;
@@ -80,8 +81,14 @@ public class AthleteController {
 		return service.findGroupsById(id);
 	}
 
+	@PostMapping("/fee")
+	public FeeDto getFee(@RequestBody AthleteDto dto) {
+		return service.getFee(dto);
+	}
+
 	@PostMapping("")
 	public AthleteDto save(@RequestBody AthleteDto dto) {
 		return service.save(dto);
 	}
+
 }
