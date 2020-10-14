@@ -16,6 +16,7 @@ import com.backend.sprint.model.dao.AthleteDao;
 import com.backend.sprint.model.dao.AthleteGroupScheduleDao;
 import com.backend.sprint.model.dto.AthleteDto;
 import com.backend.sprint.model.dto.AthleteGroupScheduleDto;
+import com.backend.sprint.model.dto.FeeDto;
 import com.backend.sprint.model.dto.GroupDto;
 import com.backend.sprint.repository.AthleteGroupScheduleRepository;
 import com.backend.sprint.repository.AthleteRepository;
@@ -176,5 +177,18 @@ public class AthleteService {
 	public List<GroupDto> findGroupsById(int id) {
 		return athleteGroupScheduleService.findByAthlete(id).stream().map(AthleteGroupScheduleDto::getGroup)
 				.collect(Collectors.toList());
+	}
+
+	public FeeDto getFee(AthleteDto dto) {
+
+		FeeDto fee = new FeeDto();
+
+		fee.setMemberShipFee(25);
+
+		fee.setEnrollmentFee(31.8f);
+
+		fee.setMonthlyFee(10);
+
+		return fee;
 	}
 }
