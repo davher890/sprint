@@ -86,6 +86,10 @@ public class AthleteService {
 		return convertToDto(repository.findByCode(code));
 	}
 
+	private List<AthleteDto> convertToDto(List<AthleteDao> dao) {
+		return dao.stream().map(this::convertToDto).collect(Collectors.toList());
+	}
+
 	private AthleteDto convertToDto(AthleteDao dao) {
 		if (dao == null) {
 			return null;
@@ -153,9 +157,9 @@ public class AthleteService {
 		// }
 
 		if (dto.getFamilyCode() == 0) {
-			Set<AthleteDao> relatives = getAthleteFamily(dto);
+			List<AthleteDto> relatives = getRelatives(dto);
 			if (relatives.size() > 0) {
-				dto.setFamilyCode(relatives.iterator().next().getFamilyCode());
+				dto.setFamilyCode(relatives.get(0).getFamilyCode());
 				dto.setCode(Long.valueOf(dto.getFamilyCode() + "" + relatives.size()));
 			} else {
 				long findLastFamilyCode = repository.findLastFamilyCode();
@@ -169,9 +173,9 @@ public class AthleteService {
 		return dao;
 	}
 
-	private Set<AthleteDao> getAthleteFamily(AthleteDto dto) {
-		return repository.findRelatives(dto.getFirstSurname(), dto.getSecondSurname(), dto.getPhone1(), dto.getPhone2(),
-				dto.getPhone3());
+	public List<AthleteDto> getRelatives(AthleteDto dto) {
+		return convertToDto(repository.findRelatives(dto.getFirstSurname(), dto.getSecondSurname(), dto.getPhone1(),
+				dto.getPhone2(), dto.getPhone3()));
 	}
 
 	public List<GroupDto> findGroupsById(int id) {
@@ -182,12 +186,34 @@ public class AthleteService {
 	public FeeDto getFee(AthleteDto dto) {
 
 		FeeDto fee = new FeeDto();
-
-		fee.setMemberShipFee(25);
-
-		fee.setEnrollmentFee(31.8f);
-
-		fee.setMonthlyFee(10);
+		if (dto.isSpecialization()) {
+			fee.setMonthlyFee(100);
+		} else {
+			switch (dto.getScheduleIds().size()) {
+			case 1:
+				fee.setMonthlyFee(50);
+				break;
+			case 2:
+				fee.setMonthlyFee(85);
+				break;
+			case 3:
+				fee.setMonthlyFee(100);
+				break;
+			default:
+				break;
+			}
+		}
+		List<AthleteDto> relatives = this.getRelatives(dto);
+		// if (dto.getLicenseType().equals("PISTAS") ||
+		// dto.getLicenseType().equals("LICENCIA")) {
+		if (relatives.size() > 1) {
+			fee.setEnrollmentFee(20);
+		} else {
+			fee.setEnrollmentFee(40);
+		}
+		// A partir del tercer miembro solo se paga una cuota de socio por
+		// familia
+		fee.setMemberShipFee(40);
 
 		return fee;
 	}

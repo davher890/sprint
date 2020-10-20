@@ -6,6 +6,7 @@ import java.io.Reader;
 import java.nio.file.Files;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.DayOfWeek;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
@@ -23,7 +24,6 @@ import com.backend.sprint.model.dto.ScheduleDto;
 import com.backend.sprint.model.dto.SportSchoolDto;
 import com.backend.sprint.model.dto.TrainerDto;
 import com.backend.sprint.utils.LicenseType;
-import com.backend.sprint.utils.WeekDays;
 import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
@@ -358,21 +358,21 @@ public class DatabaseService {
 
 		String scheduleTrim = schedule.trim();
 		if (scheduleTrim.equals(option1.trim())) {
-			group.getScheduleIds().add(scheduleService.findByTime(WeekDays.MONDAY.name(), 17, 45, 19, 15).getId());
-			group.getScheduleIds().add(scheduleService.findByTime(WeekDays.WEDNESDAY.name(), 17, 45, 19, 15).getId());
-			group.getScheduleIds().add(scheduleService.findByTime(WeekDays.THURSDAY.name(), 19, 15, 20, 45).getId());
+			group.getScheduleIds().add(scheduleService.findByTime(DayOfWeek.MONDAY.name(), 17, 45, 19, 15).getId());
+			group.getScheduleIds().add(scheduleService.findByTime(DayOfWeek.WEDNESDAY.name(), 17, 45, 19, 15).getId());
+			group.getScheduleIds().add(scheduleService.findByTime(DayOfWeek.THURSDAY.name(), 19, 15, 20, 45).getId());
 		}
 
 		else if (scheduleTrim.equals(option2.trim())) {
-			group.getScheduleIds().add(scheduleService.findByTime(WeekDays.MONDAY.name(), 18, 0, 19, 30).getId());
-			group.getScheduleIds().add(scheduleService.findByTime(WeekDays.TUESDAY.name(), 19, 0, 20, 30).getId());
-			group.getScheduleIds().add(scheduleService.findByTime(WeekDays.THURSDAY.name(), 19, 0, 20, 30).getId());
+			group.getScheduleIds().add(scheduleService.findByTime(DayOfWeek.MONDAY.name(), 18, 0, 19, 30).getId());
+			group.getScheduleIds().add(scheduleService.findByTime(DayOfWeek.TUESDAY.name(), 19, 0, 20, 30).getId());
+			group.getScheduleIds().add(scheduleService.findByTime(DayOfWeek.THURSDAY.name(), 19, 0, 20, 30).getId());
 		}
 
 		else if (scheduleTrim.equals(option3.trim())) {
-			group.getScheduleIds().add(scheduleService.findByTime(WeekDays.TUESDAY.name(), 19, 0, 20, 30).getId());
-			group.getScheduleIds().add(scheduleService.findByTime(WeekDays.THURSDAY.name(), 19, 0, 20, 30).getId());
-			group.getScheduleIds().add(scheduleService.findByTime(WeekDays.FRIDAY.name(), 17, 0, 18, 30).getId());
+			group.getScheduleIds().add(scheduleService.findByTime(DayOfWeek.TUESDAY.name(), 19, 0, 20, 30).getId());
+			group.getScheduleIds().add(scheduleService.findByTime(DayOfWeek.THURSDAY.name(), 19, 0, 20, 30).getId());
+			group.getScheduleIds().add(scheduleService.findByTime(DayOfWeek.FRIDAY.name(), 17, 0, 18, 30).getId());
 		}
 
 		else {
@@ -401,58 +401,58 @@ public class DatabaseService {
 
 		Set<ScheduleDto> schedules = new HashSet<>();
 
-		schedules.add(scheduleService.save(new ScheduleDto(WeekDays.TUESDAY.name(), 17, 0, 18, 0)));
-		schedules.add(scheduleService.save(new ScheduleDto(WeekDays.THURSDAY.name(), 17, 0, 18, 0)));
+		schedules.add(scheduleService.save(new ScheduleDto(DayOfWeek.TUESDAY.name(), 17, 0, 18, 0)));
+		schedules.add(scheduleService.save(new ScheduleDto(DayOfWeek.THURSDAY.name(), 17, 0, 18, 0)));
 
-		schedules.add(scheduleService.save(new ScheduleDto(WeekDays.TUESDAY.name(), 17, 0, 18, 30)));
-		schedules.add(scheduleService.save(new ScheduleDto(WeekDays.THURSDAY.name(), 17, 0, 18, 30)));
-		schedules.add(scheduleService.save(new ScheduleDto(WeekDays.FRIDAY.name(), 17, 0, 18, 30)));
+		schedules.add(scheduleService.save(new ScheduleDto(DayOfWeek.TUESDAY.name(), 17, 0, 18, 30)));
+		schedules.add(scheduleService.save(new ScheduleDto(DayOfWeek.THURSDAY.name(), 17, 0, 18, 30)));
+		schedules.add(scheduleService.save(new ScheduleDto(DayOfWeek.FRIDAY.name(), 17, 0, 18, 30)));
 
-		schedules.add(scheduleService.save(new ScheduleDto(WeekDays.MONDAY.name(), 17, 30, 18, 30)));
-		schedules.add(scheduleService.save(new ScheduleDto(WeekDays.TUESDAY.name(), 17, 30, 18, 30)));
-		schedules.add(scheduleService.save(new ScheduleDto(WeekDays.WEDNESDAY.name(), 17, 30, 18, 30)));
+		schedules.add(scheduleService.save(new ScheduleDto(DayOfWeek.MONDAY.name(), 17, 30, 18, 30)));
+		schedules.add(scheduleService.save(new ScheduleDto(DayOfWeek.TUESDAY.name(), 17, 30, 18, 30)));
+		schedules.add(scheduleService.save(new ScheduleDto(DayOfWeek.WEDNESDAY.name(), 17, 30, 18, 30)));
 
-		schedules.add(scheduleService.save(new ScheduleDto(WeekDays.MONDAY.name(), 17, 30, 19, 0)));
-		schedules.add(scheduleService.save(new ScheduleDto(WeekDays.WEDNESDAY.name(), 17, 30, 19, 0)));
+		schedules.add(scheduleService.save(new ScheduleDto(DayOfWeek.MONDAY.name(), 17, 30, 19, 0)));
+		schedules.add(scheduleService.save(new ScheduleDto(DayOfWeek.WEDNESDAY.name(), 17, 30, 19, 0)));
 
-		schedules.add(scheduleService.save(new ScheduleDto(WeekDays.MONDAY.name(), 17, 30, 19, 30)));
-		schedules.add(scheduleService.save(new ScheduleDto(WeekDays.WEDNESDAY.name(), 17, 30, 19, 30)));
+		schedules.add(scheduleService.save(new ScheduleDto(DayOfWeek.MONDAY.name(), 17, 30, 19, 30)));
+		schedules.add(scheduleService.save(new ScheduleDto(DayOfWeek.WEDNESDAY.name(), 17, 30, 19, 30)));
 
-		schedules.add(scheduleService.save(new ScheduleDto(WeekDays.THURSDAY.name(), 18, 0, 19, 0)));
+		schedules.add(scheduleService.save(new ScheduleDto(DayOfWeek.THURSDAY.name(), 18, 0, 19, 0)));
 
-		schedules.add(scheduleService.save(new ScheduleDto(WeekDays.MONDAY.name(), 18, 0, 19, 30)));
-		schedules.add(scheduleService.save(new ScheduleDto(WeekDays.TUESDAY.name(), 18, 0, 19, 30)));
-		schedules.add(scheduleService.save(new ScheduleDto(WeekDays.THURSDAY.name(), 18, 0, 19, 30)));
+		schedules.add(scheduleService.save(new ScheduleDto(DayOfWeek.MONDAY.name(), 18, 0, 19, 30)));
+		schedules.add(scheduleService.save(new ScheduleDto(DayOfWeek.TUESDAY.name(), 18, 0, 19, 30)));
+		schedules.add(scheduleService.save(new ScheduleDto(DayOfWeek.THURSDAY.name(), 18, 0, 19, 30)));
 
-		schedules.add(scheduleService.save(new ScheduleDto(WeekDays.MONDAY.name(), 19, 0, 20, 30)));
-		schedules.add(scheduleService.save(new ScheduleDto(WeekDays.TUESDAY.name(), 19, 0, 20, 30)));
-		schedules.add(scheduleService.save(new ScheduleDto(WeekDays.WEDNESDAY.name(), 19, 0, 20, 30)));
-		schedules.add(scheduleService.save(new ScheduleDto(WeekDays.THURSDAY.name(), 19, 0, 20, 30)));
+		schedules.add(scheduleService.save(new ScheduleDto(DayOfWeek.MONDAY.name(), 19, 0, 20, 30)));
+		schedules.add(scheduleService.save(new ScheduleDto(DayOfWeek.TUESDAY.name(), 19, 0, 20, 30)));
+		schedules.add(scheduleService.save(new ScheduleDto(DayOfWeek.WEDNESDAY.name(), 19, 0, 20, 30)));
+		schedules.add(scheduleService.save(new ScheduleDto(DayOfWeek.THURSDAY.name(), 19, 0, 20, 30)));
 
-		schedules.add(scheduleService.save(new ScheduleDto(WeekDays.MONDAY.name(), 17, 45, 19, 15)));
-		schedules.add(scheduleService.save(new ScheduleDto(WeekDays.WEDNESDAY.name(), 17, 45, 19, 15)));
+		schedules.add(scheduleService.save(new ScheduleDto(DayOfWeek.MONDAY.name(), 17, 45, 19, 15)));
+		schedules.add(scheduleService.save(new ScheduleDto(DayOfWeek.WEDNESDAY.name(), 17, 45, 19, 15)));
 
-		schedules.add(scheduleService.save(new ScheduleDto(WeekDays.THURSDAY.name(), 19, 15, 20, 45)));
+		schedules.add(scheduleService.save(new ScheduleDto(DayOfWeek.THURSDAY.name(), 19, 15, 20, 45)));
 
 		return schedules;
 	}
 
-	private WeekDays translateWeekDay(String day) {
+	private DayOfWeek translateWeekDay(String day) {
 
 		if (day.trim().toLowerCase().equals("lunes")) {
-			return WeekDays.MONDAY;
+			return DayOfWeek.MONDAY;
 		}
 		if (day.trim().toLowerCase().equals("martes")) {
-			return WeekDays.TUESDAY;
+			return DayOfWeek.TUESDAY;
 		}
 		if (day.trim().toLowerCase().equals("miercoles")) {
-			return WeekDays.WEDNESDAY;
+			return DayOfWeek.WEDNESDAY;
 		}
 		if (day.trim().toLowerCase().equals("jueves")) {
-			return WeekDays.THURSDAY;
+			return DayOfWeek.THURSDAY;
 		}
 		if (day.trim().toLowerCase().equals("viernes")) {
-			return WeekDays.FRIDAY;
+			return DayOfWeek.FRIDAY;
 		} else {
 			return null;
 		}

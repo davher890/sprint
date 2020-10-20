@@ -91,4 +91,9 @@ public class AthleteController {
 		return service.save(dto);
 	}
 
+	@PostMapping("/relatives")
+	public List<AthleteDto> getRelatives(@RequestBody AthleteDto dto) {
+		return service.getRelatives(dto);
+	}
+
 }
