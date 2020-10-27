@@ -57,18 +57,19 @@ public class FamilyController {
 
 		List<FamilyDto> families = service.findAll();
 
-		List<ExcelDataDto> data = families.parallelStream().map(family -> {
+		List<ExcelDataDto> data = new ArrayList<>();
+
+		ExcelDataDto header = new ExcelDataDto();
+		header.getData().add(new ExcelValueDto("Primer Appellido", CellType.STRING));
+		header.getData().add(new ExcelValueDto("Segundo Appellido", CellType.STRING));
+		data.add(header);
+
+		data.addAll(families.parallelStream().map(family -> {
 			ExcelDataDto dataDto = new ExcelDataDto();
-			dataDto.getData().add(new ExcelValueDto(family.getFamiliarOneSurname(), CellType.STRING));
-			dataDto.getData().add(new ExcelValueDto(family.getFamiliarTwoSurname(), CellType.STRING));
 			return dataDto;
-		}).collect(Collectors.toList());
+		}).collect(Collectors.toList()));
 
-		List<String> headers = new ArrayList<String>();
-		headers.add("Primer Appellido");
-		headers.add("Segundo Appellido");
-
-		ByteArrayInputStream bas = ExcelUtils.generateExcel("Familias", headers, data);
+		ByteArrayInputStream bas = ExcelUtils.generateExcel("Familias", data);
 		IOUtils.copy(bas, response.getOutputStream());
 	}
 

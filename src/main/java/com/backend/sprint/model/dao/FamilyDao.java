@@ -11,8 +11,6 @@ import javax.persistence.Table;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import com.sun.istack.NotNull;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -27,24 +25,6 @@ public class FamilyDao {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
-
-	@NotNull
-	private String familiarOneSurname;
-
-	@NotNull
-	private String familiarTwoSurname;
-
-	private String familiarOneMail;
-
-	private String familiarTwoMail;
-
-	private String familiarOnePhone;
-
-	private String familiarTwoPhone;
-
-	private String familiarOneDni;
-
-	private String familiarTwoDni;
 
 	private long code;
 

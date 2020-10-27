@@ -2,16 +2,20 @@
 package com.backend.sprint.controller;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.time.LocalDate;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.util.IOUtils;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,7 +28,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.backend.sprint.model.dto.AthleteDto;
-import com.backend.sprint.model.dto.AthleteGroupScheduleDto;
+import com.backend.sprint.model.dto.ColumnDto;
 import com.backend.sprint.model.dto.ExcelDataDto;
 import com.backend.sprint.model.dto.ExcelValueDto;
 import com.backend.sprint.model.dto.GroupDto;
@@ -32,7 +36,6 @@ import com.backend.sprint.model.dto.ScheduleDto;
 import com.backend.sprint.service.AthleteGroupScheduleService;
 import com.backend.sprint.service.AthleteService;
 import com.backend.sprint.service.GroupService;
-import com.backend.sprint.service.ScheduleService;
 import com.backend.sprint.specifications.AthleteGroupScheduleSpecificationConstructor;
 import com.backend.sprint.specifications.GroupSpecificationConstructor;
 import com.backend.sprint.utils.ExcelUtils;
@@ -43,9 +46,6 @@ public class GroupController {
 
 	@Autowired
 	private GroupService service;
-
-	@Autowired
-	private ScheduleService scheduleService;
 
 	@Autowired
 	private AthleteService athleteService;
@@ -94,39 +94,60 @@ public class GroupController {
 				pageable);
 	}
 
+	@PostMapping("/{group_id}/schedules/{schedule_id}/athletes/excel")
+	public void excel(@PathVariable("group_id") int groupId, @PathVariable("schedule_id") int scheduleId,
+			@RequestBody List<ColumnDto> columns, HttpServletResponse response) throws IOException {
+
+		List<AthleteDto> athletes = athleteGroupScheduleService.findByGroupAndSchedule(groupId, scheduleId).stream()
+				.map(d -> athleteService.findById(d.getAthleteId())).collect(Collectors.toList());
+
+		List<ExcelDataDto> data = new ArrayList<>();
+
+		ExcelDataDto header = new ExcelDataDto();
+		header.getData().addAll(columns.parallelStream().filter(ColumnDto::isShow).map(d -> {
+			return new ExcelValueDto(d.getText(), CellType.STRING);
+		}).collect(Collectors.toList()));
+		data.add(header);
+
+		data.addAll(athletes.parallelStream().map(entity -> {
+			ExcelDataDto dataDto = new ExcelDataDto();
+			dataDto.getData().addAll(columns.parallelStream().filter(ColumnDto::isShow).map(d -> {
+				try {
+
+					return new ExcelValueDto(BeanUtils.getProperty(entity, d.getDataField()),
+							d.getType() == 0 ? CellType.NUMERIC : CellType.STRING);
+				} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+					return null;
+				}
+			}).filter(Objects::nonNull).collect(Collectors.toList()));
+			return dataDto;
+		}).collect(Collectors.toList()));
+
+		ByteArrayInputStream bas = ExcelUtils.generateExcel("Familias", data);
+		IOUtils.copy(bas, response.getOutputStream());
+	}
+
 	@PostMapping("")
 	public GroupDto save(@RequestBody GroupDto dto) {
 		return service.save(dto);
 	}
 
 	@GetMapping("/{id}/attendance")
-	public void getGroupAttendance(@PathVariable("id") int id, HttpServletResponse response) throws IOException {
+	public void getGroupAttendance(@PathVariable("id") long id, HttpServletResponse response) throws IOException {
 
-		List<AthleteDto> athletes = athleteGroupScheduleService.findByGroup(id).parallelStream()
-				.map(d -> athleteService.findById(d.getAthleteId())).collect(Collectors.toList());
-
-		List<ExcelDataDto> data = athletes.parallelStream().map(entity -> {
-			ExcelDataDto dataDto = new ExcelDataDto();
-			dataDto.getData().add(new ExcelValueDto(entity.getName(), CellType.STRING));
-			return dataDto;
-		}).collect(Collectors.toList());
-
-		GroupDto group = service.findById(id);
-		List<String> scheduleDays = group.getScheduleIds().stream().map(d -> scheduleService.findById(d).getDay())
-				.collect(Collectors.toList());
-
-		List<String> headers = new ArrayList<String>();
-		headers.add("Atleta");
-		for (LocalDate date = LocalDate.now(); date.isBefore(LocalDate.now().plusMonths(1)); date = date.plusDays(1)) {
-
-			String weekDay = date.getDayOfWeek().name();
-			int monthDay = date.getDayOfMonth();
-
-			if (scheduleDays.contains(weekDay)) {
-				headers.add(weekDay + " - " + monthDay);
-			}
+		List<Long> groupIds = new ArrayList<>();
+		if (id == 0) {
+			groupIds = service.findAll().parallelStream().filter(d -> !d.getName().isEmpty()).map(GroupDto::getId)
+					.collect(Collectors.toList());
+		} else {
+			groupIds.add(id);
 		}
-		ByteArrayInputStream bas = ExcelUtils.generateExcel("Familias", headers, data);
-		IOUtils.copy(bas, response.getOutputStream());
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		XSSFWorkbook workbook = service.getGroupAttendance(groupIds);
+		workbook.write(outputStream);
+		workbook.close();
+
+		IOUtils.copy(new ByteArrayInputStream(outputStream.toByteArray()), response.getOutputStream());
 	}
+
 }
