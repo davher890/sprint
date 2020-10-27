@@ -1,3 +1,7 @@
+/src/main/resources/*.csv
+/src/main/resources/*.numbers
+/src/main/resources/*.xlsx
+
 HELP.md
 .gradle
 build/

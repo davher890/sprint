@@ -52,9 +52,9 @@ public class AthleteDao {
 	private String gender;
 
 	// Family info
-	// @ManyToOne(cascade = CascadeType.ALL)
-	// @JoinColumn(name = "family_id")
-	// private FamilyDao family;
+	@ManyToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "family_id")
+	private FamilyDao family;
 
 	private String familiarOneName;
 	private String familiarOneFirstSurname;
@@ -67,8 +67,6 @@ public class AthleteDao {
 	private String familiarTwoSecondSurname;
 	private String familiarTwoDni;
 	private String familiarTwoMail;
-
-	private long familyCode;
 
 	// Sport info
 	private String category;
