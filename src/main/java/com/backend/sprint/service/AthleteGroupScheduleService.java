@@ -42,6 +42,11 @@ public class AthleteGroupScheduleService {
 		return repository.findBySchedule(scheduleId).stream().map(this::convertToDto).collect(Collectors.toList());
 	}
 
+	public List<AthleteGroupScheduleDto> findByGroupAndSchedule(long groupId, long scheduleId) {
+		return repository.findByGroupAndSchedule(groupId, scheduleId).stream().map(this::convertToDto)
+				.collect(Collectors.toList());
+	}
+
 	public AthleteGroupScheduleDto save(AthleteGroupScheduleDto dto) {
 		return convertToDto(repository.save(convertToDao(dto)));
 	}

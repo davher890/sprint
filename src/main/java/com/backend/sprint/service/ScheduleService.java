@@ -1,6 +1,8 @@
 package com.backend.sprint.service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -10,13 +12,27 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.backend.sprint.model.dao.ScheduleDao;
 import com.backend.sprint.model.dto.ScheduleDto;
 import com.backend.sprint.repository.ScheduleRepository;
 
 @Service
+@Transactional
 public class ScheduleService {
+
+	private final Map<String, String> dayTranslate = new HashMap<String, String>() {
+		{
+			put("MONDAY", "Lunes");
+			put("TUESDAY", "Martes");
+			put("WEDNESDAY", "Miercoles");
+			put("THURSDAY", "Jueves");
+			put("FRIDAY", "Viernes");
+			put("SATURDAY", "Sabado");
+			put("SUNDAY", "Domingo");
+		}
+	};
 
 	@Autowired
 	private ScheduleRepository repository;
@@ -49,7 +65,9 @@ public class ScheduleService {
 		if (dao == null) {
 			return null;
 		}
-		return new ModelMapper().map(dao, ScheduleDto.class);
+		ScheduleDto map = new ModelMapper().map(dao, ScheduleDto.class);
+		map.setDayTranslate(dayTranslate.get(map.getDay()));
+		return map;
 	}
 
 	private ScheduleDao convertToDao(ScheduleDto dto) {

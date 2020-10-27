@@ -19,22 +19,6 @@ public class FamilyDto {
 
 	private Set<Long> athleteIds;
 
-	private String familiarOneSurname;
-
-	private String familiarTwoSurname;
-
-	private String familiarOneMail;
-
-	private String familiarTwoMail;
-
-	private String familiarOnePhone;
-
-	private String familiarTwoPhone;
-
-	private String familiarOneDni;
-
-	private String familiarTwoDni;
-
 	private long code;
 
 	@CreationTimestamp

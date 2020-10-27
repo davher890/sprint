@@ -1,5 +1,6 @@
 package com.backend.sprint.service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.backend.sprint.model.dao.FamilyDao;
 import com.backend.sprint.model.dto.AthleteDto;
@@ -18,6 +20,7 @@ import com.backend.sprint.model.dto.FamilyDto;
 import com.backend.sprint.repository.FamilyRepository;
 
 @Service
+@Transactional
 public class FamilyService {
 
 	@Autowired
@@ -60,12 +63,18 @@ public class FamilyService {
 		Set<AthleteDto> athletes = athleteService.findByFamily(dto.getId());
 		if (athletes != null) {
 			dto.setAthleteIds(athletes.stream().map(AthleteDto::getId).collect(Collectors.toSet()));
+		} else {
+			dto.setAthleteIds(new HashSet<>());
 		}
 		return dto;
 	}
 
 	private FamilyDao convertToDao(FamilyDto dao) {
 		return new ModelMapper().map(dao, FamilyDao.class);
+	}
+
+	public long findLastCode() {
+		return repository.findLastCode();
 	}
 
 }

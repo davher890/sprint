@@ -2,14 +2,14 @@ package com.backend.sprint.model.dao;
 
 import java.util.Date;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -19,19 +19,19 @@ import lombok.ToString;
 @Setter
 @ToString
 @Entity
-@Table(name = "families")
-public class FamilyDao {
+@Table(name = "historic")
+public class HistoricDao {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 
-	private long code;
+	@ManyToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "athlete_id")
+	private AthleteDao athlete;
 
-	@CreationTimestamp
-	private Date createdAt;
+	private String type;
 
-	@UpdateTimestamp
-	private Date updatedAt;
+	private Date date;
 
 }

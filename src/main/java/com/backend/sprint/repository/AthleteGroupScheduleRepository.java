@@ -23,6 +23,9 @@ public interface AthleteGroupScheduleRepository extends PagingAndSortingReposito
 	@Query(value = "SELECT * FROM athlete_group_schedules WHERE schedule_id = ?1 ", nativeQuery = true)
 	public Set<AthleteGroupScheduleDao> findBySchedule(long scheduleId);
 
+	@Query(value = "SELECT * FROM athlete_group_schedules WHERE group_id = ?1 AND schedule_id = ?2 ", nativeQuery = true)
+	public Set<AthleteGroupScheduleDao> findByGroupAndSchedule(long groupId, long scheduleId);
+
 	@Modifying
 	@Query(value = "DELETE from athlete_group_schedules WHERE athlete_id = ?1", nativeQuery = true)
 	public void deleteByAthlete(long athleteId);

@@ -2,13 +2,16 @@ package com.backend.sprint.controller;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.util.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.backend.sprint.model.dto.AthleteDto;
+import com.backend.sprint.model.dto.ColumnDto;
 import com.backend.sprint.model.dto.ExcelDataDto;
 import com.backend.sprint.model.dto.ExcelValueDto;
 import com.backend.sprint.model.dto.FeeDto;
@@ -51,23 +55,33 @@ public class AthleteController {
 		return service.findAll();
 	}
 
-	@GetMapping("/excel")
-	public void excel(HttpServletResponse response) throws IOException {
+	@PostMapping("/excel")
+	public void excel(@RequestBody List<ColumnDto> columns, HttpServletResponse response) throws IOException {
 
 		List<AthleteDto> athletes = service.findAll();
 
-		List<ExcelDataDto> data = athletes.parallelStream().map(entity -> {
+		List<ExcelDataDto> data = new ArrayList<>();
+
+		ExcelDataDto header = new ExcelDataDto();
+		header.getData().addAll(columns.parallelStream().map(d -> {
+			return new ExcelValueDto(d.getText(), CellType.STRING);
+		}).collect(Collectors.toList()));
+		data.add(header);
+
+		final BeanUtilsBean bub = new BeanUtilsBean();
+		data.addAll(athletes.parallelStream().map(entity -> {
 			ExcelDataDto dataDto = new ExcelDataDto();
-			dataDto.getData().add(new ExcelValueDto(entity.getName(), CellType.STRING));
-			dataDto.getData().add(new ExcelValueDto(birthDateFormat.format(entity.getBirthDate()), CellType.STRING));
+			dataDto.getData().addAll(columns.parallelStream().map(d -> {
+				try {
+					return new ExcelValueDto(bub.getProperty(entity, d.getDataField()), CellType.STRING);
+				} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+					return null;
+				}
+			}).filter(Objects::nonNull).collect(Collectors.toList()));
 			return dataDto;
-		}).collect(Collectors.toList());
+		}).collect(Collectors.toList()));
 
-		List<String> headers = new ArrayList<String>();
-		headers.add("Nombre");
-		headers.add("Fecha de nacimiento");
-
-		ByteArrayInputStream bas = ExcelUtils.generateExcel("Familias", headers, data);
+		ByteArrayInputStream bas = ExcelUtils.generateExcel("Familias", data);
 		IOUtils.copy(bas, response.getOutputStream());
 	}
 

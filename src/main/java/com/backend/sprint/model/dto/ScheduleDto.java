@@ -20,6 +20,8 @@ public class ScheduleDto {
 
 	private String day;
 
+	private String dayTranslate;
+
 	private int startHour;
 
 	private int startMinute;

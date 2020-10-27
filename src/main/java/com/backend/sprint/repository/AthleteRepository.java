@@ -24,6 +24,9 @@ public interface AthleteRepository
 	public List<AthleteDao> findRelatives(String firstSurname, String secondSurname, String phone1, String phone2,
 			String phone3);
 
+	@Query(value = "SELECT * FROM athletes WHERE first_surname = ?1 AND second_surname = ?2", nativeQuery = true)
+	public List<AthleteDao> findBySurnames(String firstSurname, String secondSurname);
+
 	@Query(value = "SELECT MAX(code) FROM athletes", nativeQuery = true)
 	public long findLastFamilyCode();
 }

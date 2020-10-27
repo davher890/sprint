@@ -10,12 +10,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.backend.sprint.model.dao.SportSchoolDao;
 import com.backend.sprint.model.dto.SportSchoolDto;
 import com.backend.sprint.repository.SportSchoolRepository;
 
 @Service
+@Transactional
 public class SportSchoolService {
 
 	@Autowired

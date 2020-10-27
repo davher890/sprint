@@ -17,10 +17,11 @@ public class AthleteDto {
 	private boolean extern = false;
 	private long sportSchoolId;
 
-	// private long familyId;
+	private Long familyId;
 
-	private long groupId;
+	private Long groupId;
 	private Set<Long> scheduleIds;
+	private Set<ScheduleDto> schedules;
 
 	private boolean imageAuth;
 	private String observations;
@@ -44,8 +45,6 @@ public class AthleteDto {
 	private String familiarTwoSecondSurname;
 	private String familiarTwoDni;
 	private String familiarTwoMail;
-
-	private long familyCode;
 
 	// Sport info
 	private String category;
