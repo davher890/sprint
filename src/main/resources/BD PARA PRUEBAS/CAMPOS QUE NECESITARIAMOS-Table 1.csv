@@ -1,0 +1,55 @@
+;;;;
+ESCUELA;SANTA ANA / PARACUELLOS;;;
+AUT. IMÁGENES;SI/NO;;;
+CODIGO FAMILIAR;4 DIGITOS;;;
+CODIGO ATLETA/SOCIO;5 DIGITOS (los cuatro del codigo familiar +  un código por el numero ordinal del miembro de la familia (1,2,3,4,5….9) El 1 sería el primer niño o padre en formar parte del club, el 2 segría para el segundo…... ;;;
+ATLETA;apellidos y nombre. A mi me ha servido muchas veces como campo clave para cruzar con la federacion de atletismo. ;;;
+SEXO;mujer y hombre;;;
+DNI(Atleta);cuando no tienen dni lo dejamos en blanco;;;
+CATEGORIA 2020;te las paso en una pestaña anexa, pero además el cambio de categoria lo da el año de nacimiento.;;;
+LICENCIA;lo traslado de la federacion española de atletismo;;;
+T/N;lo traslado de la federacion española de atletismo;;;
+CAT DORSAL;lo traslado de la federacion española de atletismo;;;
+DORSAL;lo traslado de la federacion española de atletismo;;;
+TFNO.;;;;
+TFNO. 2;;;;
+TFNO. 3;;;;
+DOMICILIO;;;;
+CP;;;;
+MUNICIPIO;;;;
+email (padre);;;;
+email (madre);;;;
+email (atleta);;;;
+NOMBRE DEL PADRE O TUTOR;"solo estaba incluyendo en la bd el nombre del padre o tutor, pero no estaba incluyendo el dni, tan solo dabamos de alta el dni del titular de la cuenta corriente. 
+Yo creo que puesto que pedimos en el formulario el dni de los dos tutores del niño, en el caso de que sea menor de edad, deberiamos a partir de ahora incluirlos en la bd.";;;
+DNI PADRE O TUTOR;;;;
+NOMBRE DE LA MADRE O TUTORA;;;;
+DNI MADRE O TUTORA;;;;
+TITULAR DE LA CUENTA;;;;
+IBAN;tiene 24 digitos ESxx xxxx xxxx xxxx xxxx xxxx - para volcarlo al fichero que tenemos que enviar al banco para pasar los recibos, no deben ir blancos entre medias;;;
+FP;metalico/transferencia/domiciliado/subvencionado;;;
+TIPO CUOTA;CLUB - PISTAS - LIC/PISTAS - LICENCIA;;;
+GRUPO DE ENTRENAMIENTO;EN LA SIGUIENTE PESTAÑA;;;
+DIAS DE LA SEMANA;SEGÚN ENTRENADOR TIENE UNOS DÍAS U OTROS, TENDRIAMOS QUE HABLARLO. ;;;
+CANT dias;1, 2 ó 3;;;
+HORARIO DE ENTRENAMIENTO;"según categoria y día elegido hay unos horarios. Tambien hay que hablarlo para explicartelo.
+DE MANERA GENERAL: en sta. Ana los minibenjamines y benjamines tienen 1 hora de entrenamiento, el resto hora y media
+En Paracuellos una hora son minibenjamines, benjamines y alevines, el resto hora y media";;;
+Nº FAM;PARA SABER QUE YA TENIAMOS VARIOS DE FAMILIA LES IBA PONIENDO ;;;
+CUOTA TRIMES;creo que lo tienes en el word;;;
+CUOTA SOCIO ANUAL;;;;
+CUOTA SEP;no es fija, cambia según los años;;;
+CUOTA MATRICULA DE ENTRADA;;;;
+CUOTA  LICENCIA;lo marca la federacion cada año según categoria;;;
+CUOTA PISTAS;lo marca el ayuntamiento cada año.;;;
+OBSERVACIONES TEMPORADA;;;;
+"TOTAL
+PRIMER COBRO
+21/10/2019";"como te he comentado seguro que tenemos cuatro remesas de recibos por cada atleta, en el caso de que no devuelvan recibos, claro.
+A este apartado hay que darle una vuelta.";;;
+"OBSERVACIONES
+PRIMER COBRO
+OCTUBRE ";por cada remesa de recibos necesito un campo de observaciones;;;
+OBSERVACIONES DE LA BAJA;;;;
+fecha ALTA;;;;
+fecha BAJA;;;;
