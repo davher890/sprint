@@ -15,6 +15,6 @@ public class ColumnDto {
 
 	boolean show;
 
-	int type;
+	String type;
 
 }
