@@ -70,7 +70,7 @@ public class GroupController {
 	}
 
 	@GetMapping("/{id}")
-	public GroupDto findById(@PathVariable int id) {
+	public GroupDto findById(@PathVariable long id) {
 		return service.findById(id);
 	}
 
@@ -113,9 +113,8 @@ public class GroupController {
 			ExcelDataDto dataDto = new ExcelDataDto();
 			dataDto.getData().addAll(columns.parallelStream().filter(ColumnDto::isShow).map(d -> {
 				try {
-
 					return new ExcelValueDto(BeanUtils.getProperty(entity, d.getDataField()),
-							d.getType() == 0 ? CellType.NUMERIC : CellType.STRING);
+							ExcelUtils.getCellType(d));
 				} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
 					return null;
 				}

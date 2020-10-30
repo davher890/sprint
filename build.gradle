@@ -13,9 +13,20 @@ repositories {
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-web'
 	
-	// DataBase
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	
+	// Security
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    
+    / JWT Token
+    implementation 'io.jsonwebtoken:jjwt:0.9.1'
+    
+    // JSON
+    implementation 'org.json:json:20190722'
+    
+	// Database
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'mysql:mysql-connector-java'
 	implementation 'org.postgresql:postgresql'
@@ -27,8 +38,6 @@ dependencies {
 	// Model Mappper
     implementation 'org.modelmapper:modelmapper:2.3.6'
     
-    // Security
-    implementation 'org.springframework.boot:spring-boot-starter-security'
     
     // OpenCSV
     implementation 'com.opencsv:opencsv:4.1'
@@ -39,6 +48,10 @@ dependencies {
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {
 		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
 	}
+	
+	/
+    
+	
 }
 
 test {

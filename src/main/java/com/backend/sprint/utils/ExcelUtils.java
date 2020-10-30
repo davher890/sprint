@@ -7,11 +7,13 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import com.backend.sprint.model.dto.ColumnDto;
 import com.backend.sprint.model.dto.ExcelDataDto;
 import com.backend.sprint.model.dto.ExcelValueDto;
 
@@ -71,5 +73,16 @@ public abstract class ExcelUtils {
 		workbook.close();
 
 		return new ByteArrayInputStream(outputStream.toByteArray());
+	}
+
+	public static CellType getCellType(ColumnDto d) {
+		switch (d.getType()) {
+		case "number":
+			return CellType.NUMERIC;
+		case "bool":
+			return CellType.BOOLEAN;
+		default:
+			return CellType.STRING;
+		}
 	}
 }
