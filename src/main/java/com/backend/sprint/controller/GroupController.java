@@ -19,7 +19,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -42,7 +41,6 @@ import com.backend.sprint.specifications.GroupSpecificationConstructor;
 import com.backend.sprint.utils.ExcelUtils;
 
 @RestController
-@CrossOrigin(origins = { "https://club-sprint-front.herokuapp.com", "https://club-sprint-back.herokuapp.com" })
 @RequestMapping("groups")
 public class GroupController {
 
