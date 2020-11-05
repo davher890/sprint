@@ -32,7 +32,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity httpSecurity) throws Exception {
 		httpSecurity.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().cors().and()
-				.csrf().disable();
+				.csrf().disable().authorizeRequests().antMatchers(SWAGGER_URL).permitAll();
 
 		// .authorizeRequests().antMatchers(LOGIN_URL).permitAll()
 		// .antMatchers(HttpMethod.POST, USER_URL).permitAll()
