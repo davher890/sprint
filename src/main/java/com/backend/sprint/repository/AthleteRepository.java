@@ -20,11 +20,11 @@ public interface AthleteRepository
 	@Query(value = "SELECT * FROM athletes WHERE code = ?1 ", nativeQuery = true)
 	public AthleteDao findByCode(long code);
 
-	@Query(value = "SELECT * FROM athletes WHERE first_surname = ?1 AND second_surname = ?2 AND PHONE1 = ?3 AND PHONE2 = ?4 AND PHONE3 = ?4", nativeQuery = true)
+	@Query(value = "SELECT * FROM athletes WHERE LOWER(first_surname) = LOWER(?1) AND LOWER(second_surname) = LOWER(?2) AND PHONE1 = ?3 AND PHONE2 = ?4 AND PHONE3 = ?4", nativeQuery = true)
 	public List<AthleteDao> findRelatives(String firstSurname, String secondSurname, String phone1, String phone2,
 			String phone3);
 
-	@Query(value = "SELECT * FROM athletes WHERE first_surname = ?1 AND second_surname = ?2", nativeQuery = true)
+	@Query(value = "SELECT * FROM athletes WHERE LOWER(first_surname) = LOWER(?1) AND LOWER(second_surname) = LOWER(?2)", nativeQuery = true)
 	public List<AthleteDao> findBySurnames(String firstSurname, String secondSurname);
 
 	@Query(value = "SELECT MAX(code) FROM athletes", nativeQuery = true)

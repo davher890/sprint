@@ -21,6 +21,8 @@ public class FamilyDto {
 
 	private long code;
 
+	private int count;
+
 	@CreationTimestamp
 	private Date createdAt;
 

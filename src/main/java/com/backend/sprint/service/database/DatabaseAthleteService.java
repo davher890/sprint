@@ -99,7 +99,7 @@ public class DatabaseAthleteService extends DatabaseService {
 
 		CSVReader csvReader = readFile(fileName);
 		SportSchoolDto sportSchool = sportSchoolService.findByName("Santa Ana");
-		return StreamSupport.stream(csvReader.spliterator(), true).map(line -> {
+		return StreamSupport.stream(csvReader.spliterator(), false).map(line -> {
 
 			System.out.println(String.join("_", line));
 
