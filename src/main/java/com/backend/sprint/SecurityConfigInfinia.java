@@ -19,7 +19,7 @@ public class SecurityConfigInfinia extends WebSecurityConfigurerAdapter {
 	@Bean
 	CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.setAllowedOrigins(Arrays.asList("https://club-sprint-front.herokuapp.com"));
+		configuration.setAllowedOrigins(Arrays.asList("**/herokuapp/**"));
 		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS"));
 		configuration.setAllowedHeaders(Arrays.asList("Access-Control-Allow-Headers", "Access-Control-Allow-Origin",
 				"Access-Control-Request-Method", "Access-Control-Request-Headers", "Origin", "Cache-Control",
