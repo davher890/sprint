@@ -22,7 +22,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity httpSecurity) throws Exception {
 		httpSecurity// .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-				.csrf().disable().authorizeRequests().antMatchers(SWAGGER_URL).permitAll()
+				.csrf().disable().authorizeRequests()// .antMatchers(SWAGGER_URL).permitAll()
 				.antMatchers(HttpMethod.OPTIONS, "**").permitAll();// allow CORS
 																	// option
 																	// calls
