@@ -3,12 +3,12 @@ package com.backend.sprint.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.backend.sprint.model.dao.AthleteGroupScheduleDao;
-import com.backend.sprint.model.dao.AthleteGroupScheduleId;
 import com.backend.sprint.model.dto.AthleteGroupScheduleDto;
 import com.backend.sprint.repository.AthleteGroupScheduleRepository;
 import com.backend.sprint.repository.AthleteRepository;
@@ -55,20 +55,23 @@ public class AthleteGroupScheduleService {
 		if (dao == null) {
 			return null;
 		}
-		AthleteGroupScheduleDto dto = new AthleteGroupScheduleDto();
-
-		if (dao.getId().getAthlete() != null) {
-			dto.setAthleteId(dao.getId().getAthlete().getId());
-			// dto.setAthlete(athleteService.findById(dao.getId().getAthlete().getId()));
-		}
-		if (dao.getId().getGroup() != null) {
-			dto.setGroupId(dao.getId().getGroup().getId());
-			// dto.setGroup(groupService.findById(dao.getId().getGroup().getId()));
-		}
-		if (dao.getId().getSchedule() != null) {
-			dto.setScheduleId(dao.getId().getSchedule().getId());
-			// dto.setSchedule(scheduleService.findById(dao.getId().getSchedule().getId()));
-		}
+		AthleteGroupScheduleDto dto = new ModelMapper().map(dao, AthleteGroupScheduleDto.class);
+		//
+		// if (dao.getId().getAthlete() != null) {
+		// dto.setAthleteId(dao.getId().getAthlete().getId());
+		// //
+		// dto.setAthlete(athleteService.findById(dao.getId().getAthlete().getId()));
+		// }
+		// if (dao.getId().getGroup() != null) {
+		// dto.setGroupId(dao.getId().getGroup().getId());
+		// //
+		// dto.setGroup(groupService.findById(dao.getId().getGroup().getId()));
+		// }
+		// if (dao.getId().getSchedule() != null) {
+		// dto.setScheduleId(dao.getId().getSchedule().getId());
+		// //
+		// dto.setSchedule(scheduleService.findById(dao.getId().getSchedule().getId()));
+		// }
 		return dto;
 	}
 
@@ -77,14 +80,17 @@ public class AthleteGroupScheduleService {
 			return null;
 		}
 
-		AthleteGroupScheduleDao dao = new AthleteGroupScheduleDao();
+		AthleteGroupScheduleDao dao = new ModelMapper().map(dto, AthleteGroupScheduleDao.class);
+		//
+		// AthleteGroupScheduleId id = new AthleteGroupScheduleId();
+		// id.setAthlete(athleteRepository.findById(dto.getAthleteId()).get());
+		// id.setGroup(groupRepository.findById(dto.getGroupId()).get());
+		// id.setSchedule(scheduleRepository.findById(dto.getScheduleId()).get());
 
-		AthleteGroupScheduleId id = new AthleteGroupScheduleId();
-		id.setAthlete(athleteRepository.findById(dto.getAthleteId()).get());
-		id.setGroup(groupRepository.findById(dto.getGroupId()).get());
-		id.setSchedule(scheduleRepository.findById(dto.getScheduleId()).get());
-
-		dao.setId(id);
+		// dao.setId(id);
+		// dao.setAthleteId(dto.getAthleteId());
+		// dao.setGroupId(dto.getGroupId());
+		// dao.setScheduleId(dto.getScheduleId());
 		return dao;
 	}
 

@@ -38,6 +38,9 @@ public class AthleteService {
 	private AthleteGroupScheduleService athleteGroupScheduleService;
 
 	@Autowired
+	private GroupService groupService;
+
+	@Autowired
 	private AthleteGroupScheduleRepository athleteGroupScheduleRepository;
 
 	@Autowired
@@ -60,7 +63,7 @@ public class AthleteService {
 	public Page<AthleteDto> findByGroupAndSchedule(Specification<AthleteGroupScheduleDao> specification,
 			Pageable pageable) {
 		Page<AthleteGroupScheduleDao> daoPage = athleteGroupScheduleRepository.findAll(specification, pageable);
-		return daoPage.map(dao -> convertToDto(dao.getId().getAthlete()));
+		return daoPage.map(dao -> convertToDto(repository.findById(dao.getAthleteId()).get()));
 	}
 
 	public List<AthleteDto> findAll() {
@@ -126,6 +129,7 @@ public class AthleteService {
 		FamilyDao family = dao.getFamily();
 		if (family != null) {
 			dto.setFamilyId(family.getId());
+			dto.setFamilyCode(family.getCode());
 		}
 		return dto;
 	}
@@ -136,40 +140,40 @@ public class AthleteService {
 		}
 		AthleteDao dao = new ModelMapper().map(dto, AthleteDao.class);
 
-		if (dto.getFamilyId() != null) {
-			if (dto.getFamilyId() == 0) {
-				List<AthleteDao> relatives = repository.findBySurnames(dto.getFirstSurname(), dto.getSecondSurname());
-				// Assign family
-				if (relatives != null && relatives.size() > 0) {
-					// Calculate family
-					relatives = relatives.parallelStream().map(d -> {
-						if (dto.getPhone1().trim().equals(d.getPhone1().trim())
-								|| dto.getPhone1().trim().equals(d.getPhone2().trim())
-								|| dto.getPhone1().trim().equals(d.getPhone3().trim())) {
-							return d;
-						} else {
-							return null;
-						}
-					}).filter(Objects::nonNull).collect(Collectors.toList());
-					if (!relatives.isEmpty()) {
-						dto.setFamilyId(relatives.get(0).getFamily().getId());
+		if (dto.getFamilyId() == 0) {
+			List<AthleteDao> relatives = repository.findBySurnames(dto.getFirstSurname(), dto.getSecondSurname());
+			// Assign family
+			if (relatives != null && relatives.size() > 0) {
+				// Calculate family
+				relatives = relatives.parallelStream().map(d -> {
+					if (dto.getPhone1().trim().equals(d.getPhone1().trim())
+							|| dto.getPhone1().trim().equals(d.getPhone2().trim())
+							|| dto.getPhone1().trim().equals(d.getPhone3().trim())) {
+						return d;
+					} else {
+						return null;
 					}
-				}
-				// Create new family
-				if (relatives == null || relatives.isEmpty()) {
-					FamilyDto family = new FamilyDto();
-					family.setCode(familyService.findLastCode() + 1);
-					family = familyService.save(family);
-					dto.setFamilyId(family.getId());
+				}).filter(Objects::nonNull).collect(Collectors.toList());
+				if (!relatives.isEmpty()) {
+					dto.setFamilyId(relatives.get(0).getFamily().getId());
 				}
 			}
+			// Create new family
+			// if (relatives == null || relatives.isEmpty()) {
+			else {
+				FamilyDto family = new FamilyDto();
+				family.setCode(familyService.findLastCode() + 1);
+				family = familyService.save(family);
+				dto.setFamilyId(family.getId());
+			}
+
 		}
 
 		if (dto.getSportSchoolId() != 0) {
 			dao.setSportSchool(sportSchoolRepository.findById(dto.getSportSchoolId()).get());
 		}
 
-		if (dto.getFamilyId() != null && dto.getFamilyId() != 0) {
+		if (dto.getFamilyId() != 0) {
 			dao.setFamily(familyRepository.findById(dto.getFamilyId()).get());
 		}
 
@@ -189,7 +193,7 @@ public class AthleteService {
 	}
 
 	public List<GroupDto> findGroupsById(int id) {
-		return athleteGroupScheduleService.findByAthlete(id).stream().map(AthleteGroupScheduleDto::getGroup)
+		return athleteGroupScheduleService.findByAthlete(id).stream().map(d -> groupService.findById(d.getGroupId()))
 				.collect(Collectors.toList());
 	}
 

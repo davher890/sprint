@@ -30,20 +30,34 @@ public abstract class AbstractSpecifictionConstructor<E> implements Specificatio
 
 				String field = filter.split("__")[0];
 				String operator = filter.split("__")[1];
-				String value = filter.split("__")[2];
+				String value = filter.split("__")[2].toLowerCase();
 
-				Predicate predicate = null;
-				if (operator.equals("LIKE")) {
-					predicate = builder.like(root.get(field), "%" + value + "%");
-				}
-				if (operator.equals("EQUALS")) {
-					predicate = builder.equal(root.get(field), value);
-				}
-
-				return predicate;
+				return filterPredicate(root, builder, field, operator, value);
 			}).reduce((c1, c2) -> builder.and(c1, c2)).get();
 		}
 		return result;
+	}
+
+	protected Predicate filterPredicate(Root<E> root, CriteriaBuilder builder, String field, String operator,
+			String value) {
+		Predicate predicate = null;
+		if (operator.equals("LIKE")) {
+			predicate = builder.like(builder.lower(root.get(field)), "%" + value + "%");
+		} else if (operator.equals("=")) {
+			predicate = builder.equal(root.get(field), value);
+		} else if (operator.equals("!=")) {
+			predicate = builder.notEqual(root.get(field), value);
+		} else if (operator.equals(">")) {
+			predicate = builder.greaterThan(root.get(field), value);
+		} else if (operator.equals(">=")) {
+			predicate = builder.greaterThanOrEqualTo(root.get(field), value);
+		} else if (operator.equals("<")) {
+			predicate = builder.lessThan(root.get(field), value);
+		} else if (operator.equals("<=")) {
+			predicate = builder.lessThanOrEqualTo(root.get(field), value);
+		}
+
+		return predicate;
 	}
 
 }
