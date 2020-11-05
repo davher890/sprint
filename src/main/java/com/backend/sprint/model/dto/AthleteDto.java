@@ -17,9 +17,10 @@ public class AthleteDto {
 	private boolean extern = false;
 	private long sportSchoolId;
 
-	private Long familyId;
+	private long familyId;
+	private long familyCode;
 
-	private Long groupId;
+	private long groupId;
 	private Set<Long> scheduleIds;
 	private Set<ScheduleDto> schedules;
 

@@ -66,6 +66,7 @@ public class FamilyService {
 		} else {
 			dto.setAthleteIds(new HashSet<>());
 		}
+		dto.setCount(dto.getAthleteIds().size());
 		return dto;
 	}
 

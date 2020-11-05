@@ -79,6 +79,19 @@ public class GroupController {
 		return service.findGroupSchedules(id);
 	}
 
+	@GetMapping("/{group_id}/athletes")
+	public Page<AthleteDto> findGroupAthletes(@RequestParam(value = "filters", required = false) List<String> filters,
+			Pageable pageable, @PathVariable("group_id") int groupId) {
+
+		if (filters == null) {
+			filters = new ArrayList<String>();
+		}
+		filters.add("groupId__=__" + groupId);
+
+		return athleteService.findByGroupAndSchedule(new AthleteGroupScheduleSpecificationConstructor<>(filters),
+				pageable);
+	}
+
 	@GetMapping("/{group_id}/schedules/{schedule_id}/athletes")
 	public Page<AthleteDto> findGroupScheduleAthletes(
 			@RequestParam(value = "filters", required = false) List<String> filters, Pageable pageable,
@@ -87,8 +100,8 @@ public class GroupController {
 		if (filters == null) {
 			filters = new ArrayList<String>();
 		}
-		filters.add("group_id__EQUALS__" + groupId);
-		filters.add("schedule_id__EQUALS__" + scheduleId);
+		filters.add("groupId__=__" + groupId);
+		filters.add("scheduleId__=__" + scheduleId);
 
 		return athleteService.findByGroupAndSchedule(new AthleteGroupScheduleSpecificationConstructor<>(filters),
 				pageable);

@@ -18,15 +18,15 @@ public class AthleteGroupScheduleDto {
 
 	private long athleteId;
 
-	private AthleteDto athlete;
+	// private AthleteDto athlete;
 
 	private long groupId;
 
-	private GroupDto group;
+	// private GroupDto group;
 
 	private long scheduleId;
 
-	private ScheduleDto schedule;
+	// private ScheduleDto schedule;
 
 	@CreationTimestamp
 	private Date createdAt;
