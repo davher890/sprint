@@ -42,7 +42,7 @@ import com.backend.sprint.specifications.GroupSpecificationConstructor;
 import com.backend.sprint.utils.ExcelUtils;
 
 @RestController
-@CrossOrigin
+@CrossOrigin(origins = { "https://club-sprint-front.herokuapp.com", "https://club-sprint-back.herokuapp.com" })
 @RequestMapping("groups")
 public class GroupController {
 
