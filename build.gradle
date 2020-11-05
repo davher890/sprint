@@ -20,7 +20,7 @@ dependencies {
 	// Security
     implementation 'org.springframework.boot:spring-boot-starter-security'
     
-    / JWT Token
+    // JWT Token
     implementation 'io.jsonwebtoken:jjwt:0.9.1'
     
     // JSON
@@ -48,17 +48,9 @@ dependencies {
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {
 		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
 	}
-	
-	/
-    
-	
 }
 
 test {
 	useJUnitPlatform()
 }
 
-
-task buildDocker(type: Exec) {
-    commandLine 'docker', 'build', '.', '-f', './src/main/docker/DockerFile', '-t', "infinia/" + project.name
-}
