@@ -2,15 +2,20 @@ package com.backend.sprint.service;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 
 import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +64,18 @@ public class GroupService {
 	private SportSchoolRepository sportSchoolRepository;
 
 	private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+
+	private final Map<DayOfWeek, String> mapDay = new HashMap<DayOfWeek, String>() {
+		{
+			put(DayOfWeek.MONDAY, "L");
+			put(DayOfWeek.TUESDAY, "M");
+			put(DayOfWeek.WEDNESDAY, "X");
+			put(DayOfWeek.THURSDAY, "J");
+			put(DayOfWeek.FRIDAY, "V");
+			put(DayOfWeek.SATURDAY, "S");
+			put(DayOfWeek.SUNDAY, "D");
+		}
+	};
 
 	public Page<GroupDto> findPagintation(Specification<GroupDao> specification, Pageable pageable) {
 		Page<GroupDao> daoPage = repository.findAll(specification, pageable);
@@ -161,11 +178,11 @@ public class GroupService {
 			for (LocalDate date = LocalDate.now(); date
 					.isBefore(LocalDate.now().plusMonths(1)); date = date.plusDays(1)) {
 
-				String weekDay = date.getDayOfWeek().name();
+				DayOfWeek weekDay = date.getDayOfWeek();
 				int monthDay = date.getDayOfMonth();
 
-				if (scheduleDays.contains(weekDay)) {
-					header.getData().add(new ExcelValueDto(weekDay + " - " + monthDay, CellType.STRING));
+				if (scheduleDays.contains(weekDay.name())) {
+					header.getData().add(new ExcelValueDto(mapDay.get(weekDay) + "" + monthDay, CellType.STRING));
 				}
 			}
 			data.add(header);
@@ -183,7 +200,10 @@ public class GroupService {
 				return dataDto;
 			}).collect(Collectors.toList());
 			data.addAll(excelData);
-			ExcelUtils.generateExcel(workbook, group.getName(), data);
+			Sheet sheet = ExcelUtils.generateExcel(workbook, group.getName(), data);
+			IntStream.range(0, header.getData().size()).parallel().forEach(i -> {
+				sheet.autoSizeColumn(i);
+			});
 		});
 
 		return workbook;
