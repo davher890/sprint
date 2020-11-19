@@ -19,7 +19,7 @@ import com.backend.sprint.model.dto.ExcelValueDto;
 
 public abstract class ExcelUtils {
 
-	public static void generateExcel(XSSFWorkbook workbook, String sheetName, List<ExcelDataDto> data) {
+	public static Sheet generateExcel(XSSFWorkbook workbook, String sheetName, List<ExcelDataDto> data) {
 		// Create a Sheet
 		Sheet sheet = workbook.createSheet(sheetName);
 
@@ -36,10 +36,7 @@ public abstract class ExcelUtils {
 				}
 			});
 		});
-
-		IntStream.range(0, data.size()).forEach(i -> {
-			sheet.autoSizeColumn(i);
-		});
+		return sheet;
 
 	}
 
