@@ -73,6 +73,9 @@ public class AthleteDto {
 	private String holderSecondSurname;
 	private String holderDni;
 
+	// Fee
+	private FeeDto fee;
+
 	// Code
 	private long code;
 
