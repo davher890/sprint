@@ -131,6 +131,7 @@ public class AthleteService {
 			dto.setFamilyId(family.getId());
 			dto.setFamilyCode(family.getCode());
 		}
+
 		return dto;
 	}
 
@@ -203,18 +204,24 @@ public class AthleteService {
 		if (dto.isSpecialization()) {
 			fee.setMonthlyFee(100);
 		} else {
-			switch (dto.getScheduleIds().size()) {
-			case 1:
-				fee.setMonthlyFee(50);
-				break;
-			case 2:
-				fee.setMonthlyFee(85);
-				break;
-			case 3:
-				fee.setMonthlyFee(100);
-				break;
-			default:
-				break;
+			if (dto.getScheduleIds() != null) {
+				switch (dto.getScheduleIds().size()) {
+				case 1:
+					fee.setMonthlyFee(50);
+					break;
+				case 2:
+					fee.setMonthlyFee(85);
+					break;
+				case 3:
+					fee.setMonthlyFee(100);
+					break;
+				default:
+					if (dto.getScheduleIds().size() > 3) {
+						fee.setMonthlyFee(100);
+					} else {
+						fee.setMonthlyFee(0);
+					}
+				}
 			}
 		}
 		List<AthleteDto> relatives = this.getRelatives(dto);
@@ -227,7 +234,7 @@ public class AthleteService {
 		}
 		// A partir del tercer miembro solo se paga una cuota de socio por
 		// familia
-		fee.setMemberShipFee(40);
+		fee.setMembershipFee(40);
 
 		return fee;
 	}

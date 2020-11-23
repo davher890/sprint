@@ -13,5 +13,5 @@ public class FeeDto {
 
 	private float enrollmentFee;
 
-	private float memberShipFee;
+	private float membershipFee;
 }
