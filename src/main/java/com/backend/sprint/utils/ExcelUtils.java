@@ -61,7 +61,7 @@ public abstract class ExcelUtils {
 			});
 		});
 
-		IntStream.range(0, data.size()).forEach(i -> {
+		IntStream.range(0, data.size()).parallel().forEach(i -> {
 			sheet.autoSizeColumn(i);
 		});
 

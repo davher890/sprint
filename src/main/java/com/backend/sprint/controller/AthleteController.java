@@ -3,7 +3,6 @@ package com.backend.sprint.controller;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -25,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.backend.sprint.model.dao.AthleteDao;
 import com.backend.sprint.model.dto.AthleteDto;
 import com.backend.sprint.model.dto.ColumnDto;
 import com.backend.sprint.model.dto.ExcelDataDto;
@@ -42,8 +42,6 @@ public class AthleteController {
 	@Autowired
 	private AthleteService service;
 
-	private SimpleDateFormat birthDateFormat = new SimpleDateFormat("YYYY-MM-dd");
-
 	@GetMapping("")
 	public Page<AthleteDto> findPagintation(@RequestParam(value = "filters", required = false) List<String> filters,
 			Pageable pageable) {
@@ -58,7 +56,7 @@ public class AthleteController {
 	@PostMapping("/excel")
 	public void excel(@RequestBody List<ColumnDto> columns, HttpServletResponse response) throws IOException {
 
-		List<AthleteDto> athletes = service.findAll();
+		List<AthleteDao> athletes = service.findAllExcel();
 
 		List<ExcelDataDto> data = new ArrayList<>();
 
