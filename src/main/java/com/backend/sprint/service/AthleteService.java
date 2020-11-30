@@ -71,6 +71,11 @@ public class AthleteService {
 				.collect(Collectors.toList());
 	}
 
+	public List<AthleteDao> findAllExcel() {
+		Iterable<AthleteDao> findAll = repository.findAll();
+		return StreamSupport.stream(findAll.spliterator(), false).collect(Collectors.toList());
+	}
+
 	public AthleteDto findById(long id) {
 		return convertToDto(repository.findById(id).orElse(null));
 	}
