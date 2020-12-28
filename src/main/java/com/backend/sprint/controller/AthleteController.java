@@ -31,9 +31,12 @@ import com.backend.sprint.model.dto.ExcelDataDto;
 import com.backend.sprint.model.dto.ExcelValueDto;
 import com.backend.sprint.model.dto.FeeDto;
 import com.backend.sprint.model.dto.GroupDto;
+import com.backend.sprint.model.dto.HistoricDto;
 import com.backend.sprint.service.AthleteService;
+import com.backend.sprint.service.HistoricService;
 import com.backend.sprint.specifications.AthleteSpecificationConstructor;
 import com.backend.sprint.utils.ExcelUtils;
+import com.backend.sprint.utils.HistoricType;
 
 @RestController
 @RequestMapping("athletes")
@@ -42,9 +45,26 @@ public class AthleteController {
 	@Autowired
 	private AthleteService service;
 
+	@Autowired
+	private HistoricService historicService;
+
 	@GetMapping("")
 	public Page<AthleteDto> findPagintation(@RequestParam(value = "filters", required = false) List<String> filters,
 			Pageable pageable) {
+		if (filters == null) {
+			filters = new ArrayList<String>();
+		}
+		filters.add("register__-__-");
+		return service.findPagintation(new AthleteSpecificationConstructor<>(filters), pageable);
+	}
+
+	@GetMapping("/historic")
+	public Page<AthleteDto> findHistoricPagintation(
+			@RequestParam(value = "filters", required = false) List<String> filters, Pageable pageable) {
+		if (filters == null) {
+			filters = new ArrayList<String>();
+		}
+		filters.add("unregister__-__-");
 		return service.findPagintation(new AthleteSpecificationConstructor<>(filters), pageable);
 	}
 
@@ -86,6 +106,20 @@ public class AthleteController {
 	@GetMapping("/{id}")
 	public AthleteDto findById(@PathVariable int id) {
 		return service.findById(id);
+	}
+
+	@PostMapping("/{id}/register")
+	public HistoricDto registerAthlete(@PathVariable int id, @RequestBody HistoricDto historic) {
+		historic.setAthleteId(id);
+		historic.setType(HistoricType.REGISTER.name());
+		return historicService.save(historic);
+	}
+
+	@PostMapping("/{id}/unregister")
+	public HistoricDto unregisterAthlete(@PathVariable int id, @RequestBody HistoricDto historic) {
+		historic.setAthleteId(id);
+		historic.setType(HistoricType.UNREGISTER.name());
+		return historicService.save(historic);
 	}
 
 	@GetMapping("/{id}/groups")
