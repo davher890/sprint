@@ -1,6 +1,7 @@
 package com.backend.sprint.model.dao;
 
 import java.util.Date;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -11,6 +12,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -96,6 +98,13 @@ public class AthleteDao {
 	private String holderFirstSurname;
 	private String holderSecondSurname;
 	private String holderDni;
+
+	@OneToMany(mappedBy = "athlete")
+	private Set<HistoricDao> historic;
+
+	private Date lastRegisterDate;
+
+	private Date lastUnregisterDate;
 
 	@NotNull
 	private long code;
