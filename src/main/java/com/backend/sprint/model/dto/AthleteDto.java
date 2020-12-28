@@ -73,6 +73,14 @@ public class AthleteDto {
 	private String holderSecondSurname;
 	private String holderDni;
 
+	private Set<HistoricDto> historic;
+
+	private Date lastRegisterDate;
+
+	private Date lastUnregisterDate;
+
+	private boolean registered;
+
 	// Fee
 	private FeeDto fee;
 

@@ -25,6 +25,9 @@ public class HistoricService {
 	private HistoricRepository repository;
 
 	@Autowired
+	private AthleteService athleteService;
+
+	@Autowired
 	private AthleteRepository athleteRepository;
 
 	public Page<HistoricDto> findPagintation(Specification<HistoricDao> specification, Pageable pageable) {
@@ -41,9 +44,15 @@ public class HistoricService {
 		return convertToDto(repository.findById(id).orElse(null));
 	}
 
+	public List<HistoricDto> findAthleteRegistration(long id) {
+		return repository.findAthleteRegistration(id).stream().map(this::convertToDto).collect(Collectors.toList());
+	}
+
 	@Transactional
 	public HistoricDto save(HistoricDto dto) {
-		return convertToDto(repository.save(convertToDao(dto)));
+		dto = convertToDto(repository.save(convertToDao(dto)));
+		athleteService.updateAthleteRegistrationDate(athleteService.findById(dto.getAthleteId()));
+		return dto;
 	}
 
 	private HistoricDto convertToDto(HistoricDao dao) {

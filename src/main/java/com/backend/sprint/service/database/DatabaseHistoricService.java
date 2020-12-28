@@ -19,6 +19,7 @@ import com.backend.sprint.model.dto.NameDataDto;
 import com.backend.sprint.service.AthleteService;
 import com.backend.sprint.service.FamilyService;
 import com.backend.sprint.service.HistoricService;
+import com.backend.sprint.utils.HistoricType;
 import com.opencsv.CSVReader;
 
 @Service
@@ -192,7 +193,7 @@ public class DatabaseHistoricService extends DatabaseService {
 							String month = registarDateMap.get(splitDate[0]);
 							HistoricDto historic = new HistoricDto();
 							historic.setAthleteId(athlete.getId());
-							historic.setType("REGISTER");
+							historic.setType(HistoricType.REGISTER.name());
 							try {
 								historic.setDate(dayFormat.parse("20" + year + "-" + month + "-" + "01"));
 							} catch (ParseException e) {
@@ -209,7 +210,7 @@ public class DatabaseHistoricService extends DatabaseService {
 							String month = registarDateMap.get(splitDate[0]);
 							HistoricDto historic = new HistoricDto();
 							historic.setAthleteId(athlete.getId());
-							historic.setType("UNREGISTER");
+							historic.setType(HistoricType.UNREGISTER.name());
 
 							historic.setDate(dayFormat.parse("20" + year + "-" + month + "-" + "01"));
 

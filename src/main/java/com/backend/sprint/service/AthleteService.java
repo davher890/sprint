@@ -1,5 +1,7 @@
 package com.backend.sprint.service;
 
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -22,10 +24,12 @@ import com.backend.sprint.model.dto.AthleteGroupScheduleDto;
 import com.backend.sprint.model.dto.FamilyDto;
 import com.backend.sprint.model.dto.FeeDto;
 import com.backend.sprint.model.dto.GroupDto;
+import com.backend.sprint.model.dto.HistoricDto;
 import com.backend.sprint.repository.AthleteGroupScheduleRepository;
 import com.backend.sprint.repository.AthleteRepository;
 import com.backend.sprint.repository.FamilyRepository;
 import com.backend.sprint.repository.SportSchoolRepository;
+import com.backend.sprint.utils.HistoricType;
 
 @Service
 @Transactional
@@ -48,6 +52,9 @@ public class AthleteService {
 
 	@Autowired
 	private ScheduleService scheduleService;
+
+	@Autowired
+	private HistoricService historicService;
 
 	@Autowired
 	private FamilyRepository familyRepository;
@@ -137,6 +144,15 @@ public class AthleteService {
 			dto.setFamilyCode(family.getCode());
 		}
 
+		if (dto.getHistoric() != null && !dto.getHistoric().isEmpty()) {
+			List<HistoricDto> sortedHistoric = dto.getHistoric().stream().filter(p -> p.getDate().before(new Date()))
+					.sorted(Comparator.comparing(HistoricDto::getDate).reversed()).collect(Collectors.toList());
+
+			dto.setRegistered(
+					sortedHistoric.isEmpty() || sortedHistoric.get(0).getType().equals(HistoricType.REGISTER.name()));
+		} else {
+			dto.setRegistered(true);
+		}
 		return dto;
 	}
 
@@ -242,5 +258,32 @@ public class AthleteService {
 		fee.setMembershipFee(40);
 
 		return fee;
+	}
+
+	public void updateAthletesRegisterDate() {
+
+		List<AthleteDto> athletes = this.findAll();
+		athletes.stream().forEach(athlete -> {
+			updateAthleteRegistrationDate(athlete);
+		});
+
+	}
+
+	public void updateAthleteRegistrationDate(AthleteDto athlete) {
+		List<HistoricDto> athleteHistoric = historicService.findAthleteRegistration(athlete.getId());
+
+		HistoricDto lastRegisterDate = athleteHistoric.stream().filter(p -> p.getDate().before(new Date()))
+				.filter(p -> p.getType().equals(HistoricType.REGISTER.name())).findFirst().orElse(null);
+
+		HistoricDto lastUnregisterDate = athleteHistoric.stream().filter(p -> p.getDate().before(new Date()))
+				.filter(p -> p.getType().equals(HistoricType.UNREGISTER.name())).findFirst().orElse(null);
+
+		if (lastRegisterDate != null) {
+			athlete.setLastRegisterDate(lastRegisterDate.getDate());
+		}
+		if (lastUnregisterDate != null) {
+			athlete.setLastUnregisterDate(lastUnregisterDate.getDate());
+		}
+		save(athlete);
 	}
 }
