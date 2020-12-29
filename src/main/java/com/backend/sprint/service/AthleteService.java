@@ -255,7 +255,7 @@ public class AthleteService {
 		}
 		// A partir del tercer miembro solo se paga una cuota de socio por
 		// familia
-		fee.setMembershipFee(40);
+		fee.setMembershipFee(20);
 
 		return fee;
 	}
