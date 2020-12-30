@@ -6,6 +6,7 @@ import java.util.stream.StreamSupport;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -49,7 +50,7 @@ public class HistoricService {
 	}
 
 	@Transactional
-	public HistoricDto save(HistoricDto dto) {
+	public HistoricDto save(HistoricDto dto) throws DataIntegrityViolationException {
 		dto = convertToDto(repository.save(convertToDao(dto)));
 		athleteService.updateAthleteRegistrationDate(athleteService.findById(dto.getAthleteId()));
 		return dto;
