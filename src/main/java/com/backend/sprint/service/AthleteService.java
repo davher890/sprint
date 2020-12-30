@@ -10,6 +10,7 @@ import java.util.stream.StreamSupport;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -87,7 +88,14 @@ public class AthleteService {
 		return convertToDto(repository.findById(id).orElse(null));
 	}
 
-	public AthleteDto save(AthleteDto dto) {
+	public AthleteDto save(AthleteDto dto) throws DataIntegrityViolationException {
+
+		List<AthleteDao> findByUniqueColumns = repository.findByUniqueColumns(dto.getId(), dto.getName(),
+				dto.getFirstSurname(), dto.getSecondSurname(), dto.getBirthDate());
+		if (findByUniqueColumns != null && findByUniqueColumns.size() > 0) {
+			throw new DataIntegrityViolationException(null);
+		}
+
 		AthleteDao dao = repository.save(convertToDao(dto));
 
 		if (dto.getScheduleIds() != null) {
@@ -100,8 +108,8 @@ public class AthleteService {
 				agsDto.setScheduleId(schId);
 				return athleteGroupScheduleService.save(agsDto);
 			}).collect(Collectors.toList());
-		}
 
+		}
 		return convertToDto(dao);
 	}
 
@@ -178,14 +186,15 @@ public class AthleteService {
 				}).filter(Objects::nonNull).collect(Collectors.toList());
 				if (!relatives.isEmpty()) {
 					dto.setFamilyId(relatives.get(0).getFamily().getId());
+				} else {
+					FamilyDto family = newFamily();
+					dto.setFamilyId(family.getId());
 				}
 			}
 			// Create new family
 			// if (relatives == null || relatives.isEmpty()) {
 			else {
-				FamilyDto family = new FamilyDto();
-				family.setCode(familyService.findLastCode() + 1);
-				family = familyService.save(family);
+				FamilyDto family = newFamily();
 				dto.setFamilyId(family.getId());
 			}
 
@@ -207,6 +216,12 @@ public class AthleteService {
 		athleteGroupScheduleService.deleteByAthlete(dto.getId());
 
 		return dao;
+	}
+
+	private FamilyDto newFamily() {
+		FamilyDto family = new FamilyDto();
+		family.setCode(familyService.findLastCode() + 1);
+		return familyService.save(family);
 	}
 
 	public List<AthleteDto> getRelatives(AthleteDto dto) {
@@ -264,12 +279,17 @@ public class AthleteService {
 
 		List<AthleteDto> athletes = this.findAll();
 		athletes.stream().forEach(athlete -> {
-			updateAthleteRegistrationDate(athlete);
+			try {
+				updateAthleteRegistrationDate(athlete);
+			} catch (DataIntegrityViolationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		});
 
 	}
 
-	public void updateAthleteRegistrationDate(AthleteDto athlete) {
+	public void updateAthleteRegistrationDate(AthleteDto athlete) throws DataIntegrityViolationException {
 		List<HistoricDto> athleteHistoric = historicService.findAthleteRegistration(athlete.getId());
 
 		HistoricDto lastRegisterDate = athleteHistoric.stream().filter(p -> p.getDate().before(new Date()))

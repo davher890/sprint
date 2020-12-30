@@ -13,7 +13,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.util.IOUtils;
+import org.postgresql.util.PSQLException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -109,14 +111,14 @@ public class AthleteController {
 	}
 
 	@PostMapping("/{id}/register")
-	public HistoricDto registerAthlete(@PathVariable int id, @RequestBody HistoricDto historic) {
+	public HistoricDto registerAthlete(@PathVariable int id, @RequestBody HistoricDto historic) throws PSQLException {
 		historic.setAthleteId(id);
 		historic.setType(HistoricType.REGISTER.name());
 		return historicService.save(historic);
 	}
 
 	@PostMapping("/{id}/unregister")
-	public HistoricDto unregisterAthlete(@PathVariable int id, @RequestBody HistoricDto historic) {
+	public HistoricDto unregisterAthlete(@PathVariable int id, @RequestBody HistoricDto historic) throws PSQLException {
 		historic.setAthleteId(id);
 		historic.setType(HistoricType.UNREGISTER.name());
 		return historicService.save(historic);
@@ -134,7 +136,13 @@ public class AthleteController {
 
 	@PostMapping("")
 	public AthleteDto save(@RequestBody AthleteDto dto) {
-		return service.save(dto);
+		try {
+			return service.save(dto);
+		} catch (DataIntegrityViolationException e) {
+
+			dto.setErrorMessage("Atleta ya existente.");
+			return dto;
+		}
 	}
 
 	@PostMapping("/relatives")

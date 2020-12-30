@@ -91,4 +91,6 @@ public class AthleteDto {
 
 	private Date updatedAt;
 
+	private String errorMessage;
+
 }
