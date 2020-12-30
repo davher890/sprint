@@ -28,7 +28,10 @@ import lombok.ToString;
 @Setter
 @ToString
 @Entity
-@Table(name = "athletes")
+@Table(name = "athletes") // , uniqueConstraints = { @UniqueConstraint(name =
+							// "athlete_unique_columns", columnNames = {"name",
+							// "firstSurname", "secondSurname", "birthDate" })
+							// })
 public class AthleteDao {
 
 	@Id

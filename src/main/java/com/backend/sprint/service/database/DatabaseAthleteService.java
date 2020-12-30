@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -237,7 +238,12 @@ public class DatabaseAthleteService extends DatabaseService {
 				athlete.setScheduleIds(group.getScheduleIds());
 			}
 
-			athlete = athleteService.save(athlete);
+			try {
+				athlete = athleteService.save(athlete);
+			} catch (DataIntegrityViolationException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 
 			// Historic
 			if (line[REGISTER_DATE] != null && !line[REGISTER_DATE].isEmpty()
@@ -251,11 +257,12 @@ public class DatabaseAthleteService extends DatabaseService {
 				historic.setType("REGISTER");
 				try {
 					historic.setDate(dayFormat.parse("20" + year + "-" + month + "-" + "01"));
-				} catch (ParseException e) {
+					historicService.save(historic);
+				} catch (ParseException | DataIntegrityViolationException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				historicService.save(historic);
+
 			}
 			if (line[UNREGISTER_DATE] != null && !line[UNREGISTER_DATE].isEmpty()
 					&& line[UNREGISTER_DATE].split(".-").length == 2) {
@@ -268,11 +275,12 @@ public class DatabaseAthleteService extends DatabaseService {
 				historic.setType("UNREGISTER");
 				try {
 					historic.setDate(dayFormat.parse("20" + year + "-" + month + "-" + "01"));
-				} catch (ParseException e) {
+					historicService.save(historic);
+				} catch (ParseException | DataIntegrityViolationException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				historicService.save(historic);
+
 			}
 
 			return athlete;
