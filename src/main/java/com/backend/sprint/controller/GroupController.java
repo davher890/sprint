@@ -6,6 +6,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -145,7 +147,15 @@ public class GroupController {
 	}
 
 	@GetMapping("/{id}/attendance")
-	public void getGroupAttendance(@PathVariable("id") long id, HttpServletResponse response) throws IOException {
+	public void getGroupAttendance(@PathVariable("id") long id,
+			@RequestParam(value = "month", required = false) Integer month, HttpServletResponse response)
+			throws IOException {
+
+		if (month == null) {
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(new Date());
+			month = cal.get(Calendar.MONTH);
+		}
 
 		List<Long> groupIds = new ArrayList<>();
 		if (id == 0) {
@@ -155,7 +165,7 @@ public class GroupController {
 			groupIds.add(id);
 		}
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-		XSSFWorkbook workbook = service.getGroupAttendance(groupIds);
+		XSSFWorkbook workbook = service.getGroupAttendance(groupIds, month);
 		workbook.write(outputStream);
 		workbook.close();
 

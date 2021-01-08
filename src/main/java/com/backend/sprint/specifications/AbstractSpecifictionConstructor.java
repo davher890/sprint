@@ -43,6 +43,13 @@ public abstract class AbstractSpecifictionConstructor<E> implements Specificatio
 		Predicate predicate = null;
 		if (operator.equals("LIKE")) {
 			predicate = builder.like(builder.lower(root.get(field)), "%" + value + "%");
+		} else if (operator.equals("==")) {
+			boolean boolValue = Boolean.parseBoolean(value);
+			if (boolValue) {
+				predicate = builder.isTrue(root.get(field));
+			} else {
+				predicate = builder.isFalse(root.get(field));
+			}
 		} else if (operator.equals("=")) {
 			predicate = builder.equal(root.get(field), value);
 		} else if (operator.equals("!=")) {
