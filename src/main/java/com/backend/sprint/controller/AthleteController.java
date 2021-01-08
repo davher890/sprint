@@ -34,8 +34,10 @@ import com.backend.sprint.model.dto.ExcelValueDto;
 import com.backend.sprint.model.dto.FeeDto;
 import com.backend.sprint.model.dto.GroupDto;
 import com.backend.sprint.model.dto.HistoricDto;
+import com.backend.sprint.model.dto.SportdataDto;
 import com.backend.sprint.service.AthleteService;
 import com.backend.sprint.service.HistoricService;
+import com.backend.sprint.service.SportdataService;
 import com.backend.sprint.specifications.AthleteSpecificationConstructor;
 import com.backend.sprint.utils.ExcelUtils;
 import com.backend.sprint.utils.HistoricType;
@@ -49,6 +51,9 @@ public class AthleteController {
 
 	@Autowired
 	private HistoricService historicService;
+
+	@Autowired
+	private SportdataService sportdataService;
 
 	@GetMapping("")
 	public Page<AthleteDto> findPagintation(@RequestParam(value = "filters", required = false) List<String> filters,
@@ -108,6 +113,11 @@ public class AthleteController {
 	@GetMapping("/{id}")
 	public AthleteDto findById(@PathVariable int id) {
 		return service.findById(id);
+	}
+
+	@PostMapping("/{id}/sportdata")
+	public List<SportdataDto> athleteSportdata(@PathVariable int id) {
+		return sportdataService.findByAthleteId(id);
 	}
 
 	@PostMapping("/{id}/register")
