@@ -1,6 +1,7 @@
 */.csv
 */.numbers
 */.xlsx
+*/.DS_Store
 
 HELP.md
 .gradle
