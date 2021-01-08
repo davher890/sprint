@@ -1,5 +1,7 @@
 package com.backend.sprint.service;
 
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -8,6 +10,7 @@ import java.util.stream.StreamSupport;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -22,10 +25,12 @@ import com.backend.sprint.model.dto.AthleteGroupScheduleDto;
 import com.backend.sprint.model.dto.FamilyDto;
 import com.backend.sprint.model.dto.FeeDto;
 import com.backend.sprint.model.dto.GroupDto;
+import com.backend.sprint.model.dto.HistoricDto;
 import com.backend.sprint.repository.AthleteGroupScheduleRepository;
 import com.backend.sprint.repository.AthleteRepository;
 import com.backend.sprint.repository.FamilyRepository;
 import com.backend.sprint.repository.SportSchoolRepository;
+import com.backend.sprint.utils.HistoricType;
 
 @Service
 @Transactional
@@ -50,6 +55,9 @@ public class AthleteService {
 	private ScheduleService scheduleService;
 
 	@Autowired
+	private HistoricService historicService;
+
+	@Autowired
 	private FamilyRepository familyRepository;
 
 	@Autowired
@@ -71,11 +79,23 @@ public class AthleteService {
 				.collect(Collectors.toList());
 	}
 
+	public List<AthleteDao> findAllExcel() {
+		Iterable<AthleteDao> findAll = repository.findAll();
+		return StreamSupport.stream(findAll.spliterator(), false).collect(Collectors.toList());
+	}
+
 	public AthleteDto findById(long id) {
 		return convertToDto(repository.findById(id).orElse(null));
 	}
 
-	public AthleteDto save(AthleteDto dto) {
+	public AthleteDto save(AthleteDto dto) throws DataIntegrityViolationException {
+
+		List<AthleteDao> findByUniqueColumns = repository.findByUniqueColumns(dto.getId(), dto.getName(),
+				dto.getFirstSurname(), dto.getSecondSurname(), dto.getBirthDate());
+		if (findByUniqueColumns != null && findByUniqueColumns.size() > 0) {
+			throw new DataIntegrityViolationException(null);
+		}
+
 		AthleteDao dao = repository.save(convertToDao(dto));
 
 		if (dto.getScheduleIds() != null) {
@@ -88,8 +108,8 @@ public class AthleteService {
 				agsDto.setScheduleId(schId);
 				return athleteGroupScheduleService.save(agsDto);
 			}).collect(Collectors.toList());
-		}
 
+		}
 		return convertToDto(dao);
 	}
 
@@ -131,6 +151,16 @@ public class AthleteService {
 			dto.setFamilyId(family.getId());
 			dto.setFamilyCode(family.getCode());
 		}
+
+		if (dto.getHistoric() != null && !dto.getHistoric().isEmpty()) {
+			List<HistoricDto> sortedHistoric = dto.getHistoric().stream().filter(p -> p.getDate().before(new Date()))
+					.sorted(Comparator.comparing(HistoricDto::getDate).reversed()).collect(Collectors.toList());
+
+			dto.setRegistered(
+					sortedHistoric.isEmpty() || sortedHistoric.get(0).getType().equals(HistoricType.REGISTER.name()));
+		} else {
+			dto.setRegistered(true);
+		}
 		return dto;
 	}
 
@@ -156,14 +186,15 @@ public class AthleteService {
 				}).filter(Objects::nonNull).collect(Collectors.toList());
 				if (!relatives.isEmpty()) {
 					dto.setFamilyId(relatives.get(0).getFamily().getId());
+				} else {
+					FamilyDto family = newFamily();
+					dto.setFamilyId(family.getId());
 				}
 			}
 			// Create new family
 			// if (relatives == null || relatives.isEmpty()) {
 			else {
-				FamilyDto family = new FamilyDto();
-				family.setCode(familyService.findLastCode() + 1);
-				family = familyService.save(family);
+				FamilyDto family = newFamily();
 				dto.setFamilyId(family.getId());
 			}
 
@@ -187,6 +218,12 @@ public class AthleteService {
 		return dao;
 	}
 
+	private FamilyDto newFamily() {
+		FamilyDto family = new FamilyDto();
+		family.setCode(familyService.findLastCode() + 1);
+		return familyService.save(family);
+	}
+
 	public List<AthleteDto> getRelatives(AthleteDto dto) {
 		return convertToDto(repository.findRelatives(dto.getFirstSurname(), dto.getSecondSurname(), dto.getPhone1(),
 				dto.getPhone2(), dto.getPhone3()));
@@ -203,18 +240,24 @@ public class AthleteService {
 		if (dto.isSpecialization()) {
 			fee.setMonthlyFee(100);
 		} else {
-			switch (dto.getScheduleIds().size()) {
-			case 1:
-				fee.setMonthlyFee(50);
-				break;
-			case 2:
-				fee.setMonthlyFee(85);
-				break;
-			case 3:
-				fee.setMonthlyFee(100);
-				break;
-			default:
-				break;
+			if (dto.getScheduleIds() != null) {
+				switch (dto.getScheduleIds().size()) {
+				case 1:
+					fee.setMonthlyFee(50);
+					break;
+				case 2:
+					fee.setMonthlyFee(85);
+					break;
+				case 3:
+					fee.setMonthlyFee(100);
+					break;
+				default:
+					if (dto.getScheduleIds().size() > 3) {
+						fee.setMonthlyFee(100);
+					} else {
+						fee.setMonthlyFee(0);
+					}
+				}
 			}
 		}
 		List<AthleteDto> relatives = this.getRelatives(dto);
@@ -227,8 +270,40 @@ public class AthleteService {
 		}
 		// A partir del tercer miembro solo se paga una cuota de socio por
 		// familia
-		fee.setMemberShipFee(40);
+		fee.setMembershipFee(20);
 
 		return fee;
+	}
+
+	public void updateAthletesRegisterDate() {
+
+		List<AthleteDto> athletes = this.findAll();
+		athletes.stream().forEach(athlete -> {
+			try {
+				updateAthleteRegistrationDate(athlete);
+			} catch (DataIntegrityViolationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		});
+
+	}
+
+	public void updateAthleteRegistrationDate(AthleteDto athlete) throws DataIntegrityViolationException {
+		List<HistoricDto> athleteHistoric = historicService.findAthleteRegistration(athlete.getId());
+
+		HistoricDto lastRegisterDate = athleteHistoric.stream().filter(p -> p.getDate().before(new Date()))
+				.filter(p -> p.getType().equals(HistoricType.REGISTER.name())).findFirst().orElse(null);
+
+		HistoricDto lastUnregisterDate = athleteHistoric.stream().filter(p -> p.getDate().before(new Date()))
+				.filter(p -> p.getType().equals(HistoricType.UNREGISTER.name())).findFirst().orElse(null);
+
+		if (lastRegisterDate != null) {
+			athlete.setLastRegisterDate(lastRegisterDate.getDate());
+		}
+		if (lastUnregisterDate != null) {
+			athlete.setLastUnregisterDate(lastUnregisterDate.getDate());
+		}
+		save(athlete);
 	}
 }

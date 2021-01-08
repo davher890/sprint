@@ -28,6 +28,9 @@ public class DatabaseGroupService extends DatabaseService {
 	private static final int WEEK_DAYS = 1;
 	private static final int SCHEDULE = 2;
 
+	private static List<String> specializationGroupNames = Arrays
+			.asList(new String[] { "ALVARO-FONDO M-J", "ALVARO-VELOCIDAD L-X", "DAVID-LANZAMIENTOS", "JAVI-FONDO",
+					"JAVI-VELOCIDAD", "JESUS-COMBINADAS", "JOSE-SALTOS" });
 	@Autowired
 	private TrainerService trainerService;
 
@@ -112,6 +115,9 @@ public class DatabaseGroupService extends DatabaseService {
 						endMinute);
 				return id.getId();
 			}).collect(Collectors.toSet()));
+		}
+		if (specializationGroupNames.contains(group.getName())) {
+			group.getScheduleIds().add(findOrCreateSchedule(DayOfWeek.FRIDAY.name(), 17, 30, 19, 0).getId());
 		}
 		return groupService.save(group);
 	}
