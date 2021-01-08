@@ -1,13 +1,18 @@
 package com.backend.sprint.service;
 
 import java.io.IOException;
+import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -150,7 +155,7 @@ public class GroupService {
 				.map(scheduleService::findById).collect(Collectors.toList());
 	}
 
-	public XSSFWorkbook getGroupAttendance(List<Long> ids) throws IOException {
+	public XSSFWorkbook getGroupAttendance(List<Long> ids, int month) throws IOException {
 
 		XSSFWorkbook workbook = new XSSFWorkbook();
 
@@ -166,6 +171,8 @@ public class GroupService {
 
 			ExcelDataDto groupHeader = new ExcelDataDto();
 			groupHeader.getData().add(new ExcelValueDto(group.getName(), CellType.STRING));
+			groupHeader.getData().add(new ExcelValueDto(
+					new DateFormatSymbols(new Locale("es", "ES")).getMonths()[month], CellType.STRING));
 			data.add(groupHeader);
 
 			ExcelDataDto header = new ExcelDataDto();
@@ -175,8 +182,26 @@ public class GroupService {
 					.add(new ExcelValueDto("CATEGORIA " + Calendar.getInstance().get(Calendar.YEAR), CellType.STRING));
 			header.getData().add(new ExcelValueDto("DIAS", CellType.STRING));
 
-			for (LocalDate date = LocalDate.now(); date
-					.isBefore(LocalDate.now().plusMonths(1)); date = date.plusDays(1)) {
+			LocalDate startDate;
+			LocalDate endDate;
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(new Date());
+			int currentMonth = cal.get(Calendar.MONTH);
+			ZoneId zid = cal.getTimeZone() == null ? ZoneId.systemDefault() : cal.getTimeZone().toZoneId();
+
+			if (currentMonth != month) {
+				cal.set(Calendar.DAY_OF_MONTH, 1);
+				cal.set(Calendar.MONTH, month);
+				startDate = LocalDateTime.ofInstant(cal.toInstant(), zid).toLocalDate();
+				endDate = startDate.plusMonths(1);
+			} else {
+				startDate = LocalDate.now();
+				cal.set(Calendar.DAY_OF_MONTH, 1);
+				cal.set(Calendar.MONTH, month + 1);
+				endDate = LocalDateTime.ofInstant(cal.toInstant(), zid).toLocalDate();
+			}
+
+			for (LocalDate date = startDate; date.isBefore(endDate); date = date.plusDays(1)) {
 
 				DayOfWeek weekDay = date.getDayOfWeek();
 				int monthDay = date.getDayOfMonth();
