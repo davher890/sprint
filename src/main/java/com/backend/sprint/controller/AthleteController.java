@@ -39,6 +39,7 @@ import com.backend.sprint.service.AthleteService;
 import com.backend.sprint.service.HistoricService;
 import com.backend.sprint.service.SportdataService;
 import com.backend.sprint.specifications.AthleteSpecificationConstructor;
+import com.backend.sprint.specifications.SportdataSpecificationConstructor;
 import com.backend.sprint.utils.ExcelUtils;
 import com.backend.sprint.utils.HistoricType;
 
@@ -115,9 +116,11 @@ public class AthleteController {
 		return service.findById(id);
 	}
 
-	@PostMapping("/{id}/sportdata")
-	public List<SportdataDto> athleteSportdata(@PathVariable int id) {
-		return sportdataService.findByAthleteId(id);
+	@GetMapping("/{id}/sportdata")
+	public Page<SportdataDto> athleteSportdata(@PathVariable int id, Pageable pageable) {
+		List<String> filters = new ArrayList<>();
+		filters.add("athleteId__=__" + id);
+		return sportdataService.findPagintation(new SportdataSpecificationConstructor<>(filters), pageable);
 	}
 
 	@PostMapping("/{id}/register")
