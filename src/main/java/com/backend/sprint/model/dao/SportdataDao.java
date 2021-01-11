@@ -17,7 +17,7 @@ import lombok.ToString;
 @Setter
 @ToString
 @Entity
-@Table(name = "historic")
+@Table(name = "sportdata")
 public class SportdataDao {
 
 	@Id
@@ -30,17 +30,17 @@ public class SportdataDao {
 
 	private int season;
 
-	private int attitude;
+	private String attitude;
 
-	private int implication;
+	private String implication;
 
-	private int technicalLevel;
+	private String technicalLevel;
 
-	private int motivations;
+	private String motivations;
 
-	private int outstandingResults;
+	private String outstandingResults;
 
-	private int injuries;
+	private String injuries;
 
 	private String observations;
 

@@ -11,6 +11,6 @@ import com.backend.sprint.model.dao.SportdataDao;
 public interface SportdataRepository
 		extends PagingAndSortingRepository<SportdataDao, Long>, JpaSpecificationExecutor<SportdataDao> {
 
-	@Query(value = "SELECT * FROM historic WHERE athlete_id = ?1", nativeQuery = true)
+	@Query(value = "SELECT * FROM sportdata WHERE athlete_id = ?1", nativeQuery = true)
 	public List<SportdataDao> findByAthleteId(long athleteId);
 }
