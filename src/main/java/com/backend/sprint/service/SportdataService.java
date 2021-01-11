@@ -57,6 +57,7 @@ public class SportdataService {
 		}
 		SportdataDto dto = new ModelMapper().map(dao, SportdataDto.class);
 		dto.setAthleteId(dao.getAthlete().getId());
+		dto.setCategory(dao.getAthlete().getCategory());
 		return dto;
 	}
 

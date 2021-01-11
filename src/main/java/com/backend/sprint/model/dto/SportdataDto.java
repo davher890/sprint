@@ -15,17 +15,19 @@ public class SportdataDto {
 
 	private int season;
 
-	private int attitude;
+	private String category;
 
-	private int implication;
+	private String attitude;
 
-	private int technicalLevel;
+	private String implication;
 
-	private int motivations;
+	private String technicalLevel;
 
-	private int outstandingResults;
+	private String motivations;
 
-	private int injuries;
+	private String outstandingResults;
+
+	private String injuries;
 
 	private String observations;
 }
