@@ -33,6 +33,8 @@ public class AthleteDto {
 	private Date birthDate;
 	private String dni;
 	private String gender;
+	private String nationality;
+	private String birthPlace;
 
 	// Family info
 	private String familiarOneName;
