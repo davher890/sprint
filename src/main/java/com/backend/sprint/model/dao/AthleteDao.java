@@ -56,6 +56,8 @@ public class AthleteDao {
 	private Date birthDate;
 	private String dni;
 	private String gender;
+	private String nationality;
+	private String birthPlace;
 
 	// Family info
 	@ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
