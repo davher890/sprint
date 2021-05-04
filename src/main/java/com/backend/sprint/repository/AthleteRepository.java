@@ -1,6 +1,5 @@
 package com.backend.sprint.repository;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -31,7 +30,8 @@ public interface AthleteRepository
 	@Query(value = "SELECT MAX(code) FROM athletes", nativeQuery = true)
 	public long findLastFamilyCode();
 
-	@Query(value = "SELECT * FROM athletes WHERE id != ?1 AND name = ?2 AND first_surname = ?3 AND second_surname = ?4 AND birth_date = ?5 ", nativeQuery = true)
+	@Query(value = "SELECT * FROM athletes WHERE id != ?1 AND name = ?2 AND first_surname = ?3 AND second_surname = ?4 "
+			+ "AND EXTRACT(YEAR FROM birth_date) = ?5 AND EXTRACT(MONTH FROM birth_date) = ?6 AND EXTRACT(DAY FROM birth_date) = ?7 ", nativeQuery = true)
 	public List<AthleteDao> findByUniqueColumns(long id, String name, String firstSurname, String secondSurname,
-			Date birthDate);
+			int year, int month, int day);
 }
