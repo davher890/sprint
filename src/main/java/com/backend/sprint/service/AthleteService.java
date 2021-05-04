@@ -1,5 +1,6 @@
 package com.backend.sprint.service;
 
+import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -90,8 +91,12 @@ public class AthleteService {
 
 	public AthleteDto save(AthleteDto dto) throws DataIntegrityViolationException {
 
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(dto.getBirthDate());
+
 		List<AthleteDao> findByUniqueColumns = repository.findByUniqueColumns(dto.getId(), dto.getName(),
-				dto.getFirstSurname(), dto.getSecondSurname(), dto.getBirthDate());
+				dto.getFirstSurname(), dto.getSecondSurname(), calendar.get(Calendar.YEAR),
+				calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH));
 		if (findByUniqueColumns != null && findByUniqueColumns.size() > 0) {
 			throw new DataIntegrityViolationException(null);
 		}
