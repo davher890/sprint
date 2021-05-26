@@ -71,6 +71,11 @@ public class GroupService {
 	private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
 
 	private final Map<DayOfWeek, String> mapDay = new HashMap<DayOfWeek, String>() {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
 		{
 			put(DayOfWeek.MONDAY, "L");
 			put(DayOfWeek.TUESDAY, "M");
@@ -88,8 +93,7 @@ public class GroupService {
 	}
 
 	public List<GroupDto> findAll() {
-		return StreamSupport.stream(repository.findAll().spliterator(), false).map(this::convertToDto)
-				.collect(Collectors.toList());
+		return StreamSupport.stream(repository.findAll().spliterator(), false).map(this::convertToDto).collect(Collectors.toList());
 	}
 
 	public GroupDto findById(long id) {
@@ -105,8 +109,7 @@ public class GroupService {
 	}
 
 	public List<GroupDto> findBySpecialization(boolean specialization) {
-		return repository.findBySpecialization(specialization).stream().map(this::convertToDto)
-				.collect(Collectors.toList());
+		return repository.findBySpecialization(specialization).stream().map(this::convertToDto).collect(Collectors.toList());
 	}
 
 	public GroupDto save(GroupDto dto) {
@@ -124,8 +127,11 @@ public class GroupService {
 		if (dao.getSportSchool() != null) {
 			dto.setSportSchoolId(dao.getSportSchool().getId());
 		}
+
 		if (dao.getSchedules() != null) {
-			dto.setScheduleIds(dao.getSchedules().stream().map(ScheduleDao::getId).collect(Collectors.toSet()));
+			Set<ScheduleDto> schedules = scheduleService.convertToDto(dao.getSchedules());
+			dto.setScheduleIds(schedules.parallelStream().map(ScheduleDto::getId).collect(Collectors.toSet()));
+			dto.setSchedules(schedules);
 		}
 		return dto;
 	}
@@ -151,8 +157,8 @@ public class GroupService {
 	}
 
 	public List<ScheduleDto> findGroupSchedules(long id) {
-		return repository.findById(id).get().getSchedules().stream().map(ScheduleDao::getId)
-				.map(scheduleService::findById).collect(Collectors.toList());
+		return repository.findById(id).get().getSchedules().stream().map(ScheduleDao::getId).map(scheduleService::findById)
+				.collect(Collectors.toList());
 	}
 
 	public XSSFWorkbook getGroupAttendance(List<Long> ids, int month) throws IOException {
@@ -160,26 +166,22 @@ public class GroupService {
 		XSSFWorkbook workbook = new XSSFWorkbook();
 
 		ids.stream().forEach(id -> {
-			List<AthleteDto> athletes = athleteGroupScheduleService.findByGroup(id).parallelStream()
-					.map(d -> d.getAthleteId()).distinct().map(d -> athleteService.findById(d))
-					.collect(Collectors.toList());
+			List<AthleteDto> athletes = athleteGroupScheduleService.findByGroup(id).parallelStream().map(d -> d.getAthleteId()).distinct()
+					.map(d -> athleteService.findById(d)).collect(Collectors.toList());
 			GroupDto group = this.findById(id);
-			List<String> scheduleDays = group.getScheduleIds().stream().map(d -> scheduleService.findById(d).getDay())
-					.collect(Collectors.toList());
+			List<String> scheduleDays = group.getScheduleIds().stream().map(d -> scheduleService.findById(d).getDay()).collect(Collectors.toList());
 
 			List<ExcelDataDto> data = new ArrayList<>();
 
 			ExcelDataDto groupHeader = new ExcelDataDto();
 			groupHeader.getData().add(new ExcelValueDto(group.getName(), CellType.STRING));
-			groupHeader.getData().add(new ExcelValueDto(
-					new DateFormatSymbols(new Locale("es", "ES")).getMonths()[month], CellType.STRING));
+			groupHeader.getData().add(new ExcelValueDto(new DateFormatSymbols(new Locale("es", "ES")).getMonths()[month], CellType.STRING));
 			data.add(groupHeader);
 
 			ExcelDataDto header = new ExcelDataDto();
 			header.getData().add(new ExcelValueDto("ATLETA", CellType.STRING));
 			header.getData().add(new ExcelValueDto("FECHA NACIMIENTO", CellType.STRING));
-			header.getData()
-					.add(new ExcelValueDto("CATEGORIA " + Calendar.getInstance().get(Calendar.YEAR), CellType.STRING));
+			header.getData().add(new ExcelValueDto("CATEGORIA " + Calendar.getInstance().get(Calendar.YEAR), CellType.STRING));
 			header.getData().add(new ExcelValueDto("DIAS", CellType.STRING));
 
 			LocalDate startDate;
@@ -214,14 +216,12 @@ public class GroupService {
 
 			List<ExcelDataDto> excelData = athletes.parallelStream().map(entity -> {
 				ExcelDataDto dataDto = new ExcelDataDto();
-				dataDto.getData()
-						.add(new ExcelValueDto(
-								entity.getSecondSurname() + " " + entity.getFirstSurname() + ", " + entity.getName(),
-								CellType.STRING));
+				dataDto.getData().add(
+						new ExcelValueDto(entity.getSecondSurname() + " " + entity.getFirstSurname() + ", " + entity.getName(), CellType.STRING));
 				dataDto.getData().add(new ExcelValueDto(dateFormat.format(entity.getBirthDate()), CellType.STRING));
 				dataDto.getData().add(new ExcelValueDto(entity.getCategory(), CellType.STRING));
-				dataDto.getData().add(new ExcelValueDto(entity.getSchedules().parallelStream()
-						.map(ScheduleDto::getDayTranslate).collect(Collectors.joining(",")), CellType.STRING));
+				dataDto.getData().add(new ExcelValueDto(
+						entity.getSchedules().parallelStream().map(ScheduleDto::getDayTranslate).collect(Collectors.joining(",")), CellType.STRING));
 				return dataDto;
 			}).collect(Collectors.toList());
 			data.addAll(excelData);
