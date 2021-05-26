@@ -25,6 +25,8 @@ public class GroupDto {
 
 	private Set<Long> scheduleIds;
 
+	private Set<ScheduleDto> schedules;
+
 	private long trainerId;
 
 	@NotNull

@@ -3,6 +3,7 @@ package com.backend.sprint.service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -23,6 +24,11 @@ import com.backend.sprint.repository.ScheduleRepository;
 public class ScheduleService {
 
 	private final Map<String, String> dayTranslate = new HashMap<String, String>() {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
 		{
 			put("MONDAY", "Lunes");
 			put("TUESDAY", "Martes");
@@ -43,8 +49,7 @@ public class ScheduleService {
 	}
 
 	public List<ScheduleDto> findAll() {
-		return StreamSupport.stream(repository.findAll().spliterator(), false).map(this::convertToDto)
-				.collect(Collectors.toList());
+		return StreamSupport.stream(repository.findAll().spliterator(), false).map(this::convertToDto).collect(Collectors.toList());
 	}
 
 	public ScheduleDto findById(long id) {
@@ -61,13 +66,17 @@ public class ScheduleService {
 		return convertToDto(repository.save(dao));
 	}
 
-	private ScheduleDto convertToDto(ScheduleDao dao) {
+	public ScheduleDto convertToDto(ScheduleDao dao) {
 		if (dao == null) {
 			return null;
 		}
 		ScheduleDto map = new ModelMapper().map(dao, ScheduleDto.class);
 		map.setDayTranslate(dayTranslate.get(map.getDay()));
 		return map;
+	}
+
+	public Set<ScheduleDto> convertToDto(Set<ScheduleDao> dao) {
+		return dao.parallelStream().map(this::convertToDto).collect(Collectors.toSet());
 	}
 
 	private ScheduleDao convertToDao(ScheduleDto dto) {
