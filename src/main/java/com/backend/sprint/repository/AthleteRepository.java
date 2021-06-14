@@ -32,6 +32,11 @@ public interface AthleteRepository
 
 	@Query(value = "SELECT * FROM athletes WHERE id != ?1 AND name = ?2 AND first_surname = ?3 AND second_surname = ?4 "
 			+ "AND EXTRACT(YEAR FROM birth_date) = ?5 AND EXTRACT(MONTH FROM birth_date) = ?6 AND EXTRACT(DAY FROM birth_date) = ?7 ", nativeQuery = true)
-	public List<AthleteDao> findByUniqueColumns(long id, String name, String firstSurname, String secondSurname,
+	public List<AthleteDao> findByIdAndUniqueColumns(long id, String name, String firstSurname, String secondSurname,
 			int year, int month, int day);
+
+	@Query(value = "SELECT * FROM athletes WHERE name = ?1 AND first_surname = ?2 AND second_surname = ?3 "
+			+ "AND EXTRACT(YEAR FROM birth_date) = ?4 AND EXTRACT(MONTH FROM birth_date) = ?5 AND EXTRACT(DAY FROM birth_date) = ?6 ", nativeQuery = true)
+	public List<AthleteDao> findByUniqueColumns(String name, String firstSurname, String secondSurname, int year,
+			int month, int day);
 }
