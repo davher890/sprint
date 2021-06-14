@@ -43,8 +43,8 @@ public class DatabaseController {
 
 	@GetMapping("groups")
 	public List<GroupDto> dbFillGroupsData() throws IOException, ParseException {
-		String santanaFileName = "/Users/david/Development/git/sprint/src/main/resources/GRUPOS_SANTA_ANA.csv";
-		String paracuellosFileName = "/Users/david/Development/git/sprint/src/main/resources/GRUPOS_PARACUELLOS.csv";
+		String santanaFileName = System.getProperty("user.dir") + "/src/main/resources/GRUPOS_SANTA_ANA.csv";
+		String paracuellosFileName = System.getProperty("user.dir") + "/src/main/resources/GRUPOS_PARACUELLOS.csv";
 
 		List<GroupDto> sGroups = dbGroupService.dbFillGroupsData(santanaFileName);
 		List<GroupDto> pGroups = dbGroupService.dbFillGroupsData(paracuellosFileName);
