@@ -94,11 +94,23 @@ public class AthleteService {
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(dto.getBirthDate());
 
-		List<AthleteDao> findByUniqueColumns = repository.findByUniqueColumns(dto.getId(), dto.getName(),
-				dto.getFirstSurname(), dto.getSecondSurname(), calendar.get(Calendar.YEAR),
-				calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH));
-		if (findByUniqueColumns != null && findByUniqueColumns.size() > 0) {
-			throw new DataIntegrityViolationException(null);
+		// New record, check if someone similar exists.
+		if (dto.getId() == 0) {
+			List<AthleteDao> findByUniqueColumns = repository.findByUniqueColumns(dto.getName(), dto.getFirstSurname(),
+					dto.getSecondSurname(), calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1,
+					calendar.get(Calendar.DAY_OF_MONTH));
+			if (findByUniqueColumns != null && findByUniqueColumns.size() > 0) {
+				throw new DataIntegrityViolationException(null);
+			}
+		}
+		// Old record, check if another distinct record exists
+		else {
+			List<AthleteDao> findByUniqueColumns = repository.findByIdAndUniqueColumns(dto.getId(), dto.getName(),
+					dto.getFirstSurname(), dto.getSecondSurname(), calendar.get(Calendar.YEAR),
+					calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH));
+			if (findByUniqueColumns != null && findByUniqueColumns.size() > 0) {
+				throw new DataIntegrityViolationException(null);
+			}
 		}
 
 		AthleteDao dao = repository.save(convertToDao(dto));
@@ -120,6 +132,25 @@ public class AthleteService {
 
 	public Set<AthleteDto> findByFamily(long familyId) {
 		return repository.findByFamily(familyId).stream().map(this::convertToDto).collect(Collectors.toSet());
+	}
+
+	public AthleteDto findByUniqueColumns(String name, String firstSurname, String secondSurname, Date birthDate) {
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(birthDate);
+
+		Set<AthleteDto> collect = repository
+				.findByUniqueColumns(name, firstSurname, secondSurname, calendar.get(Calendar.YEAR),
+						calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH))
+				.stream().map(this::convertToDto).collect(Collectors.toSet());
+		if (collect == null || collect.isEmpty()) {
+			return null;
+		} else {
+			if (collect.size() > 0) {
+				return collect.iterator().next();
+			} else {
+				return null;
+			}
+		}
 	}
 
 	public AthleteDto findByCode(long code) {
