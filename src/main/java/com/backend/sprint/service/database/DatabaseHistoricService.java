@@ -66,8 +66,7 @@ public class DatabaseHistoricService extends DatabaseService {
 
 	public List<AthleteDto> dbFillAtheltesData() throws IOException, ParseException {
 
-		CSVReader csvReader = readFile(
-				"/Users/usuario/Documents/Development/git/sprint/src/main/resources/BD_HISTORICO_V2.csv");
+		CSVReader csvReader = readFile(System.getProperty("user.dir") + "/src/main/resources/BD_HISTORICO_V2.csv");
 		return StreamSupport.stream(csvReader.spliterator(), true).parallel()
 //				.filter(d -> Long.valueOf(d[ATHLETE_CODE].trim()) == 20681)
 				// Long.valueOf(d[FAMILY_CODE].trim()) == 2259
