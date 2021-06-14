@@ -18,7 +18,7 @@ import com.opencsv.CSVReaderBuilder;
 
 public class DatabaseService {
 
-	DateFormat dateFormat = new SimpleDateFormat("dd/mm/yyyy");
+	DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 	DateFormat dayFormat = new SimpleDateFormat("yyyy-MM-dd");
 	static Map<String, String> registarDateMap = new HashMap<>();
 	static {

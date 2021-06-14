@@ -2,7 +2,6 @@ package com.backend.sprint.service.database;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -91,12 +90,10 @@ public class DatabaseAthleteService extends DatabaseService {
 	@Autowired
 	private HistoricService historicService;
 
-	private static SimpleDateFormat dateFormat = new SimpleDateFormat("dd/mm/yyyy");
-
 	@Transactional
 	public List<AthleteDto> dbFillAtheltesData() throws IOException, ParseException {
 
-		String fileName = "/Users/david/Development/git/sprint/src/main/resources/BD_PARA_PRUEBAS.csv";
+		String fileName = "/Users/usuario/Documents/Development/git/sprint/src/main/resources/BD_PARA_PRUEBAS.csv";
 
 		CSVReader csvReader = readFile(fileName);
 		SportSchoolDto sportSchool = sportSchoolService.findByName("Santa Ana");

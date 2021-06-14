@@ -2,7 +2,6 @@ package com.backend.sprint.service.database;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -54,6 +53,8 @@ public class DatabaseHistoricService extends DatabaseService {
 	private static final int REGISTER_DATE = 26;
 	private static final int UNREGISTER_DATE = 27;
 
+	private static final String DATE_SEPARATOR = "-";
+
 	@Autowired
 	private FamilyService familyService;
 
@@ -63,13 +64,12 @@ public class DatabaseHistoricService extends DatabaseService {
 	@Autowired
 	private HistoricService historicService;
 
-	private static SimpleDateFormat dateFormat = new SimpleDateFormat("dd/mm/yyyy");
-
 	public List<AthleteDto> dbFillAtheltesData() throws IOException, ParseException {
 
-		CSVReader csvReader = readFile("/Users/david/Development/git/sprint/src/main/resources/BD_HISTORICO.csv");
-		return StreamSupport.stream(csvReader.spliterator(), true)
-				// .filter(d -> Long.valueOf(d[FAMILY_CODE].trim()) == 1756 ||
+		CSVReader csvReader = readFile(
+				"/Users/usuario/Documents/Development/git/sprint/src/main/resources/BD_HISTORICO_V2.csv");
+		return StreamSupport.stream(csvReader.spliterator(), true).parallel()
+//				.filter(d -> Long.valueOf(d[ATHLETE_CODE].trim()) == 20681)
 				// Long.valueOf(d[FAMILY_CODE].trim()) == 2259
 				// || Long.valueOf(d[FAMILY_CODE].trim()) == 2261 ||
 				// Long.valueOf(d[FAMILY_CODE].trim()) == 2266)
@@ -125,11 +125,12 @@ public class DatabaseHistoricService extends DatabaseService {
 						String holderDni = line[HOLDER_DNI];
 
 						// New Athlete
-						AthleteDto athlete = athleteService.findByCode(athleteCode);
+						AthleteDto athlete = athleteService.findByUniqueColumns(name, firstSurname, secondSurname,
+								birthDate);
 						if (athlete == null) {
 							athlete = new AthleteDto();
-							athlete.setCode(athleteCode);
 						}
+						athlete.setCode(athleteCode);
 						athlete.setName(name);
 						athlete.setFirstSurname(firstSurname);
 						athlete.setSecondSurname(secondSurname);
@@ -186,9 +187,9 @@ public class DatabaseHistoricService extends DatabaseService {
 						athlete = athleteService.save(athlete);
 
 						if (line[REGISTER_DATE] != null && !line[REGISTER_DATE].isEmpty()
-								&& line[REGISTER_DATE].split(".-").length == 2) {
+								&& line[REGISTER_DATE].split(DATE_SEPARATOR).length == 2) {
 
-							String[] splitDate = line[REGISTER_DATE].split(".-");
+							String[] splitDate = line[REGISTER_DATE].split(DATE_SEPARATOR);
 							String year = splitDate[1];
 							String month = registarDateMap.get(splitDate[0]);
 							HistoricDto historic = new HistoricDto();
@@ -203,9 +204,9 @@ public class DatabaseHistoricService extends DatabaseService {
 							historicService.save(historic);
 						}
 						if (line[UNREGISTER_DATE] != null && !line[UNREGISTER_DATE].isEmpty()
-								&& line[UNREGISTER_DATE].split(".-").length == 2) {
+								&& line[UNREGISTER_DATE].split(DATE_SEPARATOR).length == 2) {
 
-							String[] splitDate = line[UNREGISTER_DATE].split(".-");
+							String[] splitDate = line[UNREGISTER_DATE].split(DATE_SEPARATOR);
 							String year = splitDate[1];
 							String month = registarDateMap.get(splitDate[0]);
 							HistoricDto historic = new HistoricDto();

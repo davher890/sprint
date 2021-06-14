@@ -2,6 +2,7 @@
 */.numbers
 */.xlsx
 */.DS_Store
+*.DS_Store
 
 HELP.md
 .gradle
