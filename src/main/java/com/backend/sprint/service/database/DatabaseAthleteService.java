@@ -93,7 +93,7 @@ public class DatabaseAthleteService extends DatabaseService {
 	@Transactional
 	public List<AthleteDto> dbFillAtheltesData() throws IOException, ParseException {
 
-		String fileName = "/Users/usuario/Documents/Development/git/sprint/src/main/resources/BD_PARA_PRUEBAS.csv";
+		String fileName = System.getProperty("user.dir") + "/src/main/resources/BD_PARA_PRUEBAS.csv";
 
 		CSVReader csvReader = readFile(fileName);
 		SportSchoolDto sportSchool = sportSchoolService.findByName("Santa Ana");
