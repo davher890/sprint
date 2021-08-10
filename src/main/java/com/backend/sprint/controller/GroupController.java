@@ -94,26 +94,26 @@ public class GroupController {
 				pageable);
 	}
 
-	@GetMapping("/{group_id}/schedules/{schedule_id}/athletes")
+	@GetMapping("/{group_id}/schedules/{schedule_ids}/athletes")
 	public Page<AthleteDto> findGroupScheduleAthletes(
 			@RequestParam(value = "filters", required = false) List<String> filters, Pageable pageable,
-			@PathVariable("group_id") int groupId, @PathVariable("schedule_id") int scheduleId) {
+			@PathVariable("group_id") int groupId, @PathVariable("schedule_ids") List<String> scheduleIds) {
 
 		if (filters == null) {
 			filters = new ArrayList<String>();
 		}
 		filters.add("groupId__=__" + groupId);
-		filters.add("scheduleId__=__" + scheduleId);
+		filters.add("scheduleId__in__" + String.join(",", scheduleIds));
 
 		return athleteService.findByGroupAndSchedule(new AthleteGroupScheduleSpecificationConstructor<>(filters),
 				pageable);
 	}
 
-	@PostMapping("/{group_id}/schedules/{schedule_id}/athletes/excel")
-	public void excel(@PathVariable("group_id") int groupId, @PathVariable("schedule_id") int scheduleId,
+	@PostMapping("/{group_id}/schedules/{schedule_ids}/athletes/excel")
+	public void excel(@PathVariable("group_id") int groupId, @PathVariable("schedule_ids") List<Integer> scheduleIds,
 			@RequestBody List<ColumnDto> columns, HttpServletResponse response) throws IOException {
 
-		List<AthleteDto> athletes = athleteGroupScheduleService.findByGroupAndSchedule(groupId, scheduleId).stream()
+		List<AthleteDto> athletes = athleteGroupScheduleService.findByGroupAndSchedule(groupId, scheduleIds).stream()
 				.map(d -> athleteService.findById(d.getAthleteId())).collect(Collectors.toList());
 
 		List<ExcelDataDto> data = new ArrayList<>();

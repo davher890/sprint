@@ -41,8 +41,8 @@ dependencies {
     // OpenCSV
     implementation 'com.opencsv:opencsv:4.1'
     
-    compile "org.apache.poi:poi:3.17"	     // For `.xls` files
-	compile "org.apache.poi:poi-ooxml:3.17"	 // For `.xlsx` files
+    implementation 'org.apache.poi:poi:3.17'
+	implementation 'org.apache.poi:poi-ooxml:3.17'
 	
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {
 		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'

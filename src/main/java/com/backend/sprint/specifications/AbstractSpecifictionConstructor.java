@@ -1,6 +1,8 @@
 package com.backend.sprint.specifications;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -62,6 +64,9 @@ public abstract class AbstractSpecifictionConstructor<E> implements Specificatio
 			predicate = builder.lessThan(root.get(field), value);
 		} else if (operator.equals("<=")) {
 			predicate = builder.lessThanOrEqualTo(root.get(field), value);
+		} else if (operator.toLowerCase().equals("in")) {
+			List<Integer> idList = Arrays.asList(value.split(",")).parallelStream().map(d -> Integer.parseInt(d)).collect(Collectors.toList());
+			predicate = root.get(field).in(idList);
 		}
 
 		return predicate;

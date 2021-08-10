@@ -11,24 +11,12 @@ import org.springframework.transaction.annotation.Transactional;
 import com.backend.sprint.model.dao.AthleteGroupScheduleDao;
 import com.backend.sprint.model.dto.AthleteGroupScheduleDto;
 import com.backend.sprint.repository.AthleteGroupScheduleRepository;
-import com.backend.sprint.repository.AthleteRepository;
-import com.backend.sprint.repository.GroupRepository;
-import com.backend.sprint.repository.ScheduleRepository;
 
 @Service
 public class AthleteGroupScheduleService {
 
 	@Autowired
 	private AthleteGroupScheduleRepository repository;
-
-	@Autowired
-	private AthleteRepository athleteRepository;
-
-	@Autowired
-	private GroupRepository groupRepository;
-
-	@Autowired
-	private ScheduleRepository scheduleRepository;
 
 	public List<AthleteGroupScheduleDto> findByAthlete(long athleteId) {
 		return repository.findByAthlete(athleteId).stream().map(this::convertToDto).collect(Collectors.toList());
@@ -42,8 +30,8 @@ public class AthleteGroupScheduleService {
 		return repository.findBySchedule(scheduleId).stream().map(this::convertToDto).collect(Collectors.toList());
 	}
 
-	public List<AthleteGroupScheduleDto> findByGroupAndSchedule(long groupId, long scheduleId) {
-		return repository.findByGroupAndSchedule(groupId, scheduleId).stream().map(this::convertToDto)
+	public List<AthleteGroupScheduleDto> findByGroupAndSchedule(long groupId, List<Integer> scheduleIds) {
+		return repository.findByGroupAndSchedules(groupId, scheduleIds).stream().map(this::convertToDto)
 				.collect(Collectors.toList());
 	}
 
