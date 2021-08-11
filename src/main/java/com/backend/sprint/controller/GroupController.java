@@ -97,13 +97,13 @@ public class GroupController {
 	@GetMapping("/{group_id}/schedules/{schedule_ids}/athletes")
 	public Page<AthleteDto> findGroupScheduleAthletes(
 			@RequestParam(value = "filters", required = false) List<String> filters, Pageable pageable,
-			@PathVariable("group_id") int groupId, @PathVariable("schedule_ids") List<String> scheduleIds) {
+			@PathVariable("group_id") int groupId, @PathVariable("schedule_ids") String scheduleIds) {
 
 		if (filters == null) {
 			filters = new ArrayList<String>();
 		}
 		filters.add("groupId__=__" + groupId);
-		filters.add("scheduleId__in__" + String.join(",", scheduleIds));
+		filters.add("scheduleId__in__" + String.join(",", scheduleIds.split("_")));
 
 		return athleteService.findByGroupAndSchedule(new AthleteGroupScheduleSpecificationConstructor<>(filters),
 				pageable);
