@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.backend.sprint.model.dao.AthleteDao;
-import com.backend.sprint.model.dao.AthleteGroupScheduleDao;
 import com.backend.sprint.model.dao.FamilyDao;
 import com.backend.sprint.model.dto.AthleteDto;
 import com.backend.sprint.model.dto.AthleteGroupScheduleDto;
@@ -27,7 +26,6 @@ import com.backend.sprint.model.dto.FamilyDto;
 import com.backend.sprint.model.dto.FeeDto;
 import com.backend.sprint.model.dto.GroupDto;
 import com.backend.sprint.model.dto.HistoricDto;
-import com.backend.sprint.repository.AthleteGroupScheduleRepository;
 import com.backend.sprint.repository.AthleteRepository;
 import com.backend.sprint.repository.FamilyRepository;
 import com.backend.sprint.repository.SportSchoolRepository;
@@ -45,9 +43,6 @@ public class AthleteService {
 
 	@Autowired
 	private GroupService groupService;
-
-	@Autowired
-	private AthleteGroupScheduleRepository athleteGroupScheduleRepository;
 
 	@Autowired
 	private SportSchoolRepository sportSchoolRepository;
@@ -69,10 +64,16 @@ public class AthleteService {
 		return daoPage.map(dao -> convertToDto(dao));
 	}
 
-	public Page<AthleteDto> findByGroupAndSchedule(Specification<AthleteGroupScheduleDao> specification,
-			Pageable pageable) {
-		Page<AthleteGroupScheduleDao> daoPage = athleteGroupScheduleRepository.findAll(specification, pageable);
-		return daoPage.map(dao -> convertToDto(repository.findById(dao.getAthleteId()).get()));
+	public Page<AthleteDto> findByGroupAndScheduleTable(long groupId, List<Long> scheduleIds,
+			Specification<AthleteDao> specification, Pageable pageable) {
+		Page<AthleteDao> daoPage = repository.findByGroupAndSchedulesPagination(groupId, scheduleIds, specification,
+				pageable);
+		return daoPage.map(dao -> convertToDto(dao));
+	}
+
+	public List<AthleteDto> findByGroupAndSchedule(long groupId, List<Long> scheduleIds) {
+		List<AthleteDao> daoPage = repository.findByGroupAndSchedules(groupId, scheduleIds);
+		return daoPage.stream().map(dao -> convertToDto(dao)).collect(Collectors.toList());
 	}
 
 	public List<AthleteDto> findAll() {

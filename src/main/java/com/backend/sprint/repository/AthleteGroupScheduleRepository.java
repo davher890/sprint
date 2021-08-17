@@ -1,6 +1,5 @@
 package com.backend.sprint.repository;
 
-import java.util.List;
 import java.util.Set;
 
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -23,9 +22,6 @@ public interface AthleteGroupScheduleRepository extends PagingAndSortingReposito
 
 	@Query(value = "SELECT * FROM athlete_group_schedules WHERE schedule_id = ?1 ", nativeQuery = true)
 	public Set<AthleteGroupScheduleDao> findBySchedule(long scheduleId);
-
-	@Query(value = "SELECT * FROM athlete_group_schedules WHERE group_id = ?1 AND schedule_id IN (?2) ", nativeQuery = true)
-	public Set<AthleteGroupScheduleDao> findByGroupAndSchedules(long groupId, List<Integer> scheduleIds);
 
 	@Modifying
 	@Query(value = "DELETE from athlete_group_schedules WHERE athlete_id = ?1", nativeQuery = true)

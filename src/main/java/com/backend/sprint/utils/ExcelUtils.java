@@ -73,6 +73,9 @@ public abstract class ExcelUtils {
 	}
 
 	public static CellType getCellType(ColumnDto d) {
+		if (d.getType() == null) {
+			return CellType.STRING;
+		}
 		switch (d.getType()) {
 		case "number":
 			return CellType.NUMERIC;

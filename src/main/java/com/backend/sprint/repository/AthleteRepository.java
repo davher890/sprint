@@ -3,6 +3,9 @@ package com.backend.sprint.repository;
 import java.util.List;
 import java.util.Set;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -39,4 +42,11 @@ public interface AthleteRepository
 			+ "AND EXTRACT(YEAR FROM birth_date) = ?4 AND EXTRACT(MONTH FROM birth_date) = ?5 AND EXTRACT(DAY FROM birth_date) = ?6 ", nativeQuery = true)
 	public List<AthleteDao> findByUniqueColumns(String name, String firstSurname, String secondSurname, int year,
 			int month, int day);
+
+	@Query(value = "SELECT * FROM athletes WHERE id IN (SELECT DISTINCT(athlete_id) FROM athlete_group_schedules WHERE group_id = ?1 AND schedule_id IN (?2))", nativeQuery = true)
+	public Page<AthleteDao> findByGroupAndSchedulesPagination(long groupId, List<Long> scheduleIds,
+			Specification<AthleteDao> specification, Pageable pageable);
+
+	@Query(value = "SELECT * FROM athletes WHERE id IN (SELECT DISTINCT(athlete_id) FROM athlete_group_schedules WHERE group_id = ?1 AND schedule_id IN (?2))", nativeQuery = true)
+	public List<AthleteDao> findByGroupAndSchedules(long groupId, List<Long> scheduleIds);
 }

@@ -6,6 +6,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -35,10 +36,9 @@ import com.backend.sprint.model.dto.ExcelDataDto;
 import com.backend.sprint.model.dto.ExcelValueDto;
 import com.backend.sprint.model.dto.GroupDto;
 import com.backend.sprint.model.dto.ScheduleDto;
-import com.backend.sprint.service.AthleteGroupScheduleService;
 import com.backend.sprint.service.AthleteService;
 import com.backend.sprint.service.GroupService;
-import com.backend.sprint.specifications.AthleteGroupScheduleSpecificationConstructor;
+import com.backend.sprint.specifications.AthleteSpecificationConstructor;
 import com.backend.sprint.specifications.GroupSpecificationConstructor;
 import com.backend.sprint.utils.ExcelUtils;
 
@@ -51,9 +51,6 @@ public class GroupController {
 
 	@Autowired
 	private AthleteService athleteService;
-
-	@Autowired
-	private AthleteGroupScheduleService athleteGroupScheduleService;
 
 	@GetMapping("")
 	public Page<GroupDto> findPagintation(@RequestParam(value = "filters", required = false) List<String> filters,
@@ -81,40 +78,24 @@ public class GroupController {
 		return service.findGroupSchedules(id);
 	}
 
-	@GetMapping("/{group_id}/athletes")
-	public Page<AthleteDto> findGroupAthletes(@RequestParam(value = "filters", required = false) List<String> filters,
-			Pageable pageable, @PathVariable("group_id") int groupId) {
-
-		if (filters == null) {
-			filters = new ArrayList<String>();
-		}
-		filters.add("groupId__=__" + groupId);
-
-		return athleteService.findByGroupAndSchedule(new AthleteGroupScheduleSpecificationConstructor<>(filters),
-				pageable);
-	}
-
 	@GetMapping("/{group_id}/schedules/{schedule_ids}/athletes")
 	public Page<AthleteDto> findGroupScheduleAthletes(
 			@RequestParam(value = "filters", required = false) List<String> filters, Pageable pageable,
 			@PathVariable("group_id") int groupId, @PathVariable("schedule_ids") String scheduleIds) {
 
-		if (filters == null) {
-			filters = new ArrayList<String>();
-		}
-		filters.add("groupId__=__" + groupId);
-		filters.add("scheduleId__in__" + String.join(",", scheduleIds.split("_")));
-
-		return athleteService.findByGroupAndSchedule(new AthleteGroupScheduleSpecificationConstructor<>(filters),
+		List<Long> ids = Arrays.asList(scheduleIds.split("_")).parallelStream().map(Long::parseLong)
+				.collect(Collectors.toList());
+		return athleteService.findByGroupAndScheduleTable(groupId, ids, new AthleteSpecificationConstructor<>(filters),
 				pageable);
 	}
 
 	@PostMapping("/{group_id}/schedules/{schedule_ids}/athletes/excel")
-	public void excel(@PathVariable("group_id") int groupId, @PathVariable("schedule_ids") List<Integer> scheduleIds,
+	public void excel(@PathVariable("group_id") int groupId, @PathVariable("schedule_ids") String scheduleIds,
 			@RequestBody List<ColumnDto> columns, HttpServletResponse response) throws IOException {
 
-		List<AthleteDto> athletes = athleteGroupScheduleService.findByGroupAndSchedule(groupId, scheduleIds).stream()
-				.map(d -> athleteService.findById(d.getAthleteId())).collect(Collectors.toList());
+		List<Long> ids = Arrays.asList(scheduleIds.split("_")).parallelStream().map(Long::parseLong)
+				.collect(Collectors.toList());
+		List<AthleteDto> athletes = athleteService.findByGroupAndSchedule(groupId, ids);
 
 		List<ExcelDataDto> data = new ArrayList<>();
 
