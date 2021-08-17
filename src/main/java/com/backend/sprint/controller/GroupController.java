@@ -118,7 +118,7 @@ public class GroupController {
 			return dataDto;
 		}).collect(Collectors.toList()));
 
-		ByteArrayInputStream bas = ExcelUtils.generateExcel("Familias", data);
+		ByteArrayInputStream bas = ExcelUtils.generateExcel("Atletas", data);
 		IOUtils.copy(bas, response.getOutputStream());
 	}
 

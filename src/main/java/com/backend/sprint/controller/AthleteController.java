@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.beanutils.BeanUtilsBean;
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.util.IOUtils;
 import org.postgresql.util.PSQLException;
@@ -89,25 +89,25 @@ public class AthleteController {
 		List<ExcelDataDto> data = new ArrayList<>();
 
 		ExcelDataDto header = new ExcelDataDto();
-		header.getData().addAll(columns.parallelStream().map(d -> {
+		header.getData().addAll(columns.parallelStream().filter(ColumnDto::isShow).map(d -> {
 			return new ExcelValueDto(d.getText(), CellType.STRING);
 		}).collect(Collectors.toList()));
 		data.add(header);
 
-		final BeanUtilsBean bub = new BeanUtilsBean();
 		data.addAll(athletes.parallelStream().map(entity -> {
 			ExcelDataDto dataDto = new ExcelDataDto();
-			dataDto.getData().addAll(columns.parallelStream().map(d -> {
+			dataDto.getData().addAll(columns.parallelStream().filter(ColumnDto::isShow).map(d -> {
 				try {
-					return new ExcelValueDto(bub.getProperty(entity, d.getDataField()), CellType.STRING);
+					return new ExcelValueDto(BeanUtils.getProperty(entity, d.getDataField()),
+							ExcelUtils.getCellType(d));
 				} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
 					return null;
 				}
 			}).filter(Objects::nonNull).collect(Collectors.toList()));
 			return dataDto;
-		}).collect(Collectors.toList()));
+		}).filter(Objects::nonNull).collect(Collectors.toList()));
 
-		ByteArrayInputStream bas = ExcelUtils.generateExcel("Familias", data);
+		ByteArrayInputStream bas = ExcelUtils.generateExcel("Atletas", data);
 		IOUtils.copy(bas, response.getOutputStream());
 	}
 
