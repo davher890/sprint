@@ -10,7 +10,9 @@ import java.util.stream.StreamSupport;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,13 +45,19 @@ public class ScheduleService {
 	@Autowired
 	private ScheduleRepository repository;
 
-	public Page<ScheduleDto> findPagintation(Specification<ScheduleDao> specification, Pageable pageable) {
-		Page<ScheduleDao> daoPage = repository.findAll(specification, pageable);
+	public Page<ScheduleDto> findPagintation(Specification<ScheduleDao> specification, Pageable pageable, String sort) {
+		Sort sortOrder = null;
+		if (sort != null) {
+			sortOrder = Sort.by(sort);
+		}
+		Page<ScheduleDao> daoPage = repository.findAll(specification,
+				PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sortOrder));
 		return daoPage.map(dao -> convertToDto(dao));
 	}
 
 	public List<ScheduleDto> findAll() {
-		return StreamSupport.stream(repository.findAll().spliterator(), false).map(this::convertToDto).collect(Collectors.toList());
+		return StreamSupport.stream(repository.findAll().spliterator(), false).map(this::convertToDto)
+				.collect(Collectors.toList());
 	}
 
 	public ScheduleDto findById(long id) {

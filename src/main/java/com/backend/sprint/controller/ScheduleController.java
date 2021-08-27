@@ -26,8 +26,8 @@ public class ScheduleController {
 
 	@GetMapping("")
 	public Page<ScheduleDto> findPagintation(@RequestParam(value = "filters", required = false) List<String> filters,
-			Pageable pageable) {
-		return service.findPagintation(new ScheduleSpecificationConstructor<>(filters), pageable);
+			@RequestParam(value = "sort", required = false) String sort, Pageable pageable) {
+		return service.findPagintation(new ScheduleSpecificationConstructor<>(filters), pageable, sort);
 	}
 
 	@GetMapping("/all")
