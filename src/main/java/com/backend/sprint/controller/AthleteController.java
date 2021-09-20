@@ -76,6 +76,36 @@ public class AthleteController {
 		return service.findPagintation(new AthleteSpecificationConstructor<>(filters), pageable);
 	}
 
+	@PostMapping("/historic/excel")
+	public void historicExcel(@RequestBody List<ColumnDto> columns, HttpServletResponse response) throws IOException {
+
+		List<AthleteDao> athletes = service.findAllHistoricExcel();
+
+		List<ExcelDataDto> data = new ArrayList<>();
+
+		ExcelDataDto header = new ExcelDataDto();
+		header.getData().addAll(columns.parallelStream().filter(ColumnDto::isShow).map(d -> {
+			return new ExcelValueDto(d.getText(), CellType.STRING);
+		}).collect(Collectors.toList()));
+		data.add(header);
+
+		data.addAll(athletes.parallelStream().map(entity -> {
+			ExcelDataDto dataDto = new ExcelDataDto();
+			dataDto.getData().addAll(columns.parallelStream().filter(ColumnDto::isShow).map(d -> {
+				try {
+					return new ExcelValueDto(BeanUtils.getProperty(entity, d.getDataField()),
+							ExcelUtils.getCellType(d));
+				} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+					return null;
+				}
+			}).filter(Objects::nonNull).collect(Collectors.toList()));
+			return dataDto;
+		}).filter(Objects::nonNull).collect(Collectors.toList()));
+
+		ByteArrayInputStream bas = ExcelUtils.generateExcel("Historico", data);
+		IOUtils.copy(bas, response.getOutputStream());
+	}
+
 	@GetMapping("/all")
 	public List<AthleteDto> findAll() {
 		return service.findAll();

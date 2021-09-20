@@ -36,6 +36,11 @@ public class TrainerService {
 				.collect(Collectors.toList());
 	}
 
+	public List<TrainerDao> findAllExcel() {
+		Iterable<TrainerDao> findAll = repository.findAll();
+		return StreamSupport.stream(findAll.spliterator(), false).collect(Collectors.toList());
+	}
+
 	public TrainerDto findById(long id) {
 		TrainerDao dao = repository.findById(id).orElse(null);
 		return convertToDto(dao);

@@ -86,6 +86,10 @@ public class AthleteService {
 		return StreamSupport.stream(findAll.spliterator(), false).collect(Collectors.toList());
 	}
 
+	public List<AthleteDao> findAllHistoricExcel() {
+		return repository.findAllHistoric();
+	}
+
 	public AthleteDto findById(long id) {
 		return convertToDto(repository.findById(id).orElse(null));
 	}

@@ -13,7 +13,7 @@ public class ColumnDto {
 
 	String text;
 
-	boolean show;
+	boolean show = true;
 
 	String type;
 

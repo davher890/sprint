@@ -49,4 +49,11 @@ public interface AthleteRepository
 
 	@Query(value = "SELECT * FROM athletes WHERE id IN (SELECT DISTINCT(athlete_id) FROM athlete_group_schedules WHERE group_id = ?1 AND schedule_id IN (?2))", nativeQuery = true)
 	public List<AthleteDao> findByGroupAndSchedules(long groupId, List<Long> scheduleIds);
+
+	@Query(value = "SELECT * FROM athletes WHERE NOT("
+			+ "(last_register_date IS NULL AND (last_unregister_date IS NULL OR last_unregister_date > NOW())) "
+			+ " OR "
+			+ "(last_register_date IS NOT NULL AND last_register_date <= NOW() AND (last_unregister_date IS NULL OR last_unregister_date < last_register_date)))", nativeQuery = true)
+	public List<AthleteDao> findAllHistoric();
+
 }

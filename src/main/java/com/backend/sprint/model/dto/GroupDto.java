@@ -40,4 +40,6 @@ public class GroupDto {
 	@UpdateTimestamp
 	private Date updatedAt;
 
+	private String errorMessage;
+
 }

@@ -31,4 +31,6 @@ public class SportSchoolDto {
 	@UpdateTimestamp
 	private Date updatedAt;
 
+	private String errorMessage;
+
 }
