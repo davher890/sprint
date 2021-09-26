@@ -14,12 +14,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import com.backend.sprint.model.dto.UserDto;
-import com.backend.sprint.utils.SecurityUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 
 public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
@@ -27,6 +25,8 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
 	public JWTAuthenticationFilter(AuthenticationManager authenticationManager) {
 		this.authenticationManager = authenticationManager;
+
+		setFilterProcessesUrl("/login");
 	}
 
 	@Override
@@ -47,11 +47,11 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 			Authentication auth) {
 
 		UserDetails userDetails = (UserDetails) auth.getPrincipal();
-		String token = Jwts.builder().setSubject(userDetails.getUsername())
-				.setExpiration(new Date((new Date()).getTime() + 600000))
-				.signWith(SignatureAlgorithm.HS512, SecurityUtils.SECRET).compact();
+		String token = JWT.create().withSubject(userDetails.getUsername())
+				.withExpiresAt(new Date((new Date()).getTime() + SecurityConstants.EXPIRATION_TIME))
+				.sign(Algorithm.HMAC512(SecurityConstants.SECRET.getBytes()));
 
-		response.addHeader(SecurityUtils.HEADER, SecurityUtils.PREFIX + " " + token);
-		response.addHeader("Access-Control-Expose-Headers", SecurityUtils.HEADER);
+		response.addHeader(SecurityConstants.HEADER_STRING, SecurityConstants.TOKEN_PREFIX + " " + token);
+		response.addHeader("Access-Control-Expose-Headers", SecurityConstants.HEADER_STRING);
 	}
 }
