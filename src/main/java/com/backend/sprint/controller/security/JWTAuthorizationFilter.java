@@ -13,9 +13,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.backend.sprint.model.dto.UserDto;
+import com.backend.sprint.utils.JwtUtils;
 
 public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 
@@ -34,7 +34,7 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 			return;
 		}
 
-		UsernamePasswordAuthenticationToken authentication = getAuthentication(request);
+		UsernamePasswordAuthenticationToken authentication = getAuthentication(request, response);
 
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		filterChain.doFilter(request, response);
@@ -43,16 +43,24 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 
 	// Reads the JWT from the Authorization header, and then uses JWT to
 	// validate the token
-	private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
-		String token = getJWTToken(request);
+	private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request,
+			HttpServletResponse response) {
+		String encodedJwtToken = JwtUtils.getJwtToken(request);
 
-		if (token != null) {
+		if (encodedJwtToken != null) {
 			// parse the token.
-			String userStr = getJWTTokenClaims(token);
+			DecodedJWT decodedJwtToken = JwtUtils.getJwtTokenClaims(encodedJwtToken);
+			String userStr = decodedJwtToken.getSubject();
+			Long userId = decodedJwtToken.getClaim("user_id").asLong();
 
 			if (userStr != null) {
 				UserDto user = new UserDto();
 				user.setUsername(userStr);
+				user.setId(userId);
+
+				String token = JwtUtils.generateJwtToken(user.getUsername(), user.getId());
+				response.addHeader(SecurityConstants.HEADER_STRING, SecurityConstants.TOKEN_PREFIX + " " + token);
+
 				// new arraylist means authorities
 				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, null,
 						new ArrayList<>());
@@ -84,15 +92,6 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 	//
 	// SecurityContextHolder.getContext().setAuthentication(auth);
 	// }
-
-	private String getJWTToken(HttpServletRequest request) {
-		return request.getHeader(SecurityConstants.HEADER_STRING);
-	}
-
-	private String getJWTTokenClaims(String jwtToken) {
-		return JWT.require(Algorithm.HMAC512(SecurityConstants.SECRET.getBytes())).build()
-				.verify(jwtToken.replace(SecurityConstants.TOKEN_PREFIX, "")).getSubject();
-	}
 
 //	private boolean hasJWTToken(HttpServletRequest request, HttpServletResponse res) {
 //		String authenticationHeader = request.getHeader(SecurityUtils.HEADER);

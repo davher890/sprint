@@ -14,6 +14,7 @@ public class LoginController {
 
 	@PostMapping(path = "/", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public void signin(@RequestBody UserDto user) throws Exception {
+		System.out.println("asdad");
 	}
 
 }
