@@ -27,7 +27,7 @@ public abstract class AbstractSpecifictionConstructor<E> implements Specificatio
 	public Predicate toPredicate(Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
 
 		Predicate result = null;
-		if (filters != null) {
+		if (filters != null && filters.size() > 0) {
 			result = filters.stream().map(filter -> {
 
 				String field = filter.split("__")[0];
@@ -65,7 +65,8 @@ public abstract class AbstractSpecifictionConstructor<E> implements Specificatio
 		} else if (operator.equals("<=")) {
 			predicate = builder.lessThanOrEqualTo(root.get(field), value);
 		} else if (operator.toLowerCase().equals("in")) {
-			List<Integer> idList = Arrays.asList(value.split(",")).parallelStream().map(d -> Integer.parseInt(d)).collect(Collectors.toList());
+			List<Integer> idList = Arrays.asList(value.split(",")).parallelStream().map(d -> Integer.parseInt(d))
+					.collect(Collectors.toList());
 			predicate = root.get(field).in(idList);
 		}
 

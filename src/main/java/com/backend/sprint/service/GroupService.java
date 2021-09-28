@@ -34,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.backend.sprint.model.dao.GroupDao;
 import com.backend.sprint.model.dao.ScheduleDao;
 import com.backend.sprint.model.dto.AthleteDto;
+import com.backend.sprint.model.dto.AthleteGroupScheduleDto;
 import com.backend.sprint.model.dto.ExcelDataDto;
 import com.backend.sprint.model.dto.ExcelValueDto;
 import com.backend.sprint.model.dto.GroupDto;
@@ -129,6 +130,7 @@ public class GroupService {
 		}
 		if (dao.getSportSchool() != null) {
 			dto.setSportSchoolId(dao.getSportSchool().getId());
+			dto.setSportSchoolName(dao.getSportSchool().getName());
 		}
 
 		if (dao.getSchedules() != null) {
@@ -246,7 +248,20 @@ public class GroupService {
 		});
 
 		return workbook;
+	}
 
+	public GroupDto deleteById(long id) {
+
+		GroupDto group = this.findById(id);
+		List<AthleteGroupScheduleDto> groupAthletes = athleteGroupScheduleService.findByGroup(id);
+		if (groupAthletes != null && groupAthletes.size() > 0) {
+			// Error: First remove athletes from group
+			group.setErrorMessage("No se puede borrar un grupo que contiene atletas.");
+			return group;
+		} else {
+			group.setActive(false);
+			return this.save(group);
+		}
 	}
 
 }

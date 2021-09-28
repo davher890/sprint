@@ -21,6 +21,8 @@ public class GroupDto {
 
 	private long sportSchoolId;
 
+	private String sportSchoolName;
+
 	private Set<Long> athleteIds;
 
 	private Set<Long> scheduleIds;
@@ -33,6 +35,8 @@ public class GroupDto {
 	private String name;
 
 	private boolean specialization;
+
+	private boolean active;
 
 	@CreationTimestamp
 	private Date createdAt;

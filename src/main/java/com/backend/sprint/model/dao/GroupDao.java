@@ -53,6 +53,9 @@ public class GroupDao {
 	@Column(columnDefinition = "boolean default false")
 	private boolean specialization;
 
+	@Column(columnDefinition = "boolean default true")
+	private boolean active;
+
 	@CreationTimestamp
 	private Date createdAt;
 

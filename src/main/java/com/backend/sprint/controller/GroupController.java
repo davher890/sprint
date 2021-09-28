@@ -22,6 +22,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -55,6 +56,10 @@ public class GroupController {
 	@GetMapping("")
 	public Page<GroupDto> findPagintation(@RequestParam(value = "filters", required = false) List<String> filters,
 			Pageable pageable) {
+		if (filters == null) {
+			filters = new ArrayList<String>();
+		}
+		filters.add("active__==__true");
 		return service.findPagintation(new GroupSpecificationConstructor<>(filters), pageable);
 	}
 
@@ -71,6 +76,11 @@ public class GroupController {
 	@GetMapping("/{id}")
 	public GroupDto findById(@PathVariable long id) {
 		return service.findById(id);
+	}
+
+	@DeleteMapping("/{id}")
+	public GroupDto deleteById(@PathVariable long id) {
+		return service.deleteById(id);
 	}
 
 	@GetMapping("/{id}/schedules")
