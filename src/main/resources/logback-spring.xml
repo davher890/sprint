@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>[%-5level] %d{dd-MM-yyyy hh:mm:ss.SSS a} [%thread]  %logger{50} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>logs/logFile.log</file>
+        <encoder>
+            <pattern>[%-5level] %d{dd-MM-yyyy hh:mm:ss.SSS a} [%thread]  %logger{50} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="FILE" />
+    </root>
+
+    <logger name="com.backend.sprint.controller" level="ALL" additivity="true">
+        <appender-ref ref="FILE"/>
+    </logger>
+</configuration>

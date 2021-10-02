@@ -7,6 +7,8 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import com.backend.sprint.utils.HistoricType;
+
 public class AthleteSpecificationConstructor<AthleteGroupScheduleDao>
 		extends AbstractSpecifictionConstructor<AthleteGroupScheduleDao> {
 
@@ -24,7 +26,7 @@ public class AthleteSpecificationConstructor<AthleteGroupScheduleDao>
 				String operator = filter.split("__")[1];
 				String value = filter.split("__")[2].toLowerCase();
 
-				if (field.equals("register")) {
+				if (field.equals(HistoricType.REGISTER.name())) {
 					Predicate predicate = builder.or(
 							builder.and(builder.isNull(root.get("lastRegisterDate")),
 									builder.or(builder.isNull(root.get("lastUnregisterDate")),
@@ -37,7 +39,7 @@ public class AthleteSpecificationConstructor<AthleteGroupScheduleDao>
 					return predicate;
 				}
 
-				else if (field.equals("unregister")) {
+				else if (field.equals(HistoricType.UNREGISTER.name())) {
 					Predicate predicate = builder.not(builder.or(
 							builder.and(builder.isNull(root.get("lastRegisterDate")),
 									builder.or(builder.isNull(root.get("lastUnregisterDate")),

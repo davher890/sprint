@@ -43,6 +43,11 @@ public interface AthleteRepository
 	public List<AthleteDao> findByUniqueColumns(String name, String firstSurname, String secondSurname, int year,
 			int month, int day);
 
+	@Query(value = "SELECT * FROM athletes WHERE name = ?1 AND first_surname = ?2 AND second_surname = ?3 "
+			+ "AND EXTRACT(YEAR FROM birth_date) = ?4 AND EXTRACT(MONTH FROM birth_date) = ?5 AND EXTRACT(DAY FROM birth_date) = ?6 ", nativeQuery = true)
+	public List<AthleteDao> findByNameColumns(String name, String firstSurname, String secondSurname, int year,
+			int month, int day);
+
 	@Query(value = "SELECT * FROM athletes WHERE id IN (SELECT DISTINCT(athlete_id) FROM athlete_group_schedules WHERE group_id = ?1 AND schedule_id IN (?2))", nativeQuery = true)
 	public Page<AthleteDao> findByGroupAndSchedulesPagination(long groupId, List<Long> scheduleIds,
 			Specification<AthleteDao> specification, Pageable pageable);

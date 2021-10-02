@@ -36,6 +36,7 @@ import com.backend.sprint.model.dto.GroupDto;
 import com.backend.sprint.model.dto.HistoricDto;
 import com.backend.sprint.model.dto.SportdataDto;
 import com.backend.sprint.service.AthleteService;
+import com.backend.sprint.service.FeeService;
 import com.backend.sprint.service.HistoricService;
 import com.backend.sprint.service.SportdataService;
 import com.backend.sprint.specifications.AthleteSpecificationConstructor;
@@ -56,13 +57,16 @@ public class AthleteController {
 	@Autowired
 	private SportdataService sportdataService;
 
+	@Autowired
+	private FeeService feeService;
+
 	@GetMapping("")
 	public Page<AthleteDto> findPagintation(@RequestParam(value = "filters", required = false) List<String> filters,
 			Pageable pageable) {
 		if (filters == null) {
 			filters = new ArrayList<String>();
 		}
-		filters.add("register__-__-");
+		filters.add(HistoricType.REGISTER.name() + "__-__-");
 		return service.findPagintation(new AthleteSpecificationConstructor<>(filters), pageable);
 	}
 
@@ -72,7 +76,7 @@ public class AthleteController {
 		if (filters == null) {
 			filters = new ArrayList<String>();
 		}
-		filters.add("unregister__-__-");
+		filters.add(HistoricType.UNREGISTER.name() + "__-__-");
 		return service.findPagintation(new AthleteSpecificationConstructor<>(filters), pageable);
 	}
 
@@ -155,16 +159,12 @@ public class AthleteController {
 
 	@PostMapping("/{id}/register")
 	public HistoricDto registerAthlete(@PathVariable int id, @RequestBody HistoricDto historic) throws PSQLException {
-		historic.setAthleteId(id);
-		historic.setType(HistoricType.REGISTER.name());
-		return historicService.save(historic);
+		return historicService.register(id, historic);
 	}
 
 	@PostMapping("/{id}/unregister")
 	public HistoricDto unregisterAthlete(@PathVariable int id, @RequestBody HistoricDto historic) throws PSQLException {
-		historic.setAthleteId(id);
-		historic.setType(HistoricType.UNREGISTER.name());
-		return historicService.save(historic);
+		return historicService.unregister(id, historic);
 	}
 
 	@GetMapping("/{id}/groups")
@@ -174,7 +174,7 @@ public class AthleteController {
 
 	@PostMapping("/fee")
 	public FeeDto getFee(@RequestBody AthleteDto dto) {
-		return service.getFee(dto);
+		return feeService.getAthleteFee(dto);
 	}
 
 	@PostMapping("")

@@ -14,9 +14,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.backend.sprint.model.dao.HistoricDao;
+import com.backend.sprint.model.dto.AthleteDto;
 import com.backend.sprint.model.dto.HistoricDto;
 import com.backend.sprint.repository.AthleteRepository;
 import com.backend.sprint.repository.HistoricRepository;
+import com.backend.sprint.utils.HistoricType;
 
 @Service
 @Transactional
@@ -54,6 +56,26 @@ public class HistoricService {
 		dto = convertToDto(repository.save(convertToDao(dto)));
 		athleteService.updateAthleteRegistrationDate(athleteService.findById(dto.getAthleteId()));
 		return dto;
+	}
+
+	public HistoricDto register(int id, HistoricDto historic) {
+		historic.setAthleteId(id);
+		historic.setType(HistoricType.REGISTER.name());
+
+		return this.save(historic);
+	}
+
+	public HistoricDto unregister(int id, HistoricDto historic) {
+
+		// Remove athlete from all groups
+		AthleteDto athlete = athleteService.findById(id);
+		athlete.setScheduleIds(null);
+		athlete.setGroupId(0);
+
+		historic.setAthleteId(id);
+		historic.setType(HistoricType.UNREGISTER.name());
+
+		return this.save(historic);
 	}
 
 	private HistoricDto convertToDto(HistoricDao dao) {

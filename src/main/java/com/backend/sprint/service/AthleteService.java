@@ -23,7 +23,6 @@ import com.backend.sprint.model.dao.FamilyDao;
 import com.backend.sprint.model.dto.AthleteDto;
 import com.backend.sprint.model.dto.AthleteGroupScheduleDto;
 import com.backend.sprint.model.dto.FamilyDto;
-import com.backend.sprint.model.dto.FeeDto;
 import com.backend.sprint.model.dto.GroupDto;
 import com.backend.sprint.model.dto.HistoricDto;
 import com.backend.sprint.repository.AthleteRepository;
@@ -96,25 +95,28 @@ public class AthleteService {
 
 	public AthleteDto save(AthleteDto dto) throws DataIntegrityViolationException {
 
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTime(dto.getBirthDate());
+		if (dto.getBirthDate() != null) {
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTime(dto.getBirthDate());
 
-		// New record, check if someone similar exists.
-		if (dto.getId() == 0) {
-			List<AthleteDao> findByUniqueColumns = repository.findByUniqueColumns(dto.getName(), dto.getFirstSurname(),
-					dto.getSecondSurname(), calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1,
-					calendar.get(Calendar.DAY_OF_MONTH));
-			if (findByUniqueColumns != null && findByUniqueColumns.size() > 0) {
-				throw new DataIntegrityViolationException(null);
+			// New record, check if someone similar exists.
+			if (dto.getId() == 0) {
+
+				List<AthleteDao> findByUniqueColumns = repository.findByUniqueColumns(dto.getName(),
+						dto.getFirstSurname(), dto.getSecondSurname(), calendar.get(Calendar.YEAR),
+						calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH));
+				if (findByUniqueColumns != null && findByUniqueColumns.size() > 0) {
+					throw new DataIntegrityViolationException(null);
+				}
 			}
-		}
-		// Old record, check if another distinct record exists
-		else {
-			List<AthleteDao> findByUniqueColumns = repository.findByIdAndUniqueColumns(dto.getId(), dto.getName(),
-					dto.getFirstSurname(), dto.getSecondSurname(), calendar.get(Calendar.YEAR),
-					calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH));
-			if (findByUniqueColumns != null && findByUniqueColumns.size() > 0) {
-				throw new DataIntegrityViolationException(null);
+			// Old record, check if another distinct record exists
+			else {
+				List<AthleteDao> findByUniqueColumns = repository.findByIdAndUniqueColumns(dto.getId(), dto.getName(),
+						dto.getFirstSurname(), dto.getSecondSurname(), calendar.get(Calendar.YEAR),
+						calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH));
+				if (findByUniqueColumns != null && findByUniqueColumns.size() > 0) {
+					throw new DataIntegrityViolationException(null);
+				}
 			}
 		}
 
@@ -140,6 +142,7 @@ public class AthleteService {
 	}
 
 	public AthleteDto findByUniqueColumns(String name, String firstSurname, String secondSurname, Date birthDate) {
+
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(birthDate);
 
@@ -273,47 +276,6 @@ public class AthleteService {
 	public List<GroupDto> findGroupsById(int id) {
 		return athleteGroupScheduleService.findByAthlete(id).stream().map(d -> groupService.findById(d.getGroupId()))
 				.collect(Collectors.toList());
-	}
-
-	public FeeDto getFee(AthleteDto dto) {
-
-		FeeDto fee = new FeeDto();
-		if (dto.isSpecialization()) {
-			fee.setMonthlyFee(100);
-		} else {
-			if (dto.getScheduleIds() != null) {
-				switch (dto.getScheduleIds().size()) {
-				case 1:
-					fee.setMonthlyFee(50);
-					break;
-				case 2:
-					fee.setMonthlyFee(85);
-					break;
-				case 3:
-					fee.setMonthlyFee(100);
-					break;
-				default:
-					if (dto.getScheduleIds().size() > 3) {
-						fee.setMonthlyFee(100);
-					} else {
-						fee.setMonthlyFee(0);
-					}
-				}
-			}
-		}
-		List<AthleteDto> relatives = this.getRelatives(dto);
-		// if (dto.getLicenseType().equals("PISTAS") ||
-		// dto.getLicenseType().equals("LICENCIA")) {
-		if (relatives.size() > 1) {
-			fee.setEnrollmentFee(20);
-		} else {
-			fee.setEnrollmentFee(40);
-		}
-		// A partir del tercer miembro solo se paga una cuota de socio por
-		// familia
-		fee.setMembershipFee(20);
-
-		return fee;
 	}
 
 	public void updateAthletesRegisterDate() {
