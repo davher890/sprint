@@ -75,7 +75,7 @@ public class DatabaseSportSchoolAthletesService extends DatabaseService {
 	private static final int PARACUELLOS_OBSERVATIONS = 42;
 
 	private static final int PARACUELLOS_REGISTER_DATE = 60;
-	private static final int SANTA_ANA_REGISTER_DATE = 62;
+	private static final int SANTA_ANA_REGISTER_DATE = 63;
 
 	private static final String DATE_SEPARATOR = "-";
 
@@ -171,7 +171,8 @@ public class DatabaseSportSchoolAthletesService extends DatabaseService {
 
 				String paymentType = line[PAYMENT_TYPE].trim();
 
-				String observations = line[sportSchoolId == 1 ? SANTA_ANA_OBSERVATIONS : PARACUELLOS_OBSERVATIONS].trim();
+				String observations = line[sportSchoolId == 1 ? SANTA_ANA_OBSERVATIONS : PARACUELLOS_OBSERVATIONS]
+						.trim();
 
 				// New Athlete
 				AthleteDto athlete;
