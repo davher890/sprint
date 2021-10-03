@@ -92,9 +92,9 @@ public class DatabaseExternalAthletesService extends DatabaseService {
 	@Autowired
 	private HistoricService historicService;
 
-	public List<AthleteDto> dbFillAtheltesData(int sportSchoolId, String csvName) throws IOException, ParseException {
+	public List<AthleteDto> dbFillAtheltesData(String csvName) throws IOException, ParseException {
 
-		SportSchoolDto sportSchool = sportSchoolService.findById(sportSchoolId);
+		SportSchoolDto sportSchool = sportSchoolService.findById(3);
 		String fileName = System.getProperty("user.dir") + "/src/main/resources/" + csvName;
 
 		CSVReader csvReader = readFile(fileName);
