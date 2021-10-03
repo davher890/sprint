@@ -77,7 +77,7 @@ public class DatabaseHistoricService extends DatabaseService {
 		Long[] athleteTestList = { 2381L, 3581L, 3681L, 3702L, 11861L, 26652L, 1913L };
 
 		CSVReader csvReader = readFile(System.getProperty("user.dir") + "/src/main/resources/BD_HISTORICO.csv");
-		return StreamSupport.stream(csvReader.spliterator(), true)// .parallel()
+		return StreamSupport.stream(csvReader.spliterator(), true)
 //				.filter(d -> Arrays.asList(athleteTestList).contains(Long.valueOf(d[ATHLETE_CODE].trim())))
 				.map(line -> {
 					try {
@@ -205,7 +205,7 @@ public class DatabaseHistoricService extends DatabaseService {
 
 							String[] splitDate = registerDate.split(DATE_SEPARATOR);
 							String year = splitDate[1].trim();
-							String month = registarDateMap.get(splitDate[0].trim());
+							String month = registarDateMap.get(splitDate[0].trim().toLowerCase());
 							HistoricDto historic = new HistoricDto();
 							historic.setAthleteId(athlete.getId());
 							historic.setType(HistoricType.REGISTER.name());
@@ -229,7 +229,7 @@ public class DatabaseHistoricService extends DatabaseService {
 
 							String[] splitDate = unregisterDate.split(DATE_SEPARATOR);
 							String year = splitDate[1].trim();
-							String month = registarDateMap.get(splitDate[0].trim());
+							String month = registarDateMap.get(splitDate[0].trim().toLowerCase());
 							HistoricDto historic = new HistoricDto();
 							historic.setAthleteId(athlete.getId());
 							historic.setType(HistoricType.UNREGISTER.name());

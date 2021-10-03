@@ -34,9 +34,9 @@ public class GroupDto {
 	@NotNull
 	private String name;
 
-	private boolean specialization;
+	private boolean specialization = false;
 
-	private boolean active;
+	private boolean active = true;
 
 	@CreationTimestamp
 	private Date createdAt;

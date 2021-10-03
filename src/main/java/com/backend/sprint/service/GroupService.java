@@ -107,8 +107,8 @@ public class GroupService {
 		return repository.findByTrainerId(idtrainer).stream().map(this::convertToDto).collect(Collectors.toSet());
 	}
 
-	public GroupDto findByName(String name) {
-		return convertToDto(repository.findByName(name));
+	public GroupDto findByNameAndSportSchool(String name, int sportSchoolId) {
+		return convertToDto(repository.findByName(name, sportSchoolId));
 	}
 
 	public List<GroupDto> findBySpecialization(boolean specialization) {

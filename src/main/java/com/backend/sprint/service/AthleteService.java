@@ -295,18 +295,20 @@ public class AthleteService {
 	public void updateAthleteRegistrationDate(AthleteDto athlete) throws DataIntegrityViolationException {
 		List<HistoricDto> athleteHistoric = historicService.findAthleteRegistration(athlete.getId());
 
-		HistoricDto lastRegisterDate = athleteHistoric.stream().filter(p -> p.getDate().before(new Date()))
-				.filter(p -> p.getType().equals(HistoricType.REGISTER.name())).findFirst().orElse(null);
+		if (athleteHistoric != null && athleteHistoric.size() > 0) {
+			HistoricDto lastRegisterDate = athleteHistoric.stream().filter(p -> p.getDate().before(new Date()))
+					.filter(p -> p.getType().equals(HistoricType.REGISTER.name())).findFirst().orElse(null);
 
-		HistoricDto lastUnregisterDate = athleteHistoric.stream().filter(p -> p.getDate().before(new Date()))
-				.filter(p -> p.getType().equals(HistoricType.UNREGISTER.name())).findFirst().orElse(null);
+			HistoricDto lastUnregisterDate = athleteHistoric.stream().filter(p -> p.getDate().before(new Date()))
+					.filter(p -> p.getType().equals(HistoricType.UNREGISTER.name())).findFirst().orElse(null);
 
-		if (lastRegisterDate != null) {
-			athlete.setLastRegisterDate(lastRegisterDate.getDate());
+			if (lastRegisterDate != null) {
+				athlete.setLastRegisterDate(lastRegisterDate.getDate());
+			}
+			if (lastUnregisterDate != null) {
+				athlete.setLastUnregisterDate(lastUnregisterDate.getDate());
+			}
+			save(athlete);
 		}
-		if (lastUnregisterDate != null) {
-			athlete.setLastUnregisterDate(lastUnregisterDate.getDate());
-		}
-		save(athlete);
 	}
 }

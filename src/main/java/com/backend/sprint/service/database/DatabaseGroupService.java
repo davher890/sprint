@@ -62,7 +62,7 @@ public class DatabaseGroupService extends DatabaseService {
 
 	private GroupDto createGroup(String groupName, String weekDay, String schedule) {
 
-		GroupDto group = groupService.findByName(groupName);
+		GroupDto group = groupService.findByNameAndSportSchool(groupName, 1);
 		if (group == null) {
 			group = new GroupDto();
 		}

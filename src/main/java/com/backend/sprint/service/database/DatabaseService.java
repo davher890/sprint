@@ -18,24 +18,29 @@ import com.opencsv.CSVReaderBuilder;
 
 public class DatabaseService {
 
-	DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+	DateFormat historicDateFormat = new SimpleDateFormat("dd/MM/yyyy");
+	DateFormat dateFormat = new SimpleDateFormat("MM/dd/yy");
 	DateFormat dayFormat = new SimpleDateFormat("yyyy-MM-dd");
 	static Map<String, String> registarDateMap = new HashMap<>();
 	static {
 		registarDateMap = new HashMap<>();
 		registarDateMap.put("ene", "01");
+		registarDateMap.put("jan", "01");
 		registarDateMap.put("feb", "02");
 		registarDateMap.put("mar", "03");
 		registarDateMap.put("abr", "04");
+		registarDateMap.put("apr", "04");
 		registarDateMap.put("may", "05");
 		registarDateMap.put("jun", "06");
 		registarDateMap.put("jul", "07");
 		registarDateMap.put("ago", "08");
+		registarDateMap.put("aug", "08");
 		registarDateMap.put("sep", "09");
 		registarDateMap.put("sept", "09");
 		registarDateMap.put("oct", "10");
 		registarDateMap.put("nov", "11");
 		registarDateMap.put("dic", "12");
+		registarDateMap.put("dec", "12");
 	}
 
 	CSVReader readFile(String fileName) throws IOException {

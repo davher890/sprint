@@ -9,6 +9,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -31,7 +33,7 @@ import com.backend.sprint.utils.LicenseType;
 import com.opencsv.CSVReader;
 
 @Service
-public class DatabaseAthleteService extends DatabaseService {
+public class DatabaseExternalAthletesService extends DatabaseService {
 
 	private static final int AUTH_IMG = 0;
 	private static final int FAMILY_CODE = 1;
@@ -44,33 +46,36 @@ public class DatabaseAthleteService extends DatabaseService {
 	private static final int AGE = 8;
 	private static final int GENDER = 9;
 	private static final int DNI = 10;
-	private static final int CATEGORY = 11;
-	private static final int LICENSE = 12;
-	private static final int LICENSE_TYPE = 13;
-	private static final int DORSAL_CATEGORY = 14;
-	private static final int DORSAL = 15;
-	private static final int PHONE_1 = 16;
-	private static final int PHONE_2 = 17;
-	private static final int PHONE_3 = 18;
-	private static final int ADDRESS = 19;
-	private static final int POSTCAL_CODE = 20;
-	private static final int MUNICIPALITY = 21;
-	private static final int FATHER_MAIL = 22;
-	private static final int MOTHER_MAIL = 23;
-	private static final int MAIL = 24;
-	private static final int FATHER_NAME = 25;
-	private static final int MOTHER_NAME = 26;
-	private static final int HOLDER_NAME = 27;
-	private static final int HOLDER_DNI = 28;
-	private static final int IBAN = 29;
-	private static final int PAYMENT_TYPE = 30;
-	private static final int FEE_TYPE = 31;
-	private static final int GROUP_NAME = 32;
-	private static final int DAYS = 33;
-	private static final int NUM_DAYS = 34;
-	private static final int SCHEDULE = 35;
+	private static final int PHONE_1 = 11;
+	private static final int PHONE_2 = 12;
+	private static final int PHONE_3 = 13;
+	private static final int ADDRESS = 14;
+	private static final int POSTCAL_CODE = 15;
+	private static final int MUNICIPALITY = 16;
+	private static final int FATHER_MAIL = 17;
+	private static final int MOTHER_MAIL = 18;
+	private static final int MAIL = 19;
+	private static final int FATHER_NAME = 20;
+	private static final int MOTHER_NAME = 21;
+	private static final int HOLDER_NAME = 22;
+	private static final int HOLDER_DNI = 23;
+	private static final int IBAN = 24;
+	private static final int CATEGORY = 25;
+	private static final int LICENSE = 26;
+	private static final int LICENSE_TYPE = 27;
+	private static final int DORSAL_CATEGORY = 28;
+	private static final int DORSAL = 29;
+	private static final int GROUP_NAME = 30;
+	private static final int DAYS = 31;
+	private static final int NUM_DAYS = 32;
+	private static final int SCHEDULE = 33;
+	private static final int PAYMENT_TYPE = 34;
+	private static final int FEE_TYPE = 35;
+
 	private static final int REGISTER_DATE = 61;
 	private static final int UNREGISTER_DATE = 62;
+
+	private Logger logger = LoggerFactory.getLogger(DatabaseExternalAthletesService.class);
 
 	@Autowired
 	private FamilyService familyService;
@@ -91,15 +96,13 @@ public class DatabaseAthleteService extends DatabaseService {
 	private HistoricService historicService;
 
 	@Transactional
-	public List<AthleteDto> dbFillAtheltesData() throws IOException, ParseException {
+	public List<AthleteDto> dbFillAtheltesData(String csvName) throws IOException, ParseException {
 
-		String fileName = System.getProperty("user.dir") + "/src/main/resources/BD_PARA_PRUEBAS.csv";
+		SportSchoolDto sportSchool = sportSchoolService.findById(3);
+		String fileName = System.getProperty("user.dir") + "/src/main/resources/" + csvName;
 
 		CSVReader csvReader = readFile(fileName);
-		SportSchoolDto sportSchool = sportSchoolService.findByName("Santa Ana");
-		return StreamSupport.stream(csvReader.spliterator(), false).map(line -> {
-
-			System.out.println(String.join("_", line));
+		return StreamSupport.stream(csvReader.spliterator(), true).map(line -> {
 
 			boolean authImg = line[AUTH_IMG].trim().equals("SI") ? true : false;
 			long familyCode = Long.valueOf(line[FAMILY_CODE].trim());
@@ -228,7 +231,7 @@ public class DatabaseAthleteService extends DatabaseService {
 
 			// Group
 			String groupName = line[GROUP_NAME];
-			GroupDto group = groupService.findByName(groupName);
+			GroupDto group = groupService.findByNameAndSportSchool(groupName, 3);
 
 			if (group != null) {
 				athlete.setGroupId(group.getId());
