@@ -65,7 +65,7 @@ public class DatabaseController {
 
 	@GetMapping("/externo/athletes")
 	public List<AthleteDto> dbFillExternalAtheltesData() throws IOException, ParseException {
-		String csvName = "BD_EXTERNOS";
+		String csvName = "BD_EXTERNOS.csv";
 		return externalService.dbFillAtheltesData(csvName);
 	}
 
