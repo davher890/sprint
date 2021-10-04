@@ -64,11 +64,11 @@ public class DatabaseExternalAthletesService extends DatabaseService {
 	private static final int LICENSE_TYPE = 27;
 	private static final int DORSAL_CATEGORY = 28;
 	private static final int DORSAL = 29;
-	private static final int PAYMENT_TYPE = 30;
-	private static final int FEE_TYPE = 31;
-	private static final int OBSERVATIONS = 36;
+	private static final int PAYMENT_TYPE = 31;
+	private static final int FEE_TYPE = 32;
+	private static final int OBSERVATIONS = 37;
 
-	private static final int REGISTER_DATE = 42;
+	private static final int REGISTER_DATE = 43;
 
 	private static final String DATE_SEPARATOR = "-";
 

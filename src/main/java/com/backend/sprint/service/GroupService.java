@@ -27,6 +27,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -95,8 +97,8 @@ public class GroupService {
 	}
 
 	public List<GroupDto> findAll() {
-		return StreamSupport.stream(repository.findAll().spliterator(), false).map(this::convertToDto)
-				.collect(Collectors.toList());
+		return StreamSupport.stream(repository.findAll(Sort.by(Order.by("name")).ascending()).spliterator(), false)
+				.map(this::convertToDto).collect(Collectors.toList());
 	}
 
 	public GroupDto findById(long id) {

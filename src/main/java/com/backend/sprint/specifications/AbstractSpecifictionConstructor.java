@@ -44,7 +44,7 @@ public abstract class AbstractSpecifictionConstructor<E> implements Specificatio
 			String value) {
 		Predicate predicate = null;
 		if (operator.equals("LIKE")) {
-			predicate = builder.like(builder.lower(root.get(field)), "%" + value + "%");
+			predicate = builder.like(builder.lower(root.get(field)), "%" + value.toLowerCase().trim() + "%");
 		} else if (operator.equals("==")) {
 			boolean boolValue = Boolean.parseBoolean(value);
 			if (boolValue) {
