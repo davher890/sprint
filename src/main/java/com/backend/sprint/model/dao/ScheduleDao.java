@@ -10,6 +10,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -24,7 +25,8 @@ import lombok.ToString;
 @Setter
 @ToString
 @Entity
-@Table(name = "schedules")
+@Table(name = "schedules", uniqueConstraints = {
+		@UniqueConstraint(columnNames = { "day", "startHour", "startMinute", "endHour", "endMinute" }) })
 public class ScheduleDao {
 
 	@Id

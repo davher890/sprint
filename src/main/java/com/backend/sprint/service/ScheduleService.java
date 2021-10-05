@@ -57,8 +57,8 @@ public class ScheduleService {
 	}
 
 	public List<ScheduleDto> findAll() {
-		return StreamSupport
-				.stream(repository.findAll(Sort.by(Order.by("day"), Order.by("startHour"))).spliterator(), false)
+		return StreamSupport.stream(repository
+				.findAll(Sort.by(Order.by("day"), Order.by("startHour"), Order.by("startMinute"))).spliterator(), false)
 				.map(this::convertToDto).collect(Collectors.toList());
 	}
 

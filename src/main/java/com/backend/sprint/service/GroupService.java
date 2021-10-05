@@ -26,6 +26,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
@@ -92,7 +93,9 @@ public class GroupService {
 	};
 
 	public Page<GroupDto> findPagintation(Specification<GroupDao> specification, Pageable pageable) {
-		Page<GroupDao> daoPage = repository.findAll(specification, pageable);
+		Sort sortOrder = Sort.by("name");
+		Page<GroupDao> daoPage = repository.findAll(specification,
+				PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sortOrder));
 		return daoPage.map(dao -> convertToDto(dao));
 	}
 
