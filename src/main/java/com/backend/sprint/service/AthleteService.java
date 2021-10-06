@@ -277,33 +277,8 @@ public class AthleteService {
 		}
 
 		if (dto.getFamilyId() == 0) {
-//			List<AthleteDao> relatives = repository.findBySurnames(dto.getFirstSurname(), dto.getSecondSurname());
-//			// Assign family
-//			if (relatives != null && relatives.size() > 0) {
-//				// Calculate family
-//				relatives = relatives.parallelStream().map(d -> {
-//					if (dto.getPhone1().trim().equals(d.getPhone1().trim())
-//							|| dto.getPhone1().trim().equals(d.getPhone2().trim())
-//							|| dto.getPhone1().trim().equals(d.getPhone3().trim())) {
-//						return d;
-//					} else {
-//						return null;
-//					}
-//				}).filter(Objects::nonNull).collect(Collectors.toList());
-//				if (!relatives.isEmpty()) {
-//					dto.setFamilyId(relatives.get(0).getFamily().getId());
-//				} else {
-//					FamilyDto family = newFamily();
-//					dto.setFamilyId(family.getId());
-//				}
-//			}
-//			// Create new family
-//			// if (relatives == null || relatives.isEmpty()) {
-//			else {
 			FamilyDto family = newFamily();
 			dto.setFamilyId(family.getId());
-//			}
-
 		}
 
 		AthleteDao dao = new ModelMapper().map(dto, AthleteDao.class);
