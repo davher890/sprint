@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.backend.sprint.model.dto.SelectOptionDto;
 import com.backend.sprint.model.dto.SportSchoolDto;
 import com.backend.sprint.service.SportSchoolService;
 import com.backend.sprint.specifications.SportSchoolSpecificationConstructor;
@@ -38,6 +39,11 @@ public class SportSchoolController {
 	@GetMapping("/{id}")
 	public SportSchoolDto findById(@PathVariable int id) {
 		return service.findById(id);
+	}
+
+	@GetMapping("/{id}/fee_types")
+	public List<SelectOptionDto> findFeeTypesById(@PathVariable int id) {
+		return service.findFeeTypesById(id);
 	}
 
 	@PostMapping("")

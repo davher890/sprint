@@ -121,6 +121,12 @@ public class AthleteController {
 		return service.findByPhoneList(phoneList);
 	}
 
+	@GetMapping("/surnames")
+	public List<AthleteDto> findBySurnames(@RequestParam(value = "first_surname", required = true) String firstSurname,
+			@RequestParam(value = "second_surname", required = true) String secondSurname) {
+		return service.findBySurnames(firstSurname, secondSurname);
+	}
+
 	@GetMapping("/{id}")
 	public AthleteDto findById(@PathVariable int id) {
 		return service.findById(id);

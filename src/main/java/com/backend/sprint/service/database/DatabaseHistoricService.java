@@ -74,7 +74,7 @@ public class DatabaseHistoricService extends DatabaseService {
 
 	public List<AthleteDto> dbFillAtheltesData() throws IOException, ParseException {
 
-		Long[] athleteTestList = { 26532L };
+		Long[] athleteTestList = { 14002L };
 
 		CSVReader csvReader = readFile(System.getProperty("user.dir") + "/src/main/resources/BD_HISTORICO.csv");
 		return StreamSupport.stream(csvReader.spliterator(), true)
@@ -144,36 +144,49 @@ public class DatabaseHistoricService extends DatabaseService {
 							athlete = new AthleteDto();
 						}
 						athlete.setCode(athleteCode);
-						athlete.setName(name);
-						athlete.setFirstSurname(firstSurname);
-						athlete.setSecondSurname(secondSurname);
-						athlete.setBirthDate(birthDate);
-						athlete.setGender(gender);
-						athlete.setDni(dni);
-						athlete.setMail(mail);
-						athlete.setPhone1(phone1);
-						athlete.setPhone2(phone2);
-						athlete.setPhone3(phone3);
-						athlete.setAddress(address);
-						athlete.setPostalCode(postalCode);
-						athlete.setMunicipality(municipality);
+						athlete.setName(athlete.getName() == null ? name : athlete.getName());
+						athlete.setFirstSurname(
+								athlete.getFirstSurname() == null ? firstSurname : athlete.getFirstSurname());
+						athlete.setSecondSurname(
+								athlete.getSecondSurname() == null ? secondSurname : athlete.getSecondSurname());
+						athlete.setBirthDate(athlete.getBirthDate() == null ? birthDate : athlete.getBirthDate());
+						athlete.setGender(athlete.getGender() == null ? gender : athlete.getGender());
+						athlete.setDni(athlete.getDni() == null ? dni : athlete.getDni());
+						athlete.setMail(athlete.getMail() == null ? mail : athlete.getMail());
+						athlete.setPhone1(athlete.getPhone1() == null ? phone1 : athlete.getPhone1());
+						athlete.setPhone2(athlete.getPhone2() == null ? phone2 : athlete.getPhone2());
+						athlete.setPhone3(athlete.getPhone3() == null ? phone3 : athlete.getPhone3());
+						athlete.setAddress(athlete.getAddress() == null ? address : athlete.getAddress());
+						athlete.setPostalCode(athlete.getPostalCode() == null ? postalCode : athlete.getPostalCode());
+						athlete.setMunicipality(
+								athlete.getMunicipality() == null ? municipality : athlete.getMunicipality());
 
 						// Bank Info
-						athlete.setName(name);
-						athlete.setIban(iban);
-						athlete.setHolderName(holderName);
-						athlete.setHolderFirstSurname(holderFirstSurname);
-						athlete.setHolderSecondSurname(holderSecondSurname);
-						athlete.setHolderDni(holderDni);
+						athlete.setIban(athlete.getIban() == null ? iban : athlete.getIban());
+						athlete.setHolderName(athlete.getHolderName() == null ? holderName : athlete.getHolderName());
+						athlete.setHolderFirstSurname(athlete.getHolderFirstSurname() == null ? holderFirstSurname
+								: athlete.getHolderFirstSurname());
+						athlete.setHolderSecondSurname(athlete.getHolderSecondSurname() == null ? holderSecondSurname
+								: athlete.getHolderSecondSurname());
+						athlete.setHolderDni(athlete.getHolderDni() == null ? holderDni : athlete.getHolderDni());
 
 						// Familiar Info
-						athlete.setFamiliarOneName(fatherName);
-						athlete.setFamiliarOneFirstSurname(fatherFirstSurname);
-						athlete.setFamiliarOneSecondSurname(fatherSecondSurname);
-
-						athlete.setFamiliarTwoName(motherName);
-						athlete.setFamiliarTwoFirstSurname(motherFirstSurname);
-						athlete.setFamiliarTwoSecondSurname(motherSecondSurname);
+						athlete.setFamiliarOneName(
+								athlete.getFamiliarOneName() == null ? fatherName : athlete.getFamiliarOneName());
+						athlete.setFamiliarOneFirstSurname(
+								athlete.getFamiliarOneFirstSurname() == null ? fatherFirstSurname
+										: athlete.getFamiliarOneFirstSurname());
+						athlete.setFamiliarOneSecondSurname(
+								athlete.getFamiliarOneSecondSurname() == null ? fatherSecondSurname
+										: athlete.getFamiliarOneSecondSurname());
+						athlete.setFamiliarTwoName(
+								athlete.getFamiliarTwoName() == null ? motherName : athlete.getFamiliarTwoName());
+						athlete.setFamiliarTwoFirstSurname(
+								athlete.getFamiliarTwoFirstSurname() == null ? motherFirstSurname
+										: athlete.getFamiliarTwoFirstSurname());
+						athlete.setFamiliarTwoSecondSurname(
+								athlete.getFamiliarTwoSecondSurname() == null ? motherSecondSurname
+										: athlete.getFamiliarTwoSecondSurname());
 
 						// Sport School
 						if (line[SPORT_SCHOOL] != null && !line[SPORT_SCHOOL].trim().isEmpty()) {

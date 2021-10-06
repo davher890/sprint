@@ -4,7 +4,6 @@ import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -169,6 +168,10 @@ public class AthleteService {
 		return convertToDto(repository.findByPhoneList(phoneList));
 	}
 
+	public List<AthleteDto> findBySurnames(String firstSurname, String secondSurname) {
+		return convertToDto(repository.findBySurnames(firstSurname, secondSurname));
+	}
+
 	private List<AthleteDto> convertToDto(List<AthleteDao> dao) {
 		return dao.stream().map(this::convertToDto).collect(Collectors.toList());
 	}
@@ -207,8 +210,9 @@ public class AthleteService {
 		List<HistoricDto> athleteHistoric = historicService.findAthleteRegistration(athlete.getId());
 
 		if (athleteHistoric != null && athleteHistoric.size() > 0) {
-			HistoricDto lastRegisterDate = athleteHistoric.stream().filter(p -> p.getDate().before(new Date()))
-					.filter(p -> p.getType().equals(HistoricType.REGISTER.name())).findFirst().orElse(null);
+			HistoricDto lastRegisterDate = athleteHistoric.stream()
+					.filter(p -> p.getType().equals(HistoricType.REGISTER.name()))
+					.filter(p -> p.getDate().compareTo(new Date()) <= 1).findFirst().orElse(null);
 
 			HistoricDto lastUnregisterDate = athleteHistoric.stream().filter(p -> p.getDate().before(new Date()))
 					.filter(p -> p.getType().equals(HistoricType.UNREGISTER.name())).findFirst().orElse(null);
@@ -252,7 +256,8 @@ public class AthleteService {
 
 		if (dto.getHistoric() != null && !dto.getHistoric().isEmpty()) {
 			List<HistoricDto> sortedHistoric = dto.getHistoric().stream().filter(p -> p.getDate().before(new Date()))
-					.sorted(Comparator.comparing(HistoricDto::getDate).reversed()).collect(Collectors.toList());
+					.sorted(Comparator.comparing(HistoricDto::getDate).thenComparing(HistoricDto::getId).reversed())
+					.collect(Collectors.toList());
 
 			dto.setRegistered(
 					sortedHistoric.isEmpty() || sortedHistoric.get(0).getType().equals(HistoricType.REGISTER.name()));
@@ -266,37 +271,42 @@ public class AthleteService {
 		if (dto == null) {
 			return null;
 		}
-		AthleteDao dao = new ModelMapper().map(dto, AthleteDao.class);
+		if (dto.getFamilyCode() > 0) {
+			FamilyDto family = familyService.findByCode(dto.getFamilyCode());
+			dto.setFamilyId(family.getId());
+		}
 
 		if (dto.getFamilyId() == 0) {
-			List<AthleteDao> relatives = repository.findBySurnames(dto.getFirstSurname(), dto.getSecondSurname());
-			// Assign family
-			if (relatives != null && relatives.size() > 0) {
-				// Calculate family
-				relatives = relatives.parallelStream().map(d -> {
-					if (dto.getPhone1().trim().equals(d.getPhone1().trim())
-							|| dto.getPhone1().trim().equals(d.getPhone2().trim())
-							|| dto.getPhone1().trim().equals(d.getPhone3().trim())) {
-						return d;
-					} else {
-						return null;
-					}
-				}).filter(Objects::nonNull).collect(Collectors.toList());
-				if (!relatives.isEmpty()) {
-					dto.setFamilyId(relatives.get(0).getFamily().getId());
-				} else {
-					FamilyDto family = newFamily();
-					dto.setFamilyId(family.getId());
-				}
-			}
-			// Create new family
-			// if (relatives == null || relatives.isEmpty()) {
-			else {
-				FamilyDto family = newFamily();
-				dto.setFamilyId(family.getId());
-			}
+//			List<AthleteDao> relatives = repository.findBySurnames(dto.getFirstSurname(), dto.getSecondSurname());
+//			// Assign family
+//			if (relatives != null && relatives.size() > 0) {
+//				// Calculate family
+//				relatives = relatives.parallelStream().map(d -> {
+//					if (dto.getPhone1().trim().equals(d.getPhone1().trim())
+//							|| dto.getPhone1().trim().equals(d.getPhone2().trim())
+//							|| dto.getPhone1().trim().equals(d.getPhone3().trim())) {
+//						return d;
+//					} else {
+//						return null;
+//					}
+//				}).filter(Objects::nonNull).collect(Collectors.toList());
+//				if (!relatives.isEmpty()) {
+//					dto.setFamilyId(relatives.get(0).getFamily().getId());
+//				} else {
+//					FamilyDto family = newFamily();
+//					dto.setFamilyId(family.getId());
+//				}
+//			}
+//			// Create new family
+//			// if (relatives == null || relatives.isEmpty()) {
+//			else {
+			FamilyDto family = newFamily();
+			dto.setFamilyId(family.getId());
+//			}
 
 		}
+
+		AthleteDao dao = new ModelMapper().map(dto, AthleteDao.class);
 
 		if (dto.getSportSchoolId() != 0) {
 			dao.setSportSchool(sportSchoolRepository.findById(dto.getSportSchoolId()).get());

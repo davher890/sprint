@@ -104,192 +104,197 @@ public class DatabaseSportSchoolAthletesService extends DatabaseService {
 		SportSchoolDto sportSchool = sportSchoolService.findById(sportSchoolId);
 		String fileName = System.getProperty("user.dir") + "/src/main/resources/" + csvName;
 
+		Long[] athleteTestList = { 13772L };
+
 		CSVReader csvReader = readFile(fileName);
-		return StreamSupport.stream(csvReader.spliterator(), true).map(line -> {
+		return StreamSupport.stream(csvReader.spliterator(), true)
+//				.filter(d -> Arrays.asList(athleteTestList).contains(Long.valueOf(d[ATHLETE_CODE].trim())))
+				.map(line -> {
 
-			try {
-
-				boolean authImg = (line[AUTH_IMG].trim().toUpperCase().equals("X")
-						|| line[AUTH_IMG].trim().equals("SI")) ? true : false;
-				long familyCode = Long.valueOf(line[FAMILY_CODE].trim());
-				long athleteCode = Long.valueOf(line[ATHLETE_CODE].trim());
-				List<String> split = Arrays.asList(line[ATHLETE_SURNAMES].split(" "));
-				String firstSurname = split.get(0).trim();
-				String secondSurname = "";
-				if (split.size() > 1) {
-					secondSurname = split.subList(1, split.size()).stream().reduce((identity, accumulator) -> {
-						return identity.trim() + " " + accumulator.trim();
-					}).orElse(null);
-				}
-				String name = line[ATHLETE_NAME].trim();
-				Date birthDate = null;
-				if (!line[BIRTHDATE].trim().isEmpty() && !line[BIRTHDATE].trim().isEmpty()) {
-					birthDate = dateFormat.parse(line[BIRTHDATE].trim());
-				}
-				String birthDateYear = line[YEAR];
-				String gender = line[GENDER].trim().equals("Hombre") ? "male" : "female";
-				String dni = line[DNI].trim();
-				String category = line[CATEGORY].trim();
-				String license = line[LICENSE].trim();
-				String licenseType = line[LICENSE_TYPE].trim().equals("T") ? LicenseType.Territorial.name()
-						: LicenseType.National.name();
-				String dorsalCategory = line[DORSAL_CATEGORY].trim();
-				String dorsalStr = line[DORSAL].trim();
-				long dorsalNumber = 0L;
-				if (!dorsalStr.isEmpty()) {
-					dorsalNumber = Long.valueOf(dorsalStr);
-				}
-				String phone1 = line[PHONE_1].trim();
-				String phone2 = line[PHONE_2].trim();
-				String phone3 = line[PHONE_3].trim();
-				String address = line[ADDRESS].trim();
-				String postalCode = line[POSTCAL_CODE].trim();
-				String municipality = line[MUNICIPALITY].trim();
-
-				String fatherMail = line[FATHER_MAIL].trim();
-				String motherMail = line[MOTHER_MAIL].trim();
-				String mail = line[MAIL].trim();
-
-				NameDataDto father = getNameData(line, FATHER_NAME);
-				String fatherName = father.getName();
-				String fatherFirstSurname = father.getFirstSurname();
-				String fatherSecondSurname = father.getSecondSurname();
-
-				NameDataDto mother = getNameData(line, MOTHER_NAME);
-				String motherName = mother.getName();
-				String motherFirstSurname = mother.getFirstSurname();
-				String motherSecondSurname = mother.getSecondSurname();
-
-				String feeType = line[FEE_TYPE].trim();
-				String iban = line[IBAN].trim();
-
-				NameDataDto holder = getNameData(line, HOLDER_NAME);
-				String holderName = holder.getName();
-				String holderFirstSurname = holder.getFirstSurname();
-				String holderSecondSurname = holder.getSecondSurname();
-				String holderDni = line[HOLDER_DNI];
-
-				String paymentType = line[PAYMENT_TYPE].trim();
-
-				String observations = line[sportSchoolId == 1 ? SANTA_ANA_OBSERVATIONS : PARACUELLOS_OBSERVATIONS]
-						.trim();
-
-				// New Athlete
-				AthleteDto athlete;
-				if (birthDate == null) {
-					athlete = athleteService.findByCode(athleteCode);
-				} else {
-					athlete = athleteService.findByUniqueColumns(name, firstSurname, secondSurname, birthDate);
-				}
-				if (athlete == null) {
-					athlete = new AthleteDto();
-				}
-				athlete.setImageAuth(authImg);
-				athlete.setCode(athleteCode);
-				athlete.setName(name);
-				athlete.setFirstSurname(firstSurname);
-				athlete.setSecondSurname(secondSurname);
-				athlete.setBirthDate(birthDate);
-				athlete.setGender(gender);
-				athlete.setDni(dni);
-				athlete.setLicense(license);
-				athlete.setLicenseType(licenseType);
-				athlete.setCategory(category);
-				athlete.setDorsalNumber(dorsalNumber);
-				athlete.setDorsalCategory(dorsalCategory);
-				athlete.setMail(mail);
-				athlete.setPhone1(phone1);
-				athlete.setPhone2(phone2);
-				athlete.setPhone3(phone3);
-				athlete.setAddress(address);
-				athlete.setPostalCode(postalCode);
-				athlete.setMunicipality(municipality);
-				athlete.setObservations(observations);
-
-				// Bank Info
-				athlete.setName(name);
-				athlete.setFeeType(feeType);
-				athlete.setIban(iban);
-				athlete.setExtern(false);
-				athlete.setPaymentType(paymentType);
-				athlete.setHolderName(holderName);
-				athlete.setHolderFirstSurname(holderFirstSurname);
-				athlete.setHolderSecondSurname(holderSecondSurname);
-				athlete.setHolderDni(holderDni);
-				// athlete.setNumDays(numDays);
-
-				// Familiar Info
-				athlete.setFamiliarOneName(fatherName);
-				athlete.setFamiliarOneFirstSurname(fatherFirstSurname);
-				athlete.setFamiliarOneSecondSurname(fatherSecondSurname);
-				athlete.setFamiliarOneMail(fatherMail);
-
-				athlete.setFamiliarTwoName(motherName);
-				athlete.setFamiliarTwoFirstSurname(motherFirstSurname);
-				athlete.setFamiliarTwoSecondSurname(motherSecondSurname);
-				athlete.setFamiliarTwoMail(motherMail);
-
-				// Sport School
-				athlete.setSportSchoolId(sportSchool.getId());
-
-				// New Family
-				FamilyDto family = familyService.findByCode(familyCode);
-				if (family == null) {
-					family = new FamilyDto();
-					family.setCode(familyCode);
-					family = familyService.save(family);
-				}
-				athlete.setFamilyId(family.getId());
-
-				// Group
-				String groupName = line[GROUP_NAME];
-				GroupDto group = groupService.findByNameAndSportSchool(groupName, sportSchoolId);
-
-				if (group != null) {
-					athlete.setGroupId(group.getId());
-					athlete.setScheduleIds(group.getScheduleIds());
-				}
-
-				try {
-					athlete = athleteService.save(athlete);
-				} catch (DataIntegrityViolationException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-
-				// Historic
-				String registerDate = line[sportSchoolId == 1 ? SANTA_ANA_REGISTER_DATE : PARACUELLOS_REGISTER_DATE];
-				if (registerDate != null && !registerDate.trim().isEmpty()
-						&& registerDate.trim().split(DATE_SEPARATOR).length == 2) {
-
-					String[] splitDate = registerDate.trim().split(DATE_SEPARATOR);
-					String year = splitDate[1].trim();
-					String month = registarDateMap.get(splitDate[0].trim().toLowerCase());
-					HistoricDto historic = new HistoricDto();
-					historic.setAthleteId(athlete.getId());
-					historic.setType(HistoricType.REGISTER.name());
 					try {
-						String yearStr = "20";
-						if (Integer.parseInt(year) > 50) {
-							yearStr = "19";
+
+						boolean authImg = (line[AUTH_IMG].trim().toUpperCase().equals("X")
+								|| line[AUTH_IMG].trim().equals("SI")) ? true : false;
+						long familyCode = Long.valueOf(line[FAMILY_CODE].trim());
+						long athleteCode = Long.valueOf(line[ATHLETE_CODE].trim());
+						List<String> split = Arrays.asList(line[ATHLETE_SURNAMES].split(" "));
+						String firstSurname = split.get(0).trim();
+						String secondSurname = "";
+						if (split.size() > 1) {
+							secondSurname = split.subList(1, split.size()).stream().reduce((identity, accumulator) -> {
+								return identity.trim() + " " + accumulator.trim();
+							}).orElse(null);
 						}
-						historic.setDate(dayFormat.parse(yearStr + year + "-" + month + "-" + "01"));
-					} catch (ParseException e) {
-						logger.error("Register date");
+						String name = line[ATHLETE_NAME].trim();
+						Date birthDate = null;
+						if (!line[BIRTHDATE].trim().isEmpty() && !line[BIRTHDATE].trim().isEmpty()) {
+							birthDate = dateFormat.parse(line[BIRTHDATE].trim());
+						}
+						String birthDateYear = line[YEAR];
+						String gender = line[GENDER].trim().equals("Hombre") ? "male" : "female";
+						String dni = line[DNI].trim();
+						String category = line[CATEGORY].trim();
+						String license = line[LICENSE].trim();
+						String licenseType = line[LICENSE_TYPE].trim().equals("T") ? LicenseType.Territorial.name()
+								: LicenseType.National.name();
+						String dorsalCategory = line[DORSAL_CATEGORY].trim();
+						String dorsalStr = line[DORSAL].trim();
+						long dorsalNumber = 0L;
+						if (!dorsalStr.isEmpty()) {
+							dorsalNumber = Long.valueOf(dorsalStr);
+						}
+						String phone1 = line[PHONE_1].trim();
+						String phone2 = line[PHONE_2].trim();
+						String phone3 = line[PHONE_3].trim();
+						String address = line[ADDRESS].trim();
+						String postalCode = line[POSTCAL_CODE].trim();
+						String municipality = line[MUNICIPALITY].trim();
+
+						String fatherMail = line[FATHER_MAIL].trim();
+						String motherMail = line[MOTHER_MAIL].trim();
+						String mail = line[MAIL].trim();
+
+						NameDataDto father = getNameData(line, FATHER_NAME);
+						String fatherName = father.getName();
+						String fatherFirstSurname = father.getFirstSurname();
+						String fatherSecondSurname = father.getSecondSurname();
+
+						NameDataDto mother = getNameData(line, MOTHER_NAME);
+						String motherName = mother.getName();
+						String motherFirstSurname = mother.getFirstSurname();
+						String motherSecondSurname = mother.getSecondSurname();
+
+						String feeType = line[FEE_TYPE].trim();
+						String iban = line[IBAN].trim();
+
+						NameDataDto holder = getNameData(line, HOLDER_NAME);
+						String holderName = holder.getName();
+						String holderFirstSurname = holder.getFirstSurname();
+						String holderSecondSurname = holder.getSecondSurname();
+						String holderDni = line[HOLDER_DNI];
+
+						String paymentType = line[PAYMENT_TYPE].trim();
+
+						String observations = line[sportSchoolId == 1 ? SANTA_ANA_OBSERVATIONS
+								: PARACUELLOS_OBSERVATIONS].trim();
+
+						// New Athlete
+						AthleteDto athlete;
+						if (birthDate == null) {
+							athlete = athleteService.findByCode(athleteCode);
+						} else {
+							athlete = athleteService.findByUniqueColumns(name, firstSurname, secondSurname, birthDate);
+						}
+						if (athlete == null) {
+							athlete = new AthleteDto();
+						}
+						athlete.setImageAuth(authImg);
+						athlete.setCode(athleteCode);
+						athlete.setName(name);
+						athlete.setFirstSurname(firstSurname);
+						athlete.setSecondSurname(secondSurname);
+						athlete.setBirthDate(birthDate);
+						athlete.setGender(gender);
+						athlete.setDni(dni);
+						athlete.setLicense(license);
+						athlete.setLicenseType(licenseType);
+						athlete.setCategory(category);
+						athlete.setDorsalNumber(dorsalNumber);
+						athlete.setDorsalCategory(dorsalCategory);
+						athlete.setMail(mail);
+						athlete.setPhone1(phone1);
+						athlete.setPhone2(phone2);
+						athlete.setPhone3(phone3);
+						athlete.setAddress(address);
+						athlete.setPostalCode(postalCode);
+						athlete.setMunicipality(municipality);
+						athlete.setObservations(observations);
+
+						// Bank Info
+						athlete.setName(name);
+						athlete.setFeeType(feeType);
+						athlete.setIban(iban);
+						athlete.setExtern(false);
+						athlete.setPaymentType(paymentType);
+						athlete.setHolderName(holderName);
+						athlete.setHolderFirstSurname(holderFirstSurname);
+						athlete.setHolderSecondSurname(holderSecondSurname);
+						athlete.setHolderDni(holderDni);
+						// athlete.setNumDays(numDays);
+
+						// Familiar Info
+						athlete.setFamiliarOneName(fatherName);
+						athlete.setFamiliarOneFirstSurname(fatherFirstSurname);
+						athlete.setFamiliarOneSecondSurname(fatherSecondSurname);
+						athlete.setFamiliarOneMail(fatherMail);
+
+						athlete.setFamiliarTwoName(motherName);
+						athlete.setFamiliarTwoFirstSurname(motherFirstSurname);
+						athlete.setFamiliarTwoSecondSurname(motherSecondSurname);
+						athlete.setFamiliarTwoMail(motherMail);
+
+						// Sport School
+						athlete.setSportSchoolId(sportSchool.getId());
+
+						// New Family
+						FamilyDto family = familyService.findByCode(familyCode);
+						if (family == null) {
+							family = new FamilyDto();
+							family.setCode(familyCode);
+							family = familyService.save(family);
+						}
+						athlete.setFamilyId(family.getId());
+
+						// Group
+						String groupName = line[GROUP_NAME].trim();
+						GroupDto group = groupService.findByNameAndSportSchool(groupName, sportSchoolId);
+
+						if (group != null) {
+							athlete.setGroupId(group.getId());
+							athlete.setScheduleIds(group.getScheduleIds());
+						}
+
+						try {
+							athlete = athleteService.save(athlete);
+						} catch (DataIntegrityViolationException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+
+						// Historic
+						String registerDate = line[sportSchoolId == 1 ? SANTA_ANA_REGISTER_DATE
+								: PARACUELLOS_REGISTER_DATE];
+						if (registerDate != null && !registerDate.trim().isEmpty()
+								&& registerDate.trim().split(DATE_SEPARATOR).length == 2) {
+
+							String[] splitDate = registerDate.trim().split(DATE_SEPARATOR);
+							String year = splitDate[1].trim();
+							String month = registarDateMap.get(splitDate[0].trim().toLowerCase());
+							HistoricDto historic = new HistoricDto();
+							historic.setAthleteId(athlete.getId());
+							historic.setType(HistoricType.REGISTER.name());
+							try {
+								String yearStr = "20";
+								if (Integer.parseInt(year) > 50) {
+									yearStr = "19";
+								}
+								historic.setDate(dayFormat.parse(yearStr + year + "-" + month + "-" + "01"));
+							} catch (ParseException e) {
+								logger.error("Register date");
+								logger.error(String.join("_", line));
+								logger.error(e.getMessage());
+								e.printStackTrace();
+							}
+							historicService.save(historic);
+						}
+						return athlete;
+					} catch (Exception e) {
 						logger.error(String.join("_", line));
 						logger.error(e.getMessage());
 						e.printStackTrace();
+						return null;
 					}
-					historicService.save(historic);
-				}
-				return athlete;
-			} catch (Exception e) {
-				logger.error(String.join("_", line));
-				logger.error(e.getMessage());
-				e.printStackTrace();
-				return null;
-			}
-		}).collect(Collectors.toList());
+				}).collect(Collectors.toList());
 	}
 
 	public Set<SportSchoolDto> dbFillSportSchoolsData() {
