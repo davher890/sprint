@@ -115,34 +115,10 @@ public class AthleteController {
 		return service.findAll();
 	}
 
-	@PostMapping("/excel")
-	public void excel(@RequestBody List<ColumnDto> columns, HttpServletResponse response) throws IOException {
-
-		List<AthleteDao> athletes = service.findAllExcel();
-
-		List<ExcelDataDto> data = new ArrayList<>();
-
-		ExcelDataDto header = new ExcelDataDto();
-		header.getData().addAll(columns.parallelStream().filter(ColumnDto::isShow).map(d -> {
-			return new ExcelValueDto(d.getText(), CellType.STRING);
-		}).collect(Collectors.toList()));
-		data.add(header);
-
-		data.addAll(athletes.parallelStream().map(entity -> {
-			ExcelDataDto dataDto = new ExcelDataDto();
-			dataDto.getData().addAll(columns.parallelStream().filter(ColumnDto::isShow).map(d -> {
-				try {
-					return new ExcelValueDto(BeanUtils.getProperty(entity, d.getDataField()),
-							ExcelUtils.getCellType(d));
-				} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-					return null;
-				}
-			}).filter(Objects::nonNull).collect(Collectors.toList()));
-			return dataDto;
-		}).filter(Objects::nonNull).collect(Collectors.toList()));
-
-		ByteArrayInputStream bas = ExcelUtils.generateExcel("Atletas", data);
-		IOUtils.copy(bas, response.getOutputStream());
+	@GetMapping("/phone")
+	public List<AthleteDto> findByPhoneList(
+			@RequestParam(value = "phone_list", required = true) List<String> phoneList) {
+		return service.findByPhoneList(phoneList);
 	}
 
 	@GetMapping("/{id}")
@@ -191,6 +167,36 @@ public class AthleteController {
 	@PostMapping("/relatives")
 	public List<AthleteDto> getRelatives(@RequestBody AthleteDto dto) {
 		return service.getRelatives(dto);
+	}
+
+	@PostMapping("/excel")
+	public void excel(@RequestBody List<ColumnDto> columns, HttpServletResponse response) throws IOException {
+
+		List<AthleteDao> athletes = service.findAllExcel();
+
+		List<ExcelDataDto> data = new ArrayList<>();
+
+		ExcelDataDto header = new ExcelDataDto();
+		header.getData().addAll(columns.parallelStream().filter(ColumnDto::isShow).map(d -> {
+			return new ExcelValueDto(d.getText(), CellType.STRING);
+		}).collect(Collectors.toList()));
+		data.add(header);
+
+		data.addAll(athletes.parallelStream().map(entity -> {
+			ExcelDataDto dataDto = new ExcelDataDto();
+			dataDto.getData().addAll(columns.parallelStream().filter(ColumnDto::isShow).map(d -> {
+				try {
+					return new ExcelValueDto(BeanUtils.getProperty(entity, d.getDataField()),
+							ExcelUtils.getCellType(d));
+				} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+					return null;
+				}
+			}).filter(Objects::nonNull).collect(Collectors.toList()));
+			return dataDto;
+		}).filter(Objects::nonNull).collect(Collectors.toList()));
+
+		ByteArrayInputStream bas = ExcelUtils.generateExcel("Atletas", data);
+		IOUtils.copy(bas, response.getOutputStream());
 	}
 
 }

@@ -165,8 +165,62 @@ public class AthleteService {
 		return convertToDto(repository.findByCode(code));
 	}
 
+	public List<AthleteDto> findByPhoneList(List<String> phoneList) {
+		return convertToDto(repository.findByPhoneList(phoneList));
+	}
+
 	private List<AthleteDto> convertToDto(List<AthleteDao> dao) {
 		return dao.stream().map(this::convertToDto).collect(Collectors.toList());
+	}
+
+	private FamilyDto newFamily() {
+		FamilyDto family = new FamilyDto();
+		family.setCode(familyService.findLastCode() + 1);
+		return familyService.save(family);
+	}
+
+	public List<AthleteDto> getRelatives(AthleteDto dto) {
+		return convertToDto(repository.findRelatives(dto.getFirstSurname(), dto.getSecondSurname(), dto.getPhone1(),
+				dto.getPhone2(), dto.getPhone3()));
+	}
+
+	public List<GroupDto> findGroupsById(int id) {
+		return athleteGroupScheduleService.findByAthlete(id).stream().map(d -> groupService.findById(d.getGroupId()))
+				.collect(Collectors.toList());
+	}
+
+	public void updateAthletesRegisterDate() {
+
+		List<AthleteDto> athletes = this.findAll();
+		athletes.stream().forEach(athlete -> {
+			try {
+				updateAthleteRegistrationDate(athlete);
+			} catch (DataIntegrityViolationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		});
+
+	}
+
+	public void updateAthleteRegistrationDate(AthleteDto athlete) throws DataIntegrityViolationException {
+		List<HistoricDto> athleteHistoric = historicService.findAthleteRegistration(athlete.getId());
+
+		if (athleteHistoric != null && athleteHistoric.size() > 0) {
+			HistoricDto lastRegisterDate = athleteHistoric.stream().filter(p -> p.getDate().before(new Date()))
+					.filter(p -> p.getType().equals(HistoricType.REGISTER.name())).findFirst().orElse(null);
+
+			HistoricDto lastUnregisterDate = athleteHistoric.stream().filter(p -> p.getDate().before(new Date()))
+					.filter(p -> p.getType().equals(HistoricType.UNREGISTER.name())).findFirst().orElse(null);
+
+			if (lastRegisterDate != null) {
+				athlete.setLastRegisterDate(lastRegisterDate.getDate());
+			}
+			if (lastUnregisterDate != null) {
+				athlete.setLastUnregisterDate(lastUnregisterDate.getDate());
+			}
+			save(athlete);
+		}
 	}
 
 	private AthleteDto convertToDto(AthleteDao dao) {
@@ -260,55 +314,5 @@ public class AthleteService {
 		athleteGroupScheduleService.deleteByAthlete(dto.getId());
 
 		return dao;
-	}
-
-	private FamilyDto newFamily() {
-		FamilyDto family = new FamilyDto();
-		family.setCode(familyService.findLastCode() + 1);
-		return familyService.save(family);
-	}
-
-	public List<AthleteDto> getRelatives(AthleteDto dto) {
-		return convertToDto(repository.findRelatives(dto.getFirstSurname(), dto.getSecondSurname(), dto.getPhone1(),
-				dto.getPhone2(), dto.getPhone3()));
-	}
-
-	public List<GroupDto> findGroupsById(int id) {
-		return athleteGroupScheduleService.findByAthlete(id).stream().map(d -> groupService.findById(d.getGroupId()))
-				.collect(Collectors.toList());
-	}
-
-	public void updateAthletesRegisterDate() {
-
-		List<AthleteDto> athletes = this.findAll();
-		athletes.stream().forEach(athlete -> {
-			try {
-				updateAthleteRegistrationDate(athlete);
-			} catch (DataIntegrityViolationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		});
-
-	}
-
-	public void updateAthleteRegistrationDate(AthleteDto athlete) throws DataIntegrityViolationException {
-		List<HistoricDto> athleteHistoric = historicService.findAthleteRegistration(athlete.getId());
-
-		if (athleteHistoric != null && athleteHistoric.size() > 0) {
-			HistoricDto lastRegisterDate = athleteHistoric.stream().filter(p -> p.getDate().before(new Date()))
-					.filter(p -> p.getType().equals(HistoricType.REGISTER.name())).findFirst().orElse(null);
-
-			HistoricDto lastUnregisterDate = athleteHistoric.stream().filter(p -> p.getDate().before(new Date()))
-					.filter(p -> p.getType().equals(HistoricType.UNREGISTER.name())).findFirst().orElse(null);
-
-			if (lastRegisterDate != null) {
-				athlete.setLastRegisterDate(lastRegisterDate.getDate());
-			}
-			if (lastUnregisterDate != null) {
-				athlete.setLastUnregisterDate(lastUnregisterDate.getDate());
-			}
-			save(athlete);
-		}
 	}
 }

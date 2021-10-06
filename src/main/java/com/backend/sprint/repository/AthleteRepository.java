@@ -33,6 +33,11 @@ public interface AthleteRepository
 	@Query(value = "SELECT MAX(code) FROM athletes", nativeQuery = true)
 	public long findLastFamilyCode();
 
+	@Query(value = "SELECT * FROM athletes a1 INNER JOIN "
+			+ "(SELECT id FROM athletes WHERE phone1 IN (?1) OR phone2 IN (?1) OR phone3 IN (?1) GROUP by 1) a2 "
+			+ "ON a1.id = a2.id", nativeQuery = true)
+	public List<AthleteDao> findByPhoneList(List<String> phoneList);
+
 	@Query(value = "SELECT * FROM athletes WHERE id != ?1 AND name = ?2 AND first_surname = ?3 AND second_surname = ?4 "
 			+ "AND EXTRACT(YEAR FROM birth_date) = ?5 AND EXTRACT(MONTH FROM birth_date) = ?6 AND EXTRACT(DAY FROM birth_date) = ?7 ", nativeQuery = true)
 	public List<AthleteDao> findByIdAndUniqueColumns(long id, String name, String firstSurname, String secondSurname,
