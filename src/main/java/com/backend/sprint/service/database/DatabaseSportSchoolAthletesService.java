@@ -104,11 +104,12 @@ public class DatabaseSportSchoolAthletesService extends DatabaseService {
 		SportSchoolDto sportSchool = sportSchoolService.findById(sportSchoolId);
 		String fileName = System.getProperty("user.dir") + "/src/main/resources/" + csvName;
 
-		Long[] athleteTestList = { 13772L };
+		Long[] athleteTestList = { 29241L, 29251L, 29261L, 29271L, 29281L, 29291L, 29301L, 29321L, 29331L, 29491L,
+				29501L, 29521L, 29531L, 29532L, 29533L, 29671L, 29681L };
 
 		CSVReader csvReader = readFile(fileName);
 		return StreamSupport.stream(csvReader.spliterator(), true)
-//				.filter(d -> Arrays.asList(athleteTestList).contains(Long.valueOf(d[ATHLETE_CODE].trim())))
+				.filter(d -> Arrays.asList(athleteTestList).contains(Long.valueOf(d[ATHLETE_CODE].trim())))
 				.map(line -> {
 
 					try {
