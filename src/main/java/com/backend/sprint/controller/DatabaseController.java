@@ -56,9 +56,15 @@ public class DatabaseController {
 	@GetMapping("/{id}/athletes")
 	public List<AthleteDto> dbFillAtheltesData(@PathVariable(name = "id") int sportSchoolId)
 			throws IOException, ParseException {
-		String csvName = "BD_SANTA_ANA.csv";
+		String csvName = null;
+		if (sportSchoolId == 1) {
+			csvName = "BD_SANTA_ANA.csv";
+		}
 		if (sportSchoolId == 2) {
 			csvName = "BD_PARACUELLOS.csv";
+		}
+		if (csvName == null) {
+			return null;
 		}
 		return service.dbFillAtheltesData(sportSchoolId, csvName);
 	}
