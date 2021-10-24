@@ -109,24 +109,24 @@ public class AthleteService {
 			calendar.setTime(dto.getBirthDate());
 
 			// New record, check if someone similar exists.
-			if (dto.getId() == 0) {
-
-				List<AthleteDao> findByUniqueColumns = repository.findByUniqueColumns(dto.getName(),
-						dto.getFirstSurname(), dto.getSecondSurname(), calendar.get(Calendar.YEAR),
-						calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH));
-				if (findByUniqueColumns != null && findByUniqueColumns.size() > 0) {
-					throw new DataIntegrityViolationException(null);
-				}
-			}
-			// Old record, check if another distinct record exists
-			else {
-				List<AthleteDao> findByUniqueColumns = repository.findByIdAndUniqueColumns(dto.getId(), dto.getName(),
-						dto.getFirstSurname(), dto.getSecondSurname(), calendar.get(Calendar.YEAR),
-						calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH));
-				if (findByUniqueColumns != null && findByUniqueColumns.size() > 0) {
-					throw new DataIntegrityViolationException(null);
-				}
-			}
+//			if (dto.getId() == 0) {
+//
+//				List<AthleteDao> findByUniqueColumns = repository.findByUniqueColumns(dto.getName(),
+//						dto.getFirstSurname(), dto.getSecondSurname(), calendar.get(Calendar.YEAR),
+//						calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH));
+//				if (findByUniqueColumns != null && findByUniqueColumns.size() > 0) {
+//					throw new DataIntegrityViolationException(null);
+//				}
+//			}
+//			// Old record, check if another distinct record exists
+//			else {
+//				List<AthleteDao> findByUniqueColumns = repository.findByIdAndUniqueColumns(dto.getId(), dto.getName(),
+//						dto.getFirstSurname(), dto.getSecondSurname(), calendar.get(Calendar.YEAR),
+//						calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH));
+//				if (findByUniqueColumns != null && findByUniqueColumns.size() > 0) {
+//					throw new DataIntegrityViolationException(null);
+//				}
+//			}
 		}
 
 		AthleteDao dao = repository.save(convertToDao(dto));
