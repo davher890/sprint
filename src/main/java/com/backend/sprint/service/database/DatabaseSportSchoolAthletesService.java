@@ -109,7 +109,7 @@ public class DatabaseSportSchoolAthletesService extends DatabaseService {
 
 		CSVReader csvReader = readFile(fileName);
 		return StreamSupport.stream(csvReader.spliterator(), true)
-				.filter(d -> Arrays.asList(athleteTestList).contains(Long.valueOf(d[ATHLETE_CODE].trim())))
+//				.filter(d -> Arrays.asList(athleteTestList).contains(Long.valueOf(d[ATHLETE_CODE].trim())))
 				.map(line -> {
 
 					try {
