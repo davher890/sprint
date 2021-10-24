@@ -1,5 +1,6 @@
 package com.backend.sprint.repository;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -20,12 +21,11 @@ public interface AthleteRepository
 	@Query(value = "SELECT * FROM athletes WHERE family_id = ?1 ", nativeQuery = true)
 	public Set<AthleteDao> findByFamily(long familyId);
 
+	@Query(value = "SELECT * FROM athletes a INNER JOIN families f ON f.id = a.family_id WHERE f.code = ?1 ", nativeQuery = true)
+	public List<AthleteDao> findByFamilyCode(long familyCode);
+
 	@Query(value = "SELECT * FROM athletes WHERE code = ?1 ", nativeQuery = true)
 	public AthleteDao findByCode(long code);
-
-	@Query(value = "SELECT * FROM athletes WHERE LOWER(first_surname) = LOWER(?1) AND LOWER(second_surname) = LOWER(?2) AND PHONE1 = ?3 AND PHONE2 = ?4 AND PHONE3 = ?4", nativeQuery = true)
-	public List<AthleteDao> findRelatives(String firstSurname, String secondSurname, String phone1, String phone2,
-			String phone3);
 
 	@Query(value = "SELECT * FROM athletes WHERE LOWER(first_surname) = LOWER(?1) AND LOWER(second_surname) = LOWER(?2)", nativeQuery = true)
 	public List<AthleteDao> findBySurnames(String firstSurname, String secondSurname);
@@ -60,10 +60,23 @@ public interface AthleteRepository
 	@Query(value = "SELECT * FROM athletes WHERE id IN (SELECT DISTINCT(athlete_id) FROM athlete_group_schedules WHERE group_id = ?1 AND schedule_id IN (?2))", nativeQuery = true)
 	public List<AthleteDao> findByGroupAndSchedules(long groupId, List<Long> scheduleIds);
 
+	// Returns the athletes in the historic
 	@Query(value = "SELECT * FROM athletes WHERE NOT("
 			+ "(last_register_date IS NULL AND (last_unregister_date IS NULL OR last_unregister_date > NOW())) "
 			+ " OR "
 			+ "(last_register_date IS NOT NULL AND last_register_date <= NOW() AND (last_unregister_date IS NULL OR last_unregister_date < last_register_date)))", nativeQuery = true)
 	public List<AthleteDao> findAllHistoric();
+
+	// Returns the registered athletes
+	@Query(value = "SELECT * FROM athletes WHERE "
+			+ "(last_register_date IS NULL AND (last_unregister_date IS NULL OR last_unregister_date > NOW())) "
+			+ " OR "
+			+ "(last_register_date IS NOT NULL AND last_register_date <= NOW() AND (last_unregister_date IS NULL OR last_unregister_date < last_register_date))", nativeQuery = true)
+	public List<AthleteDao> findAllRegistered();
+
+	@Query(value = "SELECT * FROM athletes a "
+			+ "INNER JOIN (SELECT *, row_number() OVER (partition by athlete_id order by date desc) AS rn FROM historic WHERE date BETWEEN ?1 AND ?2) h ON a.id = h.athlete_id "
+			+ "WHERE rn = 1 AND h.type = 'REGISTER'", nativeQuery = true)
+	public List<AthleteDao> findByRegistrationDates(Date startDate, Date endDate);
 
 }

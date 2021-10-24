@@ -84,7 +84,9 @@ public class AthleteDto {
 	private boolean registered;
 
 	// Fee
-	private FeeDto fee;
+	private FeeDto fee;// Fee
+
+	private float paymentAmount;
 
 	// Code
 	private long code;

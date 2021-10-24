@@ -16,6 +16,11 @@ public class ExcelValueDto {
 
 	private CellStyle style;
 
+	public ExcelValueDto(String value) {
+		this.value = value;
+		this.type = CellType.STRING;
+	}
+
 	public ExcelValueDto(String value, CellType type) {
 		this.value = value;
 		this.type = type;

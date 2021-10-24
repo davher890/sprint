@@ -170,11 +170,6 @@ public class AthleteController {
 		}
 	}
 
-	@PostMapping("/relatives")
-	public List<AthleteDto> getRelatives(@RequestBody AthleteDto dto) {
-		return service.getRelatives(dto);
-	}
-
 	@PostMapping("/excel")
 	public void excel(@RequestBody List<ColumnDto> columns, HttpServletResponse response) throws IOException {
 

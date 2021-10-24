@@ -74,8 +74,18 @@ public class AthleteService {
 		return daoPage.stream().map(dao -> convertToDto(dao)).collect(Collectors.toList());
 	}
 
+	public List<AthleteDto> findByRegistrationDates(Date startDate, Date endDate) {
+		List<AthleteDao> daoPage = repository.findByRegistrationDates(startDate, endDate);
+		return daoPage.stream().map(dao -> convertToDto(dao)).collect(Collectors.toList());
+	}
+
 	public List<AthleteDto> findAll() {
 		return StreamSupport.stream(repository.findAll().spliterator(), false).map(this::convertToDto)
+				.collect(Collectors.toList());
+	}
+
+	public List<AthleteDto> findAllRegistered() {
+		return StreamSupport.stream(repository.findAllRegistered().spliterator(), false).map(this::convertToDto)
 				.collect(Collectors.toList());
 	}
 
@@ -172,19 +182,14 @@ public class AthleteService {
 		return convertToDto(repository.findBySurnames(firstSurname, secondSurname));
 	}
 
-	private List<AthleteDto> convertToDto(List<AthleteDao> dao) {
-		return dao.stream().map(this::convertToDto).collect(Collectors.toList());
-	}
-
 	private FamilyDto newFamily() {
 		FamilyDto family = new FamilyDto();
 		family.setCode(familyService.findLastCode() + 1);
 		return familyService.save(family);
 	}
 
-	public List<AthleteDto> getRelatives(AthleteDto dto) {
-		return convertToDto(repository.findRelatives(dto.getFirstSurname(), dto.getSecondSurname(), dto.getPhone1(),
-				dto.getPhone2(), dto.getPhone3()));
+	public List<AthleteDto> findByFamilyCode(AthleteDto dto) {
+		return convertToDto(repository.findByFamilyCode(dto.getFamilyCode()));
 	}
 
 	public List<GroupDto> findGroupsById(int id) {
@@ -225,6 +230,10 @@ public class AthleteService {
 			}
 			save(athlete);
 		}
+	}
+
+	private List<AthleteDto> convertToDto(List<AthleteDao> dao) {
+		return dao.stream().map(this::convertToDto).collect(Collectors.toList());
 	}
 
 	private AthleteDto convertToDto(AthleteDao dao) {

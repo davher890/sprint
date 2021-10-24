@@ -23,7 +23,6 @@ import com.backend.sprint.model.dto.SportSchoolDto;
 import com.backend.sprint.model.dto.TrainerDto;
 import com.backend.sprint.service.AthleteService;
 import com.backend.sprint.service.FamilyService;
-import com.backend.sprint.service.GroupService;
 import com.backend.sprint.service.HistoricService;
 import com.backend.sprint.service.SportSchoolService;
 import com.backend.sprint.service.TrainerService;
@@ -82,9 +81,6 @@ public class DatabaseExternalAthletesService extends DatabaseService {
 
 	@Autowired
 	private TrainerService trainerService;
-
-	@Autowired
-	private GroupService groupService;
 
 	@Autowired
 	private SportSchoolService sportSchoolService;
@@ -168,11 +164,11 @@ public class DatabaseExternalAthletesService extends DatabaseService {
 
 				// New Athlete
 				AthleteDto athlete;
-				if (birthDate == null) {
-					athlete = athleteService.findByCode(athleteCode);
-				} else {
-					athlete = athleteService.findByUniqueColumns(name, firstSurname, secondSurname, birthDate);
-				}
+//				if (birthDate == null) {
+				athlete = athleteService.findByCode(athleteCode);
+//				} else {
+//					athlete = athleteService.findByUniqueColumns(name, firstSurname, secondSurname, birthDate);
+//				}
 				if (athlete == null) {
 					athlete = new AthleteDto();
 				}

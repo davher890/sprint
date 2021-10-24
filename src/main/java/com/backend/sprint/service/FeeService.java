@@ -1,18 +1,17 @@
 package com.backend.sprint.service;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.backend.sprint.model.dto.AthleteDto;
+import com.backend.sprint.model.dto.FamilyDto;
 import com.backend.sprint.model.dto.FeeDto;
 
 @Service
 public class FeeService {
 
 	@Autowired
-	private AthleteService athleteService;
+	private FamilyService familyService;
 
 	public FeeDto getAthleteFee(AthleteDto dto) {
 
@@ -28,33 +27,36 @@ public class FeeService {
 	}
 
 	// Annually
-	private int getMembershipFee() {
+	public int getMembershipFee() {
 		return 20;
 	}
 
 	// Once
-	private int getEnrollmentFee(AthleteDto dto) {
+	public int getEnrollmentFee(AthleteDto dto) {
 
 		int fee = 0;
 
 		if (dto.getSportSchoolId() == 3) {
 			fee = 10;
 		} else {
-			List<AthleteDto> relatives = athleteService.getRelatives(dto);
-			// if (dto.getLicenseType().equals("PISTAS") ||
-			// dto.getLicenseType().equals("LICENCIA")) {
-			if (relatives.size() > 1) {
-				fee = 20;
-			} else {
-				fee = 40;
+			if (dto.getFamilyCode() > 0) {
+				FamilyDto family = familyService.findByCode(dto.getFamilyCode());
+				// if (dto.getLicenseType().equals("PISTAS") ||
+				// dto.getLicenseType().equals("LICENCIA")) {
+				if (family.getCount() > 1) {
+					fee = 20;
+				} else {
+					fee = 40;
+				}
+				// A partir del tercer miembro solo se paga una cuota de socio por
+				// familia
 			}
-			// A partir del tercer miembro solo se paga una cuota de socio por
-			// familia
+
 		}
 		return fee;
 	}
 
-	private int getMonthlyFee(AthleteDto dto) {
+	public int getMonthlyFee(AthleteDto dto) {
 
 		int fee = 0;
 

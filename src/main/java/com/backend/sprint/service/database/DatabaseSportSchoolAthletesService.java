@@ -180,11 +180,11 @@ public class DatabaseSportSchoolAthletesService extends DatabaseService {
 
 						// New Athlete
 						AthleteDto athlete;
-						if (birthDate == null) {
-							athlete = athleteService.findByCode(athleteCode);
-						} else {
-							athlete = athleteService.findByUniqueColumns(name, firstSurname, secondSurname, birthDate);
-						}
+//						if (birthDate == null) {
+						athlete = athleteService.findByCode(athleteCode);
+//						} else {
+//							athlete = athleteService.findByUniqueColumns(name, firstSurname, secondSurname, birthDate);
+//						}
 						if (athlete == null) {
 							athlete = new AthleteDto();
 						}

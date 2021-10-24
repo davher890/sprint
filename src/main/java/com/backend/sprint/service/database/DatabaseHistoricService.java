@@ -72,11 +72,11 @@ public class DatabaseHistoricService extends DatabaseService {
 	@Autowired
 	private HistoricService historicService;
 
-	public List<AthleteDto> dbFillAtheltesData() throws IOException, ParseException {
+	public List<AthleteDto> dbFillAtheltesData(String csvName) throws IOException, ParseException {
 
 		Long[] athleteTestList = { 14002L };
 
-		CSVReader csvReader = readFile(System.getProperty("user.dir") + "/src/main/resources/BD_HISTORICO.csv");
+		CSVReader csvReader = readFile(System.getProperty("user.dir") + "/src/main/resources/" + csvName);
 		return StreamSupport.stream(csvReader.spliterator(), true)
 				.filter(d -> Arrays.asList(athleteTestList).contains(Long.valueOf(d[ATHLETE_CODE].trim())))
 				.map(line -> {
