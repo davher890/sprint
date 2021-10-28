@@ -11,6 +11,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -61,6 +63,14 @@ public class AthleteDao {
 	@JoinColumn(name = "family_id")
 	private FamilyDao family;
 
+	@ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@JoinColumn(name = "group_id")
+	private GroupDao group;
+
+	@ManyToMany(cascade = CascadeType.ALL)
+	@JoinTable(joinColumns = @JoinColumn(name = "athlete_id"), inverseJoinColumns = @JoinColumn(name = "schedule_id"))
+	private Set<ScheduleDao> schedules;
+
 	private String familiarOneName;
 	private String familiarOneFirstSurname;
 	private String familiarOneSecondSurname;
@@ -103,6 +113,8 @@ public class AthleteDao {
 
 	@OneToMany(mappedBy = "athlete")
 	private Set<HistoricDao> historic;
+
+	private Date firstRegisterDate;
 
 	private Date lastRegisterDate;
 

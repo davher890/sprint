@@ -20,12 +20,12 @@ import org.springframework.transaction.annotation.Transactional;
 import com.backend.sprint.model.dao.AthleteDao;
 import com.backend.sprint.model.dao.FamilyDao;
 import com.backend.sprint.model.dto.AthleteDto;
-import com.backend.sprint.model.dto.AthleteGroupScheduleDto;
 import com.backend.sprint.model.dto.FamilyDto;
-import com.backend.sprint.model.dto.GroupDto;
 import com.backend.sprint.model.dto.HistoricDto;
 import com.backend.sprint.repository.AthleteRepository;
 import com.backend.sprint.repository.FamilyRepository;
+import com.backend.sprint.repository.GroupRepository;
+import com.backend.sprint.repository.ScheduleRepository;
 import com.backend.sprint.repository.SportSchoolRepository;
 import com.backend.sprint.utils.HistoricType;
 
@@ -37,16 +37,13 @@ public class AthleteService {
 	private AthleteRepository repository;
 
 	@Autowired
-	private AthleteGroupScheduleService athleteGroupScheduleService;
-
-	@Autowired
-	private GroupService groupService;
+	private GroupRepository groupRepository;
 
 	@Autowired
 	private SportSchoolRepository sportSchoolRepository;
 
 	@Autowired
-	private ScheduleService scheduleService;
+	private ScheduleRepository scheduleRepository;
 
 	@Autowired
 	private HistoricService historicService;
@@ -107,41 +104,18 @@ public class AthleteService {
 		if (dto.getBirthDate() != null) {
 			Calendar calendar = Calendar.getInstance();
 			calendar.setTime(dto.getBirthDate());
-
-			// New record, check if someone similar exists.
-//			if (dto.getId() == 0) {
-//
-//				List<AthleteDao> findByUniqueColumns = repository.findByUniqueColumns(dto.getName(),
-//						dto.getFirstSurname(), dto.getSecondSurname(), calendar.get(Calendar.YEAR),
-//						calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH));
-//				if (findByUniqueColumns != null && findByUniqueColumns.size() > 0) {
-//					throw new DataIntegrityViolationException(null);
-//				}
-//			}
-//			// Old record, check if another distinct record exists
-//			else {
-//				List<AthleteDao> findByUniqueColumns = repository.findByIdAndUniqueColumns(dto.getId(), dto.getName(),
-//						dto.getFirstSurname(), dto.getSecondSurname(), calendar.get(Calendar.YEAR),
-//						calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH));
-//				if (findByUniqueColumns != null && findByUniqueColumns.size() > 0) {
-//					throw new DataIntegrityViolationException(null);
-//				}
-//			}
 		}
 
 		AthleteDao dao = repository.save(convertToDao(dto));
 
-		if (dto.getScheduleIds() != null) {
-			dto.getScheduleIds().stream().map(schId -> {
+		// New record, add first historic.
+		if (dto.getId() == 0) {
 
-				AthleteGroupScheduleDto agsDto = new AthleteGroupScheduleDto();
-
-				agsDto.setAthleteId(dao.getId());
-				agsDto.setGroupId(dto.getGroupId());
-				agsDto.setScheduleId(schId);
-				return athleteGroupScheduleService.save(agsDto);
-			}).collect(Collectors.toList());
-
+			HistoricDto register = new HistoricDto();
+			register.setAthleteId(dao.getId());
+			register.setDate(new Date());
+			register.setType(HistoricType.REGISTER.name());
+			historicService.save(register);
 		}
 		return convertToDto(dao);
 	}
@@ -192,29 +166,17 @@ public class AthleteService {
 		return convertToDto(repository.findByFamilyCode(dto.getFamilyCode()));
 	}
 
-	public List<GroupDto> findGroupsById(int id) {
-		return athleteGroupScheduleService.findByAthlete(id).stream().map(d -> groupService.findById(d.getGroupId()))
-				.collect(Collectors.toList());
-	}
-
-	public void updateAthletesRegisterDate() {
-
-		List<AthleteDto> athletes = this.findAll();
-		athletes.stream().forEach(athlete -> {
-			try {
-				updateAthleteRegistrationDate(athlete);
-			} catch (DataIntegrityViolationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		});
-
+	public List<AthleteDto> findByGroupId(long id) {
+		return repository.findByGroupId(id).stream().map(this::convertToDto).collect(Collectors.toList());
 	}
 
 	public void updateAthleteRegistrationDate(AthleteDto athlete) throws DataIntegrityViolationException {
 		List<HistoricDto> athleteHistoric = historicService.findAthleteRegistration(athlete.getId());
 
 		if (athleteHistoric != null && athleteHistoric.size() > 0) {
+			HistoricDto firstRegisterDate = athleteHistoric.stream()
+					.filter(p -> p.getType().equals(HistoricType.REGISTER.name())).findFirst().orElse(null);
+
 			HistoricDto lastRegisterDate = athleteHistoric.stream()
 					.filter(p -> p.getType().equals(HistoricType.REGISTER.name()))
 					.filter(p -> p.getDate().compareTo(new Date()) <= 1).findFirst().orElse(null);
@@ -222,6 +184,9 @@ public class AthleteService {
 			HistoricDto lastUnregisterDate = athleteHistoric.stream().filter(p -> p.getDate().before(new Date()))
 					.filter(p -> p.getType().equals(HistoricType.UNREGISTER.name())).findFirst().orElse(null);
 
+			if (firstRegisterDate != null) {
+				athlete.setFirstRegisterDate(firstRegisterDate.getDate());
+			}
 			if (lastRegisterDate != null) {
 				athlete.setLastRegisterDate(lastRegisterDate.getDate());
 			}
@@ -242,19 +207,13 @@ public class AthleteService {
 		}
 
 		AthleteDto dto = new ModelMapper().map(dao, AthleteDto.class);
+
 		if (dao.getSportSchool() != null) {
 			dto.setSportSchoolId(dao.getSportSchool().getId());
 		}
 
-		List<AthleteGroupScheduleDto> athleteGroupSchedules = athleteGroupScheduleService.findByAthlete(dto.getId());
-		if (athleteGroupSchedules.size() > 0) {
-			dto.setGroupId(athleteGroupSchedules.get(0).getGroupId());
-			dto.setScheduleIds(athleteGroupSchedules.parallelStream().map(d -> {
-				return d.getScheduleId();
-			}).collect(Collectors.toSet()));
-			dto.setSchedules(athleteGroupSchedules.parallelStream().map(d -> {
-				return scheduleService.findById(d.getScheduleId());
-			}).collect(Collectors.toSet()));
+		if (dao.getGroup() != null) {
+			dto.setGroupId(dao.getGroup().getId());
 		}
 
 		FamilyDao family = dao.getFamily();
@@ -270,6 +229,26 @@ public class AthleteService {
 
 			dto.setRegistered(
 					sortedHistoric.isEmpty() || sortedHistoric.get(0).getType().equals(HistoricType.REGISTER.name()));
+
+			HistoricDto firstRegisterDate = sortedHistoric.stream()
+					.filter(p -> p.getType().equals(HistoricType.REGISTER.name())).findFirst().orElse(null);
+
+			HistoricDto lastRegisterDate = sortedHistoric.stream()
+					.filter(p -> p.getType().equals(HistoricType.REGISTER.name()))
+					.filter(p -> p.getDate().compareTo(new Date()) <= 1).findFirst().orElse(null);
+
+			HistoricDto lastUnregisterDate = sortedHistoric.stream().filter(p -> p.getDate().before(new Date()))
+					.filter(p -> p.getType().equals(HistoricType.UNREGISTER.name())).findFirst().orElse(null);
+
+			if (firstRegisterDate != null) {
+				dto.setFirstRegisterDate(firstRegisterDate.getDate());
+			}
+			if (lastRegisterDate != null) {
+				dto.setLastRegisterDate(lastRegisterDate.getDate());
+			}
+			if (lastUnregisterDate != null) {
+				dto.setLastUnregisterDate(lastUnregisterDate.getDate());
+			}
 		} else {
 			dto.setRegistered(true);
 		}
@@ -296,6 +275,10 @@ public class AthleteService {
 			dao.setSportSchool(sportSchoolRepository.findById(dto.getSportSchoolId()).get());
 		}
 
+		if (dto.getGroupId() != 0) {
+			dao.setGroup(groupRepository.findById(dto.getGroupId()).get());
+		}
+
 		if (dto.getFamilyId() != 0) {
 			dao.setFamily(familyRepository.findById(dto.getFamilyId()).get());
 		}
@@ -305,7 +288,11 @@ public class AthleteService {
 			dao.setCode(Long.valueOf(family.getCode() + "" + (family.getAthleteIds().size() + 1)));
 		}
 
-		athleteGroupScheduleService.deleteByAthlete(dto.getId());
+		if (dto.getScheduleIds() != null) {
+			dao.setSchedules(dto.getScheduleIds().stream().map(scheduleId -> {
+				return scheduleRepository.findById(scheduleId).get();
+			}).collect(Collectors.toSet()));
+		}
 
 		return dao;
 	}

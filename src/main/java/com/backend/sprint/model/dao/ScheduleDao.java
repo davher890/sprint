@@ -36,6 +36,9 @@ public class ScheduleDao {
 	@ManyToMany(mappedBy = "schedules", cascade = CascadeType.ALL)
 	private Set<GroupDao> groups;
 
+	@ManyToMany(mappedBy = "schedules", cascade = CascadeType.ALL)
+	private Set<AthleteDao> athletes;
+
 	@NotNull
 	private String day;
 

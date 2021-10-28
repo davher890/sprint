@@ -88,6 +88,11 @@ public class GroupController {
 		return service.findGroupSchedules(id);
 	}
 
+	@GetMapping("/{id}/athletes")
+	public List<AthleteDto> findGroupAthletes(@PathVariable int id) {
+		return service.findGroupAthletes(id);
+	}
+
 	@GetMapping("/{group_id}/schedules/{schedule_ids}/athletes")
 	public Page<AthleteDto> findGroupScheduleAthletes(
 			@RequestParam(value = "filters", required = false) List<String> filters, Pageable pageable,

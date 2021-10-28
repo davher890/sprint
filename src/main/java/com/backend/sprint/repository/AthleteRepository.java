@@ -79,4 +79,7 @@ public interface AthleteRepository
 			+ "WHERE rn = 1 AND h.type = 'REGISTER'", nativeQuery = true)
 	public List<AthleteDao> findByRegistrationDates(Date startDate, Date endDate);
 
+	@Query(value = "SELECT * FROM athletes WHERE group_id = ?1", nativeQuery = true)
+	public List<AthleteDao> findByGroupId(long groupId);
+
 }

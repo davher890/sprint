@@ -37,7 +37,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.backend.sprint.model.dao.GroupDao;
 import com.backend.sprint.model.dao.ScheduleDao;
 import com.backend.sprint.model.dto.AthleteDto;
-import com.backend.sprint.model.dto.AthleteGroupScheduleDto;
 import com.backend.sprint.model.dto.ExcelDataDto;
 import com.backend.sprint.model.dto.ExcelValueDto;
 import com.backend.sprint.model.dto.GroupDto;
@@ -67,8 +66,8 @@ public class GroupService {
 	@Autowired
 	private AthleteService athleteService;
 
-	@Autowired
-	private AthleteGroupScheduleService athleteGroupScheduleService;
+//	@Autowired
+//	private AthleteGroupScheduleService athleteGroupScheduleService;
 
 	@Autowired
 	private SportSchoolRepository sportSchoolRepository;
@@ -176,9 +175,7 @@ public class GroupService {
 		XSSFWorkbook workbook = new XSSFWorkbook();
 
 		ids.stream().forEach(id -> {
-			List<AthleteDto> athletes = athleteGroupScheduleService.findByGroup(id).parallelStream()
-					.map(d -> d.getAthleteId()).distinct().map(d -> athleteService.findById(d))
-					.collect(Collectors.toList());
+			List<AthleteDto> athletes = athleteService.findByGroupId(id);
 			athletes.sort(
 					Comparator.comparing(AthleteDto::getFirstSurname).thenComparing(AthleteDto::getSecondSurname));
 			GroupDto group = this.findById(id);
@@ -258,7 +255,7 @@ public class GroupService {
 	public GroupDto deleteById(long id) {
 
 		GroupDto group = this.findById(id);
-		List<AthleteGroupScheduleDto> groupAthletes = athleteGroupScheduleService.findByGroup(id);
+		List<AthleteDto> groupAthletes = athleteService.findByGroupId(id);
 		if (groupAthletes != null && groupAthletes.size() > 0) {
 			// Error: First remove athletes from group
 			group.setErrorMessage("No se puede borrar un grupo que contiene atletas.");
@@ -267,6 +264,10 @@ public class GroupService {
 			group.setActive(false);
 			return this.save(group);
 		}
+	}
+
+	public List<AthleteDto> findGroupAthletes(int id) {
+		return athleteService.findByGroupId(id);
 	}
 
 }

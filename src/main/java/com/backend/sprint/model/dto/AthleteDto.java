@@ -21,6 +21,8 @@ public class AthleteDto {
 	private long familyCode;
 
 	private long groupId;
+	private GroupDto group;
+
 	private Set<Long> scheduleIds;
 	private Set<ScheduleDto> schedules;
 
@@ -76,6 +78,8 @@ public class AthleteDto {
 	private String holderDni;
 
 	private Set<HistoricDto> historic;
+
+	private Date firstRegisterDate;
 
 	private Date lastRegisterDate;
 

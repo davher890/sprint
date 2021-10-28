@@ -32,7 +32,6 @@ import com.backend.sprint.model.dto.ColumnDto;
 import com.backend.sprint.model.dto.ExcelDataDto;
 import com.backend.sprint.model.dto.ExcelValueDto;
 import com.backend.sprint.model.dto.FeeDto;
-import com.backend.sprint.model.dto.GroupDto;
 import com.backend.sprint.model.dto.HistoricDto;
 import com.backend.sprint.model.dto.SportdataDto;
 import com.backend.sprint.service.AthleteService;
@@ -149,10 +148,10 @@ public class AthleteController {
 		return historicService.unregister(id, historic);
 	}
 
-	@GetMapping("/{id}/groups")
-	public List<GroupDto> findGroupsById(@PathVariable int id) {
-		return service.findGroupsById(id);
-	}
+//	@GetMapping("/{id}/groups")
+//	public List<GroupDto> findGroupsById(@PathVariable int id) {
+//		return service.findGroupsById(id);
+//	}
 
 	@PostMapping("/fee")
 	public FeeDto getFee(@RequestBody AthleteDto dto) {
