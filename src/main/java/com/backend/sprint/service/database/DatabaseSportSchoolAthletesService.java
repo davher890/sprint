@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 import com.backend.sprint.model.dto.AthleteDto;
 import com.backend.sprint.model.dto.FamilyDto;
 import com.backend.sprint.model.dto.GroupDto;
-import com.backend.sprint.model.dto.HistoricDto;
 import com.backend.sprint.model.dto.NameDataDto;
 import com.backend.sprint.model.dto.SportSchoolDto;
 import com.backend.sprint.model.dto.TrainerDto;
@@ -28,7 +27,6 @@ import com.backend.sprint.service.GroupService;
 import com.backend.sprint.service.HistoricService;
 import com.backend.sprint.service.SportSchoolService;
 import com.backend.sprint.service.TrainerService;
-import com.backend.sprint.utils.HistoricType;
 import com.backend.sprint.utils.LicenseType;
 import com.opencsv.CSVReader;
 
@@ -263,30 +261,15 @@ public class DatabaseSportSchoolAthletesService extends DatabaseService {
 						}
 
 						// Historic
-						String registerDate = line[sportSchoolId == 1 ? SANTA_ANA_REGISTER_DATE
-								: PARACUELLOS_REGISTER_DATE];
-						if (registerDate != null && !registerDate.trim().isEmpty()
-								&& registerDate.trim().split(DATE_SEPARATOR).length == 2) {
-
-							String[] splitDate = registerDate.trim().split(DATE_SEPARATOR);
-							String year = splitDate[1].trim();
-							String month = registarDateMap.get(splitDate[0].trim().toLowerCase());
-							HistoricDto historic = new HistoricDto();
-							historic.setAthleteId(athlete.getId());
-							historic.setType(HistoricType.REGISTER.name());
-							try {
-								String yearStr = "20";
-								if (Integer.parseInt(year) > 50) {
-									yearStr = "19";
-								}
-								historic.setDate(dayFormat.parse(yearStr + year + "-" + month + "-" + "01"));
-							} catch (ParseException e) {
-								logger.error("Register date");
-								logger.error(String.join("_", line));
-								logger.error(e.getMessage());
-								e.printStackTrace();
-							}
-							historicService.save(historic);
+						try {
+							saveRegisterHistoric(line,
+									sportSchoolId == 1 ? SANTA_ANA_REGISTER_DATE : PARACUELLOS_REGISTER_DATE,
+									athlete.getId());
+						} catch (ParseException e) {
+							logger.error("Register date");
+							logger.error(String.join("_", line));
+							logger.error(e.getMessage());
+							e.printStackTrace();
 						}
 						return athlete;
 					} catch (Exception e) {

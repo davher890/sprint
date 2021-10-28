@@ -4,19 +4,32 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.backend.sprint.model.dto.HistoricDto;
 import com.backend.sprint.model.dto.NameDataDto;
+import com.backend.sprint.service.HistoricService;
+import com.backend.sprint.utils.HistoricType;
 import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 
+@Service
 public class DatabaseService {
+
+	@Autowired
+	private HistoricService historicService;
+
+	private static final String DATE_SEPARATOR = "-";
 
 	DateFormat historicDateFormat = new SimpleDateFormat("dd/MM/yyyy");
 	DateFormat dateFormat = new SimpleDateFormat("MM/dd/yy");
@@ -82,5 +95,58 @@ public class DatabaseService {
 			}
 		}
 		return name;
+	}
+
+	public HistoricDto saveRegisterHistoric(String[] line, int registerDateField, long athleteId)
+			throws ParseException {
+
+		String registerDate = line[registerDateField].trim();
+		if (line[registerDateField] != null && !registerDate.isEmpty()
+				&& registerDate.split(DATE_SEPARATOR).length == 2) {
+
+			String[] splitDate = registerDate.split(DATE_SEPARATOR);
+			String year = splitDate[1].trim();
+			String month = registarDateMap.get(splitDate[0].trim().toLowerCase());
+			HistoricDto historic = new HistoricDto();
+			historic.setAthleteId(athleteId);
+			historic.setType(HistoricType.REGISTER.name());
+
+			String yearStr = "20";
+			if (Integer.parseInt(year) > 50) {
+				yearStr = "19";
+			}
+			historic.setDate(dayFormat.parse(yearStr + year + "-" + month + "-" + "01"));
+
+			historicService.save(historic);
+		}
+		return null;
+
+	}
+
+	public HistoricDto saveUnregisterHistoric(String[] line, int registerDateField, long athleteId)
+			throws ParseException {
+
+		String unregisterDate = line[registerDateField].trim();
+		if (line[registerDateField] != null && !unregisterDate.isEmpty()
+				&& unregisterDate.split(DATE_SEPARATOR).length == 2) {
+
+			String[] splitDate = unregisterDate.split(DATE_SEPARATOR);
+			String year = splitDate[1].trim();
+			String month = registarDateMap.get(splitDate[0].trim().toLowerCase());
+			HistoricDto historic = new HistoricDto();
+			historic.setAthleteId(athleteId);
+			historic.setType(HistoricType.UNREGISTER.name());
+
+			String yearStr = "20";
+			if (Integer.parseInt(year) > 50) {
+				yearStr = "19";
+			}
+			historic.setDate(dayFormat.parse(yearStr + year + "-" + month + "-" + "01"));
+
+			historicService.save(historic);
+		}
+
+		return null;
+
 	}
 }

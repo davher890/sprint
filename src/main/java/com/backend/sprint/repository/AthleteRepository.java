@@ -79,4 +79,8 @@ public interface AthleteRepository
 			+ "WHERE rn = 1 AND h.type = 'REGISTER'", nativeQuery = true)
 	public List<AthleteDao> findByRegistrationDates(Date startDate, Date endDate);
 
+	@Query(value = "SELECT * FROM athletes a "
+			+ "LEFT JOIN historic h ON a.id = h.athlete_id WHERE h.id is null AND a.last_register_date < ?1 ", nativeQuery = true)
+	public List<AthleteDao> findNewAthletesBeforeDate(Date date);
+
 }
