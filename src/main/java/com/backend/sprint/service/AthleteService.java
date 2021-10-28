@@ -212,10 +212,6 @@ public class AthleteService {
 			dto.setSportSchoolId(dao.getSportSchool().getId());
 		}
 
-		if (dao.getGroup() != null) {
-			dto.setGroupId(dao.getGroup().getId());
-		}
-
 		FamilyDao family = dao.getFamily();
 		if (family != null) {
 			dto.setFamilyId(family.getId());

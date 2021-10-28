@@ -15,6 +15,7 @@ public class AthleteDto {
 	private long id;
 
 	private boolean extern = false;
+	private SportSchoolDto sportSchool;
 	private long sportSchoolId;
 
 	private long familyId;

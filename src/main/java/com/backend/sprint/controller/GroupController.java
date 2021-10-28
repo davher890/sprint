@@ -124,6 +124,17 @@ public class GroupController {
 			ExcelDataDto dataDto = new ExcelDataDto();
 			dataDto.getData().addAll(columns.parallelStream().filter(ColumnDto::isShow).map(d -> {
 				try {
+					if (d.getDataField().equals("sportSchoolId")) {
+						return new ExcelValueDto(entity.getSportSchool().getName(), ExcelUtils.getCellType(d));
+					} else if (d.getDataField().equals("groupName")) {
+						return new ExcelValueDto(entity.getGroup().getName(), ExcelUtils.getCellType(d));
+					} else if (d.getDataField().equals("schedules")) {
+						return new ExcelValueDto(String.join(" , ", entity.getSchedules().parallelStream().map(s -> {
+							return s.getDay() + " " + s.getStartHour() + ":" + s.getStartMinute() + "-" + s.getEndHour()
+									+ ":" + s.getEndMinute();
+						}).collect(Collectors.toList())), ExcelUtils.getCellType(d));
+					}
+
 					return new ExcelValueDto(BeanUtils.getProperty(entity, d.getDataField()),
 							ExcelUtils.getCellType(d));
 				} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {

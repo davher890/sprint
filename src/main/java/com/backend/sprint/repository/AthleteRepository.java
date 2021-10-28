@@ -53,11 +53,15 @@ public interface AthleteRepository
 	public List<AthleteDao> findByNameColumns(String name, String firstSurname, String secondSurname, int year,
 			int month, int day);
 
-	@Query(value = "SELECT * FROM athletes WHERE id IN (SELECT DISTINCT(athlete_id) FROM athlete_group_schedules WHERE group_id = ?1 AND schedule_id IN (?2))", nativeQuery = true)
+	@Query(value = "SELECT * FROM athletes WHERE id IN (SELECT DISTINCT(a.id) "
+			+ "FROM athletes a INNER JOIN groups_schedules gs ON gs.group_id = a.group_id "
+			+ "WHERE a.group_id = ?1 AND gs.schedule_id IN (?2))", nativeQuery = true)
 	public Page<AthleteDao> findByGroupAndSchedulesPagination(long groupId, List<Long> scheduleIds,
 			Specification<AthleteDao> specification, Pageable pageable);
 
-	@Query(value = "SELECT * FROM athletes WHERE id IN (SELECT DISTINCT(athlete_id) FROM athlete_group_schedules WHERE group_id = ?1 AND schedule_id IN (?2))", nativeQuery = true)
+	@Query(value = "SELECT * FROM athletes WHERE id IN (SELECT DISTINCT(a.id) "
+			+ "FROM athletes a INNER JOIN groups_schedules gs ON gs.group_id = a.group_id "
+			+ "WHERE a.group_id = ?1 AND gs.schedule_id IN (?2))", nativeQuery = true)
 	public List<AthleteDao> findByGroupAndSchedules(long groupId, List<Long> scheduleIds);
 
 	// Returns the athletes in the historic

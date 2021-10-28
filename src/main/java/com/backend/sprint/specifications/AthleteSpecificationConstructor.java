@@ -52,7 +52,11 @@ public class AthleteSpecificationConstructor<AthleteGroupScheduleDao>
 					return predicate;
 				}
 
-				else if (field.equals("sportSchoolId")) {
+				else if (field.equals("groupName")) {
+					Predicate predicate = builder.like(builder.lower(root.get("group").get("name")),
+							"%" + value.toLowerCase().trim() + "%");
+					return predicate;
+				} else if (field.equals("sportSchoolId")) {
 					Predicate predicate = builder.equal(root.get("sportSchool").get("id"), Long.valueOf(value));
 					return predicate;
 				} else if (field.equals("familyId")) {

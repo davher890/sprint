@@ -84,29 +84,7 @@ public class AthleteController {
 
 		List<AthleteDao> athletes = service.findAllHistoricExcel();
 
-		List<ExcelDataDto> data = new ArrayList<>();
-
-		ExcelDataDto header = new ExcelDataDto();
-		header.getData().addAll(columns.parallelStream().filter(ColumnDto::isShow).map(d -> {
-			return new ExcelValueDto(d.getText(), CellType.STRING);
-		}).collect(Collectors.toList()));
-		data.add(header);
-
-		data.addAll(athletes.parallelStream().map(entity -> {
-			ExcelDataDto dataDto = new ExcelDataDto();
-			dataDto.getData().addAll(columns.parallelStream().filter(ColumnDto::isShow).map(d -> {
-				try {
-					return new ExcelValueDto(BeanUtils.getProperty(entity, d.getDataField()),
-							ExcelUtils.getCellType(d));
-				} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-					return null;
-				}
-			}).filter(Objects::nonNull).collect(Collectors.toList()));
-			return dataDto;
-		}).filter(Objects::nonNull).collect(Collectors.toList()));
-
-		ByteArrayInputStream bas = ExcelUtils.generateExcel("Historico", data);
-		IOUtils.copy(bas, response.getOutputStream());
+		downloadAthletesExcel(columns, response, athletes, "Historico");
 	}
 
 	@GetMapping("/all")
@@ -174,6 +152,12 @@ public class AthleteController {
 
 		List<AthleteDao> athletes = service.findAllExcel();
 
+		downloadAthletesExcel(columns, response, athletes, "Atletas");
+
+	}
+
+	private void downloadAthletesExcel(List<ColumnDto> columns, HttpServletResponse response, List<AthleteDao> athletes,
+			String excelName) throws IOException {
 		List<ExcelDataDto> data = new ArrayList<>();
 
 		ExcelDataDto header = new ExcelDataDto();
@@ -186,6 +170,17 @@ public class AthleteController {
 			ExcelDataDto dataDto = new ExcelDataDto();
 			dataDto.getData().addAll(columns.parallelStream().filter(ColumnDto::isShow).map(d -> {
 				try {
+					if (d.getDataField().equals("sportSchoolId")) {
+						return new ExcelValueDto(entity.getSportSchool().getName(), ExcelUtils.getCellType(d));
+					} else if (d.getDataField().equals("groupName")) {
+						return new ExcelValueDto(entity.getGroup() == null ? "" : entity.getGroup().getName(),
+								ExcelUtils.getCellType(d));
+					} else if (d.getDataField().equals("schedules")) {
+						return new ExcelValueDto(String.join(" , ", entity.getSchedules().parallelStream().map(s -> {
+							return s.getDay() + " " + s.getStartHour() + ":" + s.getStartMinute() + "-" + s.getEndHour()
+									+ ":" + s.getEndMinute();
+						}).collect(Collectors.toList())), ExcelUtils.getCellType(d));
+					}
 					return new ExcelValueDto(BeanUtils.getProperty(entity, d.getDataField()),
 							ExcelUtils.getCellType(d));
 				} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
@@ -195,7 +190,7 @@ public class AthleteController {
 			return dataDto;
 		}).filter(Objects::nonNull).collect(Collectors.toList()));
 
-		ByteArrayInputStream bas = ExcelUtils.generateExcel("Atletas", data);
+		ByteArrayInputStream bas = ExcelUtils.generateExcel(excelName, data);
 		IOUtils.copy(bas, response.getOutputStream());
 	}
 
