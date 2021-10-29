@@ -14,15 +14,14 @@ public class AthleteDto {
 
 	private long id;
 
-	private boolean extern = false;
-	private SportSchoolDto sportSchool;
 	private long sportSchoolId;
+	private String sportSchoolName;
 
 	private long familyId;
 	private long familyCode;
 
 	private long groupId;
-	private GroupDto group;
+	private String groupName;
 
 	private Set<Long> scheduleIds;
 	private Set<ScheduleDto> schedules;

@@ -198,7 +198,6 @@ public class DatabaseExternalAthletesService extends DatabaseService {
 				athlete.setName(name);
 				athlete.setFeeType(feeType);
 				athlete.setIban(iban);
-				athlete.setExtern(false);
 				athlete.setPaymentType(paymentType);
 				athlete.setHolderName(holderName);
 				athlete.setHolderFirstSurname(holderFirstSurname);

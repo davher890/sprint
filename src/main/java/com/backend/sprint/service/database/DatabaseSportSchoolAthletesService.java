@@ -172,7 +172,7 @@ public class DatabaseSportSchoolAthletesService extends DatabaseService {
 						String holderName = holder.getName();
 						String holderFirstSurname = holder.getFirstSurname();
 						String holderSecondSurname = holder.getSecondSurname();
-						String holderDni = line[HOLDER_DNI];
+						String holderDni = line[HOLDER_DNI].trim();
 
 						String paymentType = line[PAYMENT_TYPE].trim();
 
@@ -181,11 +181,7 @@ public class DatabaseSportSchoolAthletesService extends DatabaseService {
 
 						// New Athlete
 						AthleteDto athlete;
-//						if (birthDate == null) {
 						athlete = athleteService.findByCode(athleteCode);
-//						} else {
-//							athlete = athleteService.findByUniqueColumns(name, firstSurname, secondSurname, birthDate);
-//						}
 						if (athlete == null) {
 							athlete = new AthleteDto();
 						}
@@ -215,7 +211,6 @@ public class DatabaseSportSchoolAthletesService extends DatabaseService {
 						athlete.setName(name);
 						athlete.setFeeType(feeType);
 						athlete.setIban(iban);
-						athlete.setExtern(false);
 						athlete.setPaymentType(paymentType);
 						athlete.setHolderName(holderName);
 						athlete.setHolderFirstSurname(holderFirstSurname);

@@ -125,9 +125,9 @@ public class GroupController {
 			dataDto.getData().addAll(columns.parallelStream().filter(ColumnDto::isShow).map(d -> {
 				try {
 					if (d.getDataField().equals("sportSchoolId")) {
-						return new ExcelValueDto(entity.getSportSchool().getName(), ExcelUtils.getCellType(d));
+						return new ExcelValueDto(entity.getSportSchoolName(), ExcelUtils.getCellType(d));
 					} else if (d.getDataField().equals("groupName")) {
-						return new ExcelValueDto(entity.getGroup().getName(), ExcelUtils.getCellType(d));
+						return new ExcelValueDto(entity.getGroupName(), ExcelUtils.getCellType(d));
 					} else if (d.getDataField().equals("schedules")) {
 						return new ExcelValueDto(String.join(" , ", entity.getSchedules().parallelStream().map(s -> {
 							return s.getDay() + " " + s.getStartHour() + ":" + s.getStartMinute() + "-" + s.getEndHour()

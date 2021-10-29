@@ -37,8 +37,6 @@ public class AthleteDao {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 
-	private boolean extern = false;
-
 	@ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	@JoinColumn(name = "sport_school_id")
 	private SportSchoolDao sportSchool;

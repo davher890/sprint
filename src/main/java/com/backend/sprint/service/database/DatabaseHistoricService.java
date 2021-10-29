@@ -131,15 +131,11 @@ public class DatabaseHistoricService extends DatabaseService {
 						String holderFirstSurname = holder.getFirstSurname();
 						String holderSecondSurname = holder.getSecondSurname();
 
-						String holderDni = line[HOLDER_DNI];
+						String holderDni = line[HOLDER_DNI].trim();
 
 						// New Athlete
 						AthleteDto athlete;
-//						if (birthDate == null) {
 						athlete = athleteService.findByCode(athleteCode);
-//						} else {
-//							athlete = athleteService.findByUniqueColumns(name, firstSurname, secondSurname, birthDate);
-//						}
 						if (athlete == null) {
 							athlete = new AthleteDto();
 						}
@@ -192,13 +188,10 @@ public class DatabaseHistoricService extends DatabaseService {
 						if (line[SPORT_SCHOOL] != null && !line[SPORT_SCHOOL].trim().isEmpty()) {
 							if (line[SPORT_SCHOOL].equals(STA)) {
 								athlete.setSportSchoolId(1);
-								athlete.setExtern(false);
 							} else if (line[SPORT_SCHOOL].equals(PAR)) {
 								athlete.setSportSchoolId(2);
-								athlete.setExtern(false);
 							} else if (line[SPORT_SCHOOL].equals(EXT)) {
 								athlete.setSportSchoolId(3);
-								athlete.setExtern(true);
 							}
 						}
 						// New Family

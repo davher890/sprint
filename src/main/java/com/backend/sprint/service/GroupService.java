@@ -66,9 +66,6 @@ public class GroupService {
 	@Autowired
 	private AthleteService athleteService;
 
-//	@Autowired
-//	private AthleteGroupScheduleService athleteGroupScheduleService;
-
 	@Autowired
 	private SportSchoolRepository sportSchoolRepository;
 
@@ -134,7 +131,7 @@ public class GroupService {
 		}
 		if (dao.getSportSchool() != null) {
 			dto.setSportSchoolId(dao.getSportSchool().getId());
-			dto.setSportSchoolName(dao.getSportSchool().getName());
+//			dto.setSportSchoolName(dao.getSportSchool().getName());
 		}
 
 		if (dao.getSchedules() != null) {

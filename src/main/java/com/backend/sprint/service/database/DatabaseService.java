@@ -58,10 +58,10 @@ public class DatabaseService {
 			String nameCell = line[position];
 			if (nameCell.contains(",")) {
 				List<String> splitNameCell = Arrays.asList(nameCell.split(","));
-				name.setName(splitNameCell.get(1));
+				name.setName(splitNameCell.get(1).trim());
 				if (splitNameCell.get(0).split(" ").length > 1) {
 					List<String> splitSurname = Arrays.asList(splitNameCell.get(0).split(" "));
-					name.setFirstSurname(splitSurname.get(0));
+					name.setFirstSurname(splitSurname.get(0).trim());
 					name.setSecondSurname(
 							splitSurname.subList(1, splitSurname.size()).stream().reduce((identity, accumulator) -> {
 								return identity.trim() + " " + accumulator.trim();
@@ -69,9 +69,9 @@ public class DatabaseService {
 				}
 			} else {
 				List<String> split = Arrays.asList(nameCell.split(" "));
-				name.setName(split.get(0));
+				name.setName(split.get(0).trim());
 				if (split.size() > 1) {
-					name.setFirstSurname(split.get(1));
+					name.setFirstSurname(split.get(1).trim());
 					if (split.get(0).split(" ").length > 1) {
 						name.setSecondSurname(
 								split.subList(2, split.size()).stream().reduce((identity, accumulator) -> {

@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.backend.sprint.model.dao.AthleteDao;
-import com.backend.sprint.model.dao.FamilyDao;
+import com.backend.sprint.model.dao.ScheduleDao;
 import com.backend.sprint.model.dto.AthleteDto;
 import com.backend.sprint.model.dto.FamilyDto;
 import com.backend.sprint.model.dto.HistoricDto;
@@ -209,13 +209,19 @@ public class AthleteService {
 		AthleteDto dto = new ModelMapper().map(dao, AthleteDto.class);
 
 		if (dao.getSportSchool() != null) {
-			dto.setSportSchoolId(dao.getSportSchool().getId());
+			dto.setSportSchoolName(dao.getSportSchool().getName());
 		}
 
-		FamilyDao family = dao.getFamily();
-		if (family != null) {
-			dto.setFamilyId(family.getId());
-			dto.setFamilyCode(family.getCode());
+		if (dao.getGroup() != null) {
+			dto.setGroupName(dao.getGroup().getName());
+		}
+
+		if (dao.getFamily() != null) {
+			dto.setFamilyCode(dao.getFamily().getCode());
+		}
+
+		if (dao.getSchedules() != null) {
+			dto.setScheduleIds(dao.getSchedules().parallelStream().map(ScheduleDao::getId).collect(Collectors.toSet()));
 		}
 
 		if (dto.getHistoric() != null && !dto.getHistoric().isEmpty()) {
