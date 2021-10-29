@@ -18,4 +18,10 @@ public class HistoricDto {
 	private String type;
 
 	private Date date;
+
+	private String observations;
+
+	private Date createdAt;
+
+	private Date updatedAt;
 }

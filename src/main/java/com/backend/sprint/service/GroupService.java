@@ -131,7 +131,7 @@ public class GroupService {
 		}
 		if (dao.getSportSchool() != null) {
 			dto.setSportSchoolId(dao.getSportSchool().getId());
-//			dto.setSportSchoolName(dao.getSportSchool().getName());
+			dto.setSportSchoolName(dao.getSportSchool().getName());
 		}
 
 		if (dao.getSchedules() != null) {

@@ -59,6 +59,10 @@ public class AthleteService {
 		return daoPage.map(dao -> convertToDto(dao));
 	}
 
+	public Page<AthleteDao> findDaoPagintation(Specification<AthleteDao> specification, Pageable pageable) {
+		return repository.findAll(specification, pageable);
+	}
+
 	public Page<AthleteDto> findByGroupAndScheduleTable(long groupId, List<Long> scheduleIds,
 			Specification<AthleteDao> specification, Pageable pageable) {
 		Page<AthleteDao> daoPage = repository.findByGroupAndSchedulesPagination(groupId, scheduleIds, specification,
@@ -84,15 +88,6 @@ public class AthleteService {
 	public List<AthleteDto> findAllRegistered() {
 		return StreamSupport.stream(repository.findAllRegistered().spliterator(), false).map(this::convertToDto)
 				.collect(Collectors.toList());
-	}
-
-	public List<AthleteDao> findAllExcel() {
-		Iterable<AthleteDao> findAll = repository.findAll();
-		return StreamSupport.stream(findAll.spliterator(), false).collect(Collectors.toList());
-	}
-
-	public List<AthleteDao> findAllHistoricExcel() {
-		return repository.findAllHistoric();
 	}
 
 	public AthleteDto findById(long id) {

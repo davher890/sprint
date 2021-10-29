@@ -74,7 +74,7 @@ public class DatabaseHistoricService extends DatabaseService {
 
 	public List<AthleteDto> dbFillAtheltesData(String csvName) throws IOException, ParseException {
 
-		Long[] athleteTestList = { 14002L };
+		Long[] athleteTestList = { 17461L };
 
 		CSVReader csvReader = readFile(System.getProperty("user.dir") + "/src/main/resources/" + csvName);
 		return StreamSupport.stream(csvReader.spliterator(), true)
@@ -239,6 +239,7 @@ public class DatabaseHistoricService extends DatabaseService {
 							HistoricDto historic = new HistoricDto();
 							historic.setAthleteId(athlete.getId());
 							historic.setType(HistoricType.UNREGISTER.name());
+							historic.setObservations(line[OBSERVATIONS]);
 
 							try {
 								String yearStr = "20";

@@ -1,22 +1,16 @@
 package com.backend.sprint.controller;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.beanutils.BeanUtils;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.util.IOUtils;
 import org.postgresql.util.PSQLException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,18 +23,16 @@ import org.springframework.web.bind.annotation.RestController;
 import com.backend.sprint.model.dao.AthleteDao;
 import com.backend.sprint.model.dto.AthleteDto;
 import com.backend.sprint.model.dto.ColumnDto;
-import com.backend.sprint.model.dto.ExcelDataDto;
-import com.backend.sprint.model.dto.ExcelValueDto;
 import com.backend.sprint.model.dto.FeeDto;
 import com.backend.sprint.model.dto.HistoricDto;
 import com.backend.sprint.model.dto.SportdataDto;
 import com.backend.sprint.service.AthleteService;
+import com.backend.sprint.service.ExcelService;
 import com.backend.sprint.service.FeeService;
 import com.backend.sprint.service.HistoricService;
 import com.backend.sprint.service.SportdataService;
 import com.backend.sprint.specifications.AthleteSpecificationConstructor;
 import com.backend.sprint.specifications.SportdataSpecificationConstructor;
-import com.backend.sprint.utils.ExcelUtils;
 import com.backend.sprint.utils.HistoricType;
 
 @RestController
@@ -59,6 +51,9 @@ public class AthleteController {
 	@Autowired
 	private FeeService feeService;
 
+	@Autowired
+	private ExcelService excelService;
+
 	@GetMapping("")
 	public Page<AthleteDto> findPagintation(@RequestParam(value = "filters", required = false) List<String> filters,
 			Pageable pageable) {
@@ -67,6 +62,22 @@ public class AthleteController {
 		}
 		filters.add(HistoricType.REGISTER.name() + "__-__-");
 		return service.findPagintation(new AthleteSpecificationConstructor<>(filters), pageable);
+	}
+
+	@PostMapping("/excel")
+	public void excel(@RequestBody List<ColumnDto> columns,
+			@RequestParam(value = "filters", required = false) List<String> filters, HttpServletResponse response)
+			throws IOException {
+
+		if (filters == null) {
+			filters = new ArrayList<String>();
+		}
+		filters.add(HistoricType.REGISTER.name() + "__-__-");
+		Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE);
+		List<AthleteDao> athletes = service.findDaoPagintation(new AthleteSpecificationConstructor<>(filters), pageable)
+				.getContent();
+		excelService.downloadAthletesExcel(columns, response, athletes, "Atletas");
+
 	}
 
 	@GetMapping("/historic")
@@ -80,11 +91,18 @@ public class AthleteController {
 	}
 
 	@PostMapping("/historic/excel")
-	public void historicExcel(@RequestBody List<ColumnDto> columns, HttpServletResponse response) throws IOException {
+	public void historicExcel(@RequestBody List<ColumnDto> columns,
+			@RequestParam(value = "filters", required = false) List<String> filters, HttpServletResponse response)
+			throws IOException {
 
-		List<AthleteDao> athletes = service.findAllHistoricExcel();
-
-		downloadAthletesExcel(columns, response, athletes, "Historico");
+		if (filters == null) {
+			filters = new ArrayList<String>();
+		}
+		filters.add(HistoricType.UNREGISTER.name() + "__-__-");
+		Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE);
+		List<AthleteDao> athletes = service.findDaoPagintation(new AthleteSpecificationConstructor<>(filters), pageable)
+				.getContent();
+		excelService.downloadAthletesExcel(columns, response, athletes, "Historico");
 	}
 
 	@GetMapping("/all")
@@ -126,11 +144,6 @@ public class AthleteController {
 		return historicService.unregister(id, historic);
 	}
 
-//	@GetMapping("/{id}/groups")
-//	public List<GroupDto> findGroupsById(@PathVariable int id) {
-//		return service.findGroupsById(id);
-//	}
-
 	@PostMapping("/fee")
 	public FeeDto getFee(@RequestBody AthleteDto dto) {
 		return feeService.getAthleteFee(dto);
@@ -145,53 +158,6 @@ public class AthleteController {
 			dto.setErrorMessage("Atleta ya existente.");
 			return dto;
 		}
-	}
-
-	@PostMapping("/excel")
-	public void excel(@RequestBody List<ColumnDto> columns, HttpServletResponse response) throws IOException {
-
-		List<AthleteDao> athletes = service.findAllExcel();
-
-		downloadAthletesExcel(columns, response, athletes, "Atletas");
-
-	}
-
-	private void downloadAthletesExcel(List<ColumnDto> columns, HttpServletResponse response, List<AthleteDao> athletes,
-			String excelName) throws IOException {
-		List<ExcelDataDto> data = new ArrayList<>();
-
-		ExcelDataDto header = new ExcelDataDto();
-		header.getData().addAll(columns.parallelStream().filter(ColumnDto::isShow).map(d -> {
-			return new ExcelValueDto(d.getText(), CellType.STRING);
-		}).collect(Collectors.toList()));
-		data.add(header);
-
-		data.addAll(athletes.parallelStream().map(entity -> {
-			ExcelDataDto dataDto = new ExcelDataDto();
-			dataDto.getData().addAll(columns.parallelStream().filter(ColumnDto::isShow).map(d -> {
-				try {
-					if (d.getDataField().equals("sportSchoolId")) {
-						return new ExcelValueDto(entity.getSportSchool().getName(), ExcelUtils.getCellType(d));
-					} else if (d.getDataField().equals("groupName")) {
-						return new ExcelValueDto(entity.getGroup() == null ? "" : entity.getGroup().getName(),
-								ExcelUtils.getCellType(d));
-					} else if (d.getDataField().equals("schedules")) {
-						return new ExcelValueDto(String.join(" , ", entity.getSchedules().parallelStream().map(s -> {
-							return s.getDay() + " " + s.getStartHour() + ":" + s.getStartMinute() + "-" + s.getEndHour()
-									+ ":" + s.getEndMinute();
-						}).collect(Collectors.toList())), ExcelUtils.getCellType(d));
-					}
-					return new ExcelValueDto(BeanUtils.getProperty(entity, d.getDataField()),
-							ExcelUtils.getCellType(d));
-				} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-					return null;
-				}
-			}).filter(Objects::nonNull).collect(Collectors.toList()));
-			return dataDto;
-		}).filter(Objects::nonNull).collect(Collectors.toList()));
-
-		ByteArrayInputStream bas = ExcelUtils.generateExcel(excelName, data);
-		IOUtils.copy(bas, response.getOutputStream());
 	}
 
 }
