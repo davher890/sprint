@@ -25,6 +25,7 @@ public class AthleteDto {
 
 	private Set<Long> scheduleIds;
 	private Set<ScheduleDto> schedules;
+	private int numDays;
 
 	private boolean imageAuth;
 	private String observations;

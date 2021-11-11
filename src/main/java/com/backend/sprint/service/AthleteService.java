@@ -94,7 +94,7 @@ public class AthleteService {
 		return convertToDto(repository.findById(id).orElse(null));
 	}
 
-	public AthleteDto save(AthleteDto dto) throws DataIntegrityViolationException {
+	public AthleteDto save(AthleteDto dto) {
 
 		if (dto.getBirthDate() != null) {
 			Calendar calendar = Calendar.getInstance();
@@ -117,26 +117,6 @@ public class AthleteService {
 
 	public Set<AthleteDto> findByFamily(long familyId) {
 		return repository.findByFamily(familyId).stream().map(this::convertToDto).collect(Collectors.toSet());
-	}
-
-	public AthleteDto findByUniqueColumns(String name, String firstSurname, String secondSurname, Date birthDate) {
-
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTime(birthDate);
-
-		Set<AthleteDto> collect = repository
-				.findByUniqueColumns(name, firstSurname, secondSurname, calendar.get(Calendar.YEAR),
-						calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH))
-				.stream().map(this::convertToDto).collect(Collectors.toSet());
-		if (collect == null || collect.isEmpty()) {
-			return null;
-		} else {
-			if (collect.size() > 0) {
-				return collect.iterator().next();
-			} else {
-				return null;
-			}
-		}
 	}
 
 	public AthleteDto findByCode(long code) {
@@ -217,6 +197,7 @@ public class AthleteService {
 
 		if (dao.getSchedules() != null) {
 			dto.setScheduleIds(dao.getSchedules().parallelStream().map(ScheduleDao::getId).collect(Collectors.toSet()));
+			dto.setNumDays(dto.getScheduleIds().size());
 		}
 
 		if (dto.getHistoric() != null && !dto.getHistoric().isEmpty()) {

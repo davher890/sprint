@@ -71,6 +71,7 @@ public class HistoricService {
 		AthleteDto athlete = athleteService.findById(id);
 		athlete.setScheduleIds(null);
 		athlete.setGroupId(0);
+		athleteService.save(athlete);
 
 		historic.setAthleteId(id);
 		historic.setType(HistoricType.UNREGISTER.name());
