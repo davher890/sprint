@@ -8,7 +8,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.postgresql.util.PSQLException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -151,13 +150,7 @@ public class AthleteController {
 
 	@PostMapping("")
 	public AthleteDto save(@RequestBody AthleteDto dto) {
-		try {
-			return service.save(dto);
-		} catch (DataIntegrityViolationException e) {
-
-			dto.setErrorMessage("Atleta ya existente.");
-			return dto;
-		}
+		return service.save(dto);
 	}
 
 }
