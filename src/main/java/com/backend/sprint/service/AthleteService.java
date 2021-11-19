@@ -27,6 +27,7 @@ import com.backend.sprint.repository.FamilyRepository;
 import com.backend.sprint.repository.GroupRepository;
 import com.backend.sprint.repository.ScheduleRepository;
 import com.backend.sprint.repository.SportSchoolRepository;
+import com.backend.sprint.specifications.AthleteSpecificationConstructor;
 import com.backend.sprint.utils.HistoricType;
 
 @Service
@@ -64,9 +65,12 @@ public class AthleteService {
 	}
 
 	public Page<AthleteDto> findByGroupAndScheduleTable(long groupId, List<Long> scheduleIds,
-			Specification<AthleteDao> specification, Pageable pageable) {
-		Page<AthleteDao> daoPage = repository.findByGroupAndSchedulesPagination(groupId, scheduleIds, specification,
-				pageable);
+			AthleteSpecificationConstructor<AthleteDao> specification, Pageable pageable) {
+
+		Page<AthleteDao> daoPage = repository
+				.findAll(specification.athleteGroupSchedulesSpecification(groupId, scheduleIds), pageable);
+
+//		Page<AthleteDao> daoPage = repository.findByGroupAndSchedulesPagination(groupId, scheduleIds, pageable);
 		return daoPage.map(dao -> convertToDto(dao));
 	}
 

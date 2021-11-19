@@ -7,17 +7,45 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.springframework.data.jpa.domain.Specification;
+
 import com.backend.sprint.utils.HistoricType;
 
-public class AthleteSpecificationConstructor<AthleteGroupScheduleDao>
-		extends AbstractSpecifictionConstructor<AthleteGroupScheduleDao> {
+public class AthleteSpecificationConstructor<AthleteDao> extends AbstractSpecifictionConstructor<AthleteDao> {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	public AthleteSpecificationConstructor(List<String> filters) {
 		super(filters);
 	}
 
+	public Specification<AthleteDao> athleteGroupSchedulesSpecification(long groupId, List<Long> scheduleIds) {
+
+		return new Specification<AthleteDao>() {
+
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public Predicate toPredicate(Root<AthleteDao> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
+
+				Predicate groupPredicate = builder.equal(root.get("group"), groupId);
+
+				for (long scheduleId : scheduleIds) {
+					groupPredicate = builder.and(groupPredicate, builder.isMember(scheduleId, root.get("schedules")));
+				}
+				return groupPredicate;
+			}
+		};
+	}
+
 	@Override
-	public Predicate toPredicate(Root<AthleteGroupScheduleDao> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
+	public Predicate toPredicate(Root<AthleteDao> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
 
 		Predicate result = null;
 		if (filters != null) {
@@ -50,9 +78,16 @@ public class AthleteSpecificationConstructor<AthleteGroupScheduleDao>
 									builder.or(builder.isNull(root.get("lastUnregisterDate")), builder
 											.lessThan(root.get("lastUnregisterDate"), root.get("lastRegisterDate"))))));
 					return predicate;
-				}
-
-				else if (field.equals("groupName")) {
+				} else if (field.equals("groupId")) {
+					return builder.equal(root.get("group").get("id"), Long.valueOf(value));
+				} else if (field.equals("scheduleIds")) {
+					Predicate predicate = builder.conjunction();
+					for (String scheduleId : value.split("_")) {
+						predicate = builder.and(predicate,
+								builder.isMember(Long.valueOf(scheduleId), root.get("schedules")));
+					}
+					return predicate;
+				} else if (field.equals("groupName")) {
 					Predicate predicate = builder.like(builder.lower(root.get("group").get("name")),
 							"%" + value.toLowerCase().trim() + "%");
 					return predicate;

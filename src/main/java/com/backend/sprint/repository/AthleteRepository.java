@@ -6,7 +6,6 @@ import java.util.Set;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -56,8 +55,7 @@ public interface AthleteRepository
 	@Query(value = "SELECT * FROM athletes WHERE id IN (SELECT DISTINCT(a.id) "
 			+ "FROM athletes a INNER JOIN groups_schedules gs ON gs.group_id = a.group_id "
 			+ "WHERE a.group_id = ?1 AND gs.schedule_id IN (?2))", nativeQuery = true)
-	public Page<AthleteDao> findByGroupAndSchedulesPagination(long groupId, List<Long> scheduleIds,
-			Specification<AthleteDao> specification, Pageable pageable);
+	public Page<AthleteDao> findByGroupAndSchedulesPagination(long groupId, List<Long> scheduleIds, Pageable pageable);
 
 	@Query(value = "SELECT * FROM athletes WHERE id IN (SELECT DISTINCT(a.id) "
 			+ "FROM athletes a INNER JOIN groups_schedules gs ON gs.group_id = a.group_id "

@@ -4,23 +4,20 @@ package com.backend.sprint.controller;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.util.IOUtils;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.backend.sprint.model.dao.AthleteDao;
 import com.backend.sprint.model.dto.AthleteDto;
 import com.backend.sprint.model.dto.ColumnDto;
 import com.backend.sprint.model.dto.ExcelDataDto;
@@ -38,10 +36,10 @@ import com.backend.sprint.model.dto.ExcelValueDto;
 import com.backend.sprint.model.dto.GroupDto;
 import com.backend.sprint.model.dto.ScheduleDto;
 import com.backend.sprint.service.AthleteService;
+import com.backend.sprint.service.ExcelService;
 import com.backend.sprint.service.GroupService;
 import com.backend.sprint.specifications.AthleteSpecificationConstructor;
 import com.backend.sprint.specifications.GroupSpecificationConstructor;
-import com.backend.sprint.utils.ExcelUtils;
 
 @RestController
 @RequestMapping("groups")
@@ -52,6 +50,9 @@ public class GroupController {
 
 	@Autowired
 	private AthleteService athleteService;
+
+	@Autowired
+	private ExcelService excelService;
 
 	@GetMapping("")
 	public Page<GroupDto> findPagintation(@RequestParam(value = "filters", required = false) List<String> filters,
@@ -97,20 +98,28 @@ public class GroupController {
 	public Page<AthleteDto> findGroupScheduleAthletes(
 			@RequestParam(value = "filters", required = false) List<String> filters, Pageable pageable,
 			@PathVariable("group_id") int groupId, @PathVariable("schedule_ids") String scheduleIds) {
-
-		List<Long> ids = Arrays.asList(scheduleIds.split("_")).parallelStream().map(Long::parseLong)
-				.collect(Collectors.toList());
-		return athleteService.findByGroupAndScheduleTable(groupId, ids, new AthleteSpecificationConstructor<>(filters),
-				pageable);
+		if (filters == null) {
+			filters = new ArrayList<String>();
+		}
+		filters.add("groupId__=__" + groupId);
+		filters.add("scheduleIds__=__" + scheduleIds);
+		return athleteService.findPagintation(new AthleteSpecificationConstructor<>(filters), pageable);
 	}
 
 	@PostMapping("/{group_id}/schedules/{schedule_ids}/athletes/excel")
 	public void excel(@PathVariable("group_id") int groupId, @PathVariable("schedule_ids") String scheduleIds,
-			@RequestBody List<ColumnDto> columns, HttpServletResponse response) throws IOException {
+			@RequestBody List<ColumnDto> columns,
+			@RequestParam(value = "filters", required = false) List<String> filters, HttpServletResponse response)
+			throws IOException {
 
-		List<Long> ids = Arrays.asList(scheduleIds.split("_")).parallelStream().map(Long::parseLong)
-				.collect(Collectors.toList());
-		List<AthleteDto> athletes = athleteService.findByGroupAndSchedule(groupId, ids);
+		if (filters == null) {
+			filters = new ArrayList<String>();
+		}
+		filters.add("groupId__=__" + groupId);
+		filters.add("scheduleIds__=__" + scheduleIds);
+		Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE);
+		List<AthleteDao> athletes = athleteService
+				.findDaoPagintation(new AthleteSpecificationConstructor<>(filters), pageable).getContent();
 
 		List<ExcelDataDto> data = new ArrayList<>();
 
@@ -120,32 +129,8 @@ public class GroupController {
 		}).collect(Collectors.toList()));
 		data.add(header);
 
-		data.addAll(athletes.parallelStream().map(entity -> {
-			ExcelDataDto dataDto = new ExcelDataDto();
-			dataDto.getData().addAll(columns.parallelStream().filter(ColumnDto::isShow).map(d -> {
-				try {
-					if (d.getDataField().equals("sportSchoolId")) {
-						return new ExcelValueDto(entity.getSportSchoolName(), ExcelUtils.getCellType(d));
-					} else if (d.getDataField().equals("groupName")) {
-						return new ExcelValueDto(entity.getGroupName(), ExcelUtils.getCellType(d));
-					} else if (d.getDataField().equals("schedules")) {
-						return new ExcelValueDto(String.join(" , ", entity.getSchedules().parallelStream().map(s -> {
-							return s.getDay() + " " + s.getStartHour() + ":" + s.getStartMinute() + "-" + s.getEndHour()
-									+ ":" + s.getEndMinute();
-						}).collect(Collectors.toList())), ExcelUtils.getCellType(d));
-					}
+		excelService.downloadAthletesExcel(columns, response, athletes, "Atletes");
 
-					return new ExcelValueDto(BeanUtils.getProperty(entity, d.getDataField()),
-							ExcelUtils.getCellType(d));
-				} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-					return null;
-				}
-			}).filter(Objects::nonNull).collect(Collectors.toList()));
-			return dataDto;
-		}).collect(Collectors.toList()));
-
-		ByteArrayInputStream bas = ExcelUtils.generateExcel("Atletas", data);
-		IOUtils.copy(bas, response.getOutputStream());
 	}
 
 	@PostMapping("")
