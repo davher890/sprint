@@ -3,15 +3,18 @@ package com.backend.sprint.controller;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.backend.sprint.model.dto.UserDto;
 
 @RestController
+@RequestMapping("login")
 public class LoginController {
 
-	@PostMapping(path = "/login", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@PostMapping(path = "/", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public void signin(@RequestBody UserDto user) throws Exception {
+		System.out.println("asdad");
 	}
 
 }

@@ -13,11 +13,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.backend.sprint.model.dto.UserDto;
-import com.backend.sprint.utils.SecurityUtils;
-
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
+import com.backend.sprint.utils.JwtUtils;
 
 public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 
@@ -29,14 +27,14 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 	public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws IOException, ServletException {
 
-		String header = request.getHeader(SecurityUtils.HEADER);
+		String header = request.getHeader(SecurityConstants.HEADER_STRING);
 
-		if (header == null || !header.startsWith(SecurityUtils.PREFIX)) {
+		if (header == null || !header.startsWith(SecurityConstants.TOKEN_PREFIX)) {
 			filterChain.doFilter(request, response);
 			return;
 		}
 
-		UsernamePasswordAuthenticationToken authentication = getAuthentication(request);
+		UsernamePasswordAuthenticationToken authentication = getAuthentication(request, response);
 
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		filterChain.doFilter(request, response);
@@ -45,16 +43,24 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 
 	// Reads the JWT from the Authorization header, and then uses JWT to
 	// validate the token
-	private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
-		String token = getJWTToken(request);
+	private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request,
+			HttpServletResponse response) {
+		String encodedJwtToken = JwtUtils.getJwtToken(request);
 
-		if (token != null) {
+		if (encodedJwtToken != null) {
 			// parse the token.
-			String userStr = getJWTTokenClaims(token).getSubject();
+			DecodedJWT decodedJwtToken = JwtUtils.getJwtTokenClaims(encodedJwtToken);
+			String userStr = decodedJwtToken.getSubject();
+			Long userId = decodedJwtToken.getClaim("user_id").asLong();
 
 			if (userStr != null) {
 				UserDto user = new UserDto();
 				user.setUsername(userStr);
+				user.setId(userId);
+
+				String token = JwtUtils.generateJwtToken(user.getUsername(), user.getId());
+				response.addHeader(SecurityConstants.HEADER_STRING, SecurityConstants.TOKEN_PREFIX + " " + token);
+
 				// new arraylist means authorities
 				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, null,
 						new ArrayList<>());
@@ -87,18 +93,10 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 	// SecurityContextHolder.getContext().setAuthentication(auth);
 	// }
 
-	private String getJWTToken(HttpServletRequest request) {
-		return request.getHeader(SecurityUtils.HEADER).replace(SecurityUtils.PREFIX, "");
-	}
-
-	private Claims getJWTTokenClaims(String jwtToken) {
-		return Jwts.parser().setSigningKey(SecurityUtils.SECRET.getBytes()).parseClaimsJws(jwtToken).getBody();
-	}
-
-	private boolean hasJWTToken(HttpServletRequest request, HttpServletResponse res) {
-		String authenticationHeader = request.getHeader(SecurityUtils.HEADER);
-		if (authenticationHeader == null || !authenticationHeader.startsWith(SecurityUtils.PREFIX))
-			return false;
-		return true;
-	}
+//	private boolean hasJWTToken(HttpServletRequest request, HttpServletResponse res) {
+//		String authenticationHeader = request.getHeader(SecurityUtils.HEADER);
+//		if (authenticationHeader == null || !authenticationHeader.startsWith(SecurityUtils.PREFIX))
+//			return false;
+//		return true;
+//	}
 }
