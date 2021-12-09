@@ -71,32 +71,4 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 		}
 		return null;
 	}
-
-	// private void setUpSpringAuthentication(Claims claims) {
-	// @SuppressWarnings("unchecked")
-	// List<String> authorities = (List) claims.get("authorities");
-	//
-	// String username = claims.getSubject();
-	// UserDetails userDetails =
-	// userDetailsService.loadUserByUsername(username);
-	// UsernamePasswordAuthenticationToken auth = new
-	// UsernamePasswordAuthenticationToken(userDetails, null,
-	// userDetails.getAuthorities());
-	// auth.setDetails(new
-	// WebAuthenticationDetailsSource().buildDetails(request));
-	//
-	// // UsernamePasswordAuthenticationToken auth = new
-	// // UsernamePasswordAuthenticationToken(username, null,
-	// //
-	// authorities.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList()));
-	//
-	// SecurityContextHolder.getContext().setAuthentication(auth);
-	// }
-
-//	private boolean hasJWTToken(HttpServletRequest request, HttpServletResponse res) {
-//		String authenticationHeader = request.getHeader(SecurityUtils.HEADER);
-//		if (authenticationHeader == null || !authenticationHeader.startsWith(SecurityUtils.PREFIX))
-//			return false;
-//		return true;
-//	}
 }
