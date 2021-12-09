@@ -34,43 +34,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity httpSecurity) throws Exception {
-//		httpSecurity.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().cors().and()
-//				.csrf().disable().authorizeRequests().antMatchers(SWAGGER_URL).permitAll();
-
 		httpSecurity.csrf().disable().cors().and().authorizeRequests()
-//				.antMatchers(HttpMethod.POST, LOGIN_URL).permitAll()
-//				.antMatchers(HttpMethod.POST, USER_URL).permitAll()
-//				.antMatchers(SWAGGER_URL).permitAll()
+
 				.anyRequest().authenticated().and().addFilter(new JWTAuthenticationFilter(authenticationManager()))
 				.addFilter(new JWTAuthorizationFilter(authenticationManager())).sessionManagement()
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 	}
-
-//	@Override
-//	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-//		auth.userDetailsService(userDetailsService).passwordEncoder(bCryptPasswordEncoder);
-//	}
-
-//	@Override
-//	public AuthenticationManager authenticationManagerBean() throws Exception {
-//		return super.authenticationManagerBean();
-//	}
-
-//	@Bean
-//	public BCryptPasswordEncoder getEncoder() {
-//		return new BCryptPasswordEncoder();
-//	}
 
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 
 		CorsConfiguration corsConfiguration = new CorsConfiguration();
 		corsConfiguration.applyPermitDefaultValues();
-//		corsConfiguration.addAllowedMethod(HttpMethod.PUT);
-//		corsConfiguration.addAllowedMethod(HttpMethod.GET);
-//		corsConfiguration.addAllowedMethod(HttpMethod.POST);
-//		corsConfiguration.addAllowedMethod(HttpMethod.OPTIONS);
-//		corsConfiguration.addAllowedMethod(HttpMethod.DELETE);
 
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", corsConfiguration);
