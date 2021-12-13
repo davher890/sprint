@@ -59,9 +59,9 @@ public class AthleteSpecificationConstructor<AthleteDao> extends AbstractSpecifi
 							builder.and(builder.isNull(root.get("lastRegisterDate")),
 									builder.or(builder.isNull(root.get("lastUnregisterDate")),
 											builder.greaterThan(root.get("lastUnregisterDate"),
-													builder.currentDate()))),
+													builder.currentTimestamp()))),
 							builder.and(builder.isNotNull(root.get("lastRegisterDate")),
-									builder.lessThanOrEqualTo(root.get("lastRegisterDate"), builder.currentDate()),
+									builder.lessThanOrEqualTo(root.get("lastRegisterDate"), builder.currentTimestamp()),
 									builder.or(builder.isNull(root.get("lastUnregisterDate")), builder
 											.lessThan(root.get("lastUnregisterDate"), root.get("lastRegisterDate")))));
 					return predicate;
@@ -72,9 +72,9 @@ public class AthleteSpecificationConstructor<AthleteDao> extends AbstractSpecifi
 							builder.and(builder.isNull(root.get("lastRegisterDate")),
 									builder.or(builder.isNull(root.get("lastUnregisterDate")),
 											builder.greaterThan(root.get("lastUnregisterDate"),
-													builder.currentDate()))),
+													builder.currentTimestamp()))),
 							builder.and(builder.isNotNull(root.get("lastRegisterDate")),
-									builder.lessThanOrEqualTo(root.get("lastRegisterDate"), builder.currentDate()),
+									builder.lessThanOrEqualTo(root.get("lastRegisterDate"), builder.currentTimestamp()),
 									builder.or(builder.isNull(root.get("lastUnregisterDate")), builder
 											.lessThan(root.get("lastUnregisterDate"), root.get("lastRegisterDate"))))));
 					return predicate;
