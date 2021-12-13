@@ -19,39 +19,18 @@ import com.backend.sprint.service.database.DatabaseSportSchoolAthletesService;
 @RequestMapping("database")
 public class DatabaseController {
 
+	private static String dbDemoPath = "BD/Demo/";
+
+	private static String dbPath = "BD/";
+
 	@Autowired
 	private DatabaseSportSchoolAthletesService service;
 
 	@Autowired
 	private DatabaseExternalAthletesService externalService;
 
-//	@Autowired
-//	private DatabaseGroupService dbGroupService;
-
 	@Autowired
 	private DatabaseHistoricService historicService;
-
-//	@GetMapping("sport_schools")
-//	public Set<SportSchoolDto> dbFillSportSchoolsData() throws IOException, ParseException {
-//		return service.dbFillSportSchoolsData();
-//	}
-
-//	@GetMapping("trainers")
-//	public Set<TrainerDto> dbFillTrainersData() throws IOException, ParseException {
-//		return service.dbFillTrainersData();
-//	}
-
-//	@GetMapping("groups")
-//	public List<GroupDto> dbFillGroupsData() throws IOException, ParseException {
-//		String santanaFileName = System.getProperty("user.dir") + "/src/main/resources/GRUPOS_SANTA_ANA.csv";
-//		String paracuellosFileName = System.getProperty("user.dir") + "/src/main/resources/GRUPOS_PARACUELLOS.csv";
-//
-//		List<GroupDto> sGroups = dbGroupService.dbFillGroupsData(santanaFileName);
-//		List<GroupDto> pGroups = dbGroupService.dbFillGroupsData(paracuellosFileName);
-//
-//		sGroups.addAll(pGroups);
-//		return sGroups;
-//	}
 
 	@GetMapping("/{id}/athletes")
 	public List<AthleteDto> dbFillAtheltesData(@PathVariable(name = "id") int sportSchoolId)
@@ -69,9 +48,16 @@ public class DatabaseController {
 		return service.dbFillAtheltesData(sportSchoolId, csvName);
 	}
 
+	@GetMapping("demo/{id}/athletes")
+	public List<AthleteDto> dbFillAtheltesDemoData(@PathVariable(name = "id") int sportSchoolId)
+			throws IOException, ParseException {
+		String csvName = dbDemoPath + "BD" + sportSchoolId + ".csv";
+		return service.dbFillAtheltesData(sportSchoolId, csvName);
+	}
+
 	@GetMapping("/externo/athletes")
 	public List<AthleteDto> dbFillExternalAtheltesData() throws IOException, ParseException {
-		String csvName = "BD_EXTERNOS.csv";
+		String csvName = dbPath + "BD_EXTERNOS.csv";
 		return externalService.dbFillAtheltesData(csvName);
 	}
 
