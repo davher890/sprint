@@ -1,12 +1,14 @@
 package com.backend.sprint.service;
 
-import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.IntStream;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.backend.sprint.beans.UserDetailsBean;
@@ -18,17 +20,17 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	@Autowired
 	private UserService userService;
 
-	@Autowired
-	private PasswordEncoder passwordEncoder;
-
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		UserDto user = userService.findByUsername(username);
 
 		if (user != null) {
-			user.setPassword(passwordEncoder.encode(user.getPassword()));
-//			return new User(user.getUsername(), user.getPassword(), new ArrayList<>());
-			return new UserDetailsBean(user, new ArrayList<>());
+			user.setPassword(user.getPassword());
+
+			Set<SimpleGrantedAuthority> authorities = new HashSet<>();
+			IntStream.range(0, 3).forEach(role -> authorities.add(new SimpleGrantedAuthority("ROLE_" + role)));
+
+			return new UserDetailsBean(user, authorities);
 		} else {
 			throw new UsernameNotFoundException("User Name is not Found");
 		}
