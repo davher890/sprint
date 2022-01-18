@@ -45,7 +45,7 @@ public class DatabaseController {
 		if (csvName == null) {
 			return null;
 		}
-		return service.dbFillAtheltesData(sportSchoolId, csvName);
+		return service.dbFillAtheltesData(sportSchoolId, dbPath + "/" + csvName);
 	}
 
 	@GetMapping("demo/{id}/athletes")

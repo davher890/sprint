@@ -66,15 +66,16 @@ public class DatabaseSportSchoolAthletesService extends DatabaseService {
 	private static final int DORSAL_CATEGORY = 28;
 	private static final int DORSAL = 29;
 	private static final int GROUP_NAME = 31;
-	private static final int DAYS = 32;
-	private static final int NUM_DAYS = 33;
-	private static final int SCHEDULE = 34;
-	private static final int PAYMENT_TYPE = 35;
-	private static final int FEE_TYPE = 36;
-	private static final int SANTA_ANA_OBSERVATIONS = 44;
-	private static final int PARACUELLOS_OBSERVATIONS = 42;
+	private static final int GROUP_TYPE = 32;
+	private static final int DAYS = 33;
+	private static final int NUM_DAYS = 34;
+	private static final int SCHEDULE = 35;
+	private static final int PAYMENT_TYPE = 36;
+	private static final int FEE_TYPE = 37;
+	private static final int SANTA_ANA_OBSERVATIONS = 45;
+	private static final int PARACUELLOS_OBSERVATIONS = 43;
 
-	private static final int PARACUELLOS_REGISTER_DATE = 60;
+	private static final int PARACUELLOS_REGISTER_DATE = 61;
 	private static final int SANTA_ANA_REGISTER_DATE = 63;
 
 	private static final String DATE_SEPARATOR = "-";
