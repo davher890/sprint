@@ -63,7 +63,7 @@ public class DatabaseController {
 
 	@GetMapping("historic")
 	public List<AthleteDto> dbFillAtheltesHistoric() throws IOException, ParseException {
-		String csvName = "BD_HISTORICO.csv";
+		String csvName = dbPath + "BD_HISTORICO.csv";
 		return historicService.dbFillAtheltesData(csvName);
 	}
 
