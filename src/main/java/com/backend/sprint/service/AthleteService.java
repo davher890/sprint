@@ -1,7 +1,6 @@
 package com.backend.sprint.service;
 
 import java.util.Calendar;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -10,7 +9,6 @@ import java.util.stream.StreamSupport;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -149,33 +147,6 @@ public class AthleteService {
 		return repository.findByGroupId(id).stream().map(this::convertToDto).collect(Collectors.toList());
 	}
 
-	public void updateAthleteRegistrationDate(AthleteDto athlete) throws DataIntegrityViolationException {
-		List<HistoricDto> athleteHistoric = historicService.findAthleteRegistration(athlete.getId());
-
-		if (athleteHistoric != null && athleteHistoric.size() > 0) {
-			HistoricDto firstRegisterDate = athleteHistoric.stream()
-					.filter(p -> p.getType().equals(HistoricType.REGISTER.name())).findFirst().orElse(null);
-
-			HistoricDto lastRegisterDate = athleteHistoric.stream()
-					.filter(p -> p.getType().equals(HistoricType.REGISTER.name()))
-					.filter(p -> p.getDate().compareTo(new Date()) <= 1).findFirst().orElse(null);
-
-			HistoricDto lastUnregisterDate = athleteHistoric.stream().filter(p -> p.getDate().before(new Date()))
-					.filter(p -> p.getType().equals(HistoricType.UNREGISTER.name())).findFirst().orElse(null);
-
-			if (firstRegisterDate != null) {
-				athlete.setFirstRegisterDate(firstRegisterDate.getDate());
-			}
-			if (lastRegisterDate != null) {
-				athlete.setLastRegisterDate(lastRegisterDate.getDate());
-			}
-			if (lastUnregisterDate != null) {
-				athlete.setLastUnregisterDate(lastUnregisterDate.getDate());
-			}
-			save(athlete);
-		}
-	}
-
 	private List<AthleteDto> convertToDto(List<AthleteDao> dao) {
 		return dao.stream().map(this::convertToDto).collect(Collectors.toList());
 	}
@@ -202,37 +173,6 @@ public class AthleteService {
 		if (dao.getSchedules() != null) {
 			dto.setScheduleIds(dao.getSchedules().parallelStream().map(ScheduleDao::getId).collect(Collectors.toSet()));
 			dto.setNumDays(dto.getScheduleIds().size());
-		}
-
-		if (dto.getHistoric() != null && !dto.getHistoric().isEmpty()) {
-			List<HistoricDto> sortedHistoric = dto.getHistoric().stream().filter(p -> p.getDate().before(new Date()))
-					.sorted(Comparator.comparing(HistoricDto::getDate).thenComparing(HistoricDto::getId).reversed())
-					.collect(Collectors.toList());
-
-			dto.setRegistered(
-					sortedHistoric.isEmpty() || sortedHistoric.get(0).getType().equals(HistoricType.REGISTER.name()));
-
-			HistoricDto firstRegisterDate = sortedHistoric.stream()
-					.filter(p -> p.getType().equals(HistoricType.REGISTER.name())).findFirst().orElse(null);
-
-			HistoricDto lastRegisterDate = sortedHistoric.stream()
-					.filter(p -> p.getType().equals(HistoricType.REGISTER.name()))
-					.filter(p -> p.getDate().compareTo(new Date()) <= 1).findFirst().orElse(null);
-
-			HistoricDto lastUnregisterDate = sortedHistoric.stream().filter(p -> p.getDate().before(new Date()))
-					.filter(p -> p.getType().equals(HistoricType.UNREGISTER.name())).findFirst().orElse(null);
-
-			if (firstRegisterDate != null) {
-				dto.setFirstRegisterDate(firstRegisterDate.getDate());
-			}
-			if (lastRegisterDate != null) {
-				dto.setLastRegisterDate(lastRegisterDate.getDate());
-			}
-			if (lastUnregisterDate != null) {
-				dto.setLastUnregisterDate(lastUnregisterDate.getDate());
-			}
-		} else {
-			dto.setRegistered(true);
 		}
 		return dto;
 	}

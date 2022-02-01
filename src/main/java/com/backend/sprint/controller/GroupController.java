@@ -129,7 +129,7 @@ public class GroupController {
 		}).collect(Collectors.toList()));
 		data.add(header);
 
-		excelService.downloadAthletesExcel(columns, response, athletes, "Atletes");
+		excelService.downloadAthletesDaoExcel(columns, response, athletes, "Atletes");
 
 	}
 

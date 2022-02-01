@@ -53,9 +53,7 @@ public class HistoricService {
 
 	@Transactional
 	public HistoricDto save(HistoricDto dto) throws DataIntegrityViolationException {
-		dto = convertToDto(repository.save(convertToDao(dto)));
-		athleteService.updateAthleteRegistrationDate(athleteService.findById(dto.getAthleteId()));
-		return dto;
+		return convertToDto(repository.save(convertToDao(dto)));
 	}
 
 	public HistoricDto register(int id, HistoricDto historic) {

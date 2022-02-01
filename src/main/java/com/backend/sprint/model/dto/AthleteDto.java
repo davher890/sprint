@@ -80,14 +80,6 @@ public class AthleteDto {
 
 	private Set<HistoricDto> historic;
 
-	private Date firstRegisterDate;
-
-	private Date lastRegisterDate;
-
-	private Date lastUnregisterDate;
-
-	private boolean registered;
-
 	// Fee
 	private FeeDto fee;// Fee
 

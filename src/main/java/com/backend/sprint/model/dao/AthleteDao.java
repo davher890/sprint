@@ -112,12 +112,6 @@ public class AthleteDao {
 	@OneToMany(mappedBy = "athlete")
 	private Set<HistoricDao> historic;
 
-	private Date firstRegisterDate;
-
-	private Date lastRegisterDate;
-
-	private Date lastUnregisterDate;
-
 	@NotNull
 	private long code;
 

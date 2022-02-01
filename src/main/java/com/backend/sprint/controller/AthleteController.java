@@ -1,15 +1,11 @@
 package com.backend.sprint.controller;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.servlet.http.HttpServletResponse;
 
 import org.postgresql.util.PSQLException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,14 +15,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.backend.sprint.model.dao.AthleteDao;
 import com.backend.sprint.model.dto.AthleteDto;
-import com.backend.sprint.model.dto.ColumnDto;
 import com.backend.sprint.model.dto.FeeDto;
 import com.backend.sprint.model.dto.HistoricDto;
 import com.backend.sprint.model.dto.SportdataDto;
 import com.backend.sprint.service.AthleteService;
-import com.backend.sprint.service.ExcelService;
 import com.backend.sprint.service.FeeService;
 import com.backend.sprint.service.HistoricService;
 import com.backend.sprint.service.SportdataService;
@@ -50,35 +43,6 @@ public class AthleteController {
 	@Autowired
 	private FeeService feeService;
 
-	@Autowired
-	private ExcelService excelService;
-
-	@GetMapping("")
-	public Page<AthleteDto> findPagintation(@RequestParam(value = "filters", required = false) List<String> filters,
-			Pageable pageable) {
-		if (filters == null) {
-			filters = new ArrayList<String>();
-		}
-		filters.add(HistoricType.REGISTER.name() + "__-__-");
-		return service.findPagintation(new AthleteSpecificationConstructor<>(filters), pageable);
-	}
-
-	@PostMapping("/excel")
-	public void excel(@RequestBody List<ColumnDto> columns,
-			@RequestParam(value = "filters", required = false) List<String> filters, HttpServletResponse response)
-			throws IOException {
-
-		if (filters == null) {
-			filters = new ArrayList<String>();
-		}
-		filters.add(HistoricType.REGISTER.name() + "__-__-");
-		Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE);
-		List<AthleteDao> athletes = service.findDaoPagintation(new AthleteSpecificationConstructor<>(filters), pageable)
-				.getContent();
-		excelService.downloadAthletesExcel(columns, response, athletes, "Atletas");
-
-	}
-
 	@GetMapping("/historic")
 	public Page<AthleteDto> findHistoricPagintation(
 			@RequestParam(value = "filters", required = false) List<String> filters, Pageable pageable) {
@@ -87,21 +51,6 @@ public class AthleteController {
 		}
 		filters.add(HistoricType.UNREGISTER.name() + "__-__-");
 		return service.findPagintation(new AthleteSpecificationConstructor<>(filters), pageable);
-	}
-
-	@PostMapping("/historic/excel")
-	public void historicExcel(@RequestBody List<ColumnDto> columns,
-			@RequestParam(value = "filters", required = false) List<String> filters, HttpServletResponse response)
-			throws IOException {
-
-		if (filters == null) {
-			filters = new ArrayList<String>();
-		}
-		filters.add(HistoricType.UNREGISTER.name() + "__-__-");
-		Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE);
-		List<AthleteDao> athletes = service.findDaoPagintation(new AthleteSpecificationConstructor<>(filters), pageable)
-				.getContent();
-		excelService.downloadAthletesExcel(columns, response, athletes, "Historico");
 	}
 
 	@GetMapping("/all")
