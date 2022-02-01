@@ -88,6 +88,9 @@ public class AthleteDto {
 	// Code
 	private long code;
 
+	private Date lastRegisterDate;
+	private Date lastUnregisterDate;
+
 	private Date createdAt;
 
 	private Date updatedAt;

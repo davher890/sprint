@@ -88,6 +88,8 @@ public class RegisteredAthleteDao {
 
 	private long code;
 
+	private Date lastRegisterDate;
+
 	private Date createdAt;
 
 	private Date updatedAt;
