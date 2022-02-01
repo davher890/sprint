@@ -44,7 +44,7 @@ public class UnregisteredAthleteDao {
 	private long familyId;
 	private long familyCode;
 
-	private long groupId;
+	private Long groupId;
 	private String groupName;
 
 	private String familiarOneName;
