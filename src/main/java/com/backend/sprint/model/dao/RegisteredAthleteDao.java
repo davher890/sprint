@@ -46,6 +46,8 @@ public class RegisteredAthleteDao {
 
 	private Long groupId;
 	private String groupName;
+	private String days;
+	private Integer numDays;
 
 	private String familiarOneName;
 	private String familiarOneFirstSurname;
