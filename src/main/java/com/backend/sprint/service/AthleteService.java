@@ -45,6 +45,9 @@ public class AthleteService {
 	private ScheduleRepository scheduleRepository;
 
 	@Autowired
+	private ScheduleService scheduleService;
+
+	@Autowired
 	private HistoricService historicService;
 
 	@Autowired
@@ -171,8 +174,11 @@ public class AthleteService {
 		}
 
 		if (dao.getSchedules() != null) {
+			dto.setSchedules(
+					dao.getSchedules().parallelStream().map(scheduleService::convertToDto).collect(Collectors.toSet()));
 			dto.setScheduleIds(dao.getSchedules().parallelStream().map(ScheduleDao::getId).collect(Collectors.toSet()));
 			dto.setNumDays(dto.getScheduleIds().size());
+			dto.setDays(dao.getSchedules().parallelStream().map(ScheduleDao::getDay).collect(Collectors.joining(",")));
 		}
 		return dto;
 	}
