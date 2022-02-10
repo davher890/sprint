@@ -24,6 +24,11 @@ public class UnregisteredAthleteService {
 		return daoPage.map(dao -> convertToDto(dao));
 	}
 
+	public Page<UnregisteredAthleteDao> findDaoPagintation(Specification<UnregisteredAthleteDao> specification,
+			Pageable pageable) {
+		return repository.findAll(specification, pageable);
+	}
+
 	private AthleteDto convertToDto(UnregisteredAthleteDao dao) {
 		if (dao == null) {
 			return null;

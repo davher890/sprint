@@ -17,12 +17,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.backend.sprint.model.dao.GenericAthleteDao;
 import com.backend.sprint.model.dto.AthleteDto;
 import com.backend.sprint.model.dto.ColumnDto;
 import com.backend.sprint.service.ExcelService;
 import com.backend.sprint.service.UnregisteredAthleteService;
 import com.backend.sprint.specifications.UnregisteredAthleteSpecificationConstructor;
-import com.backend.sprint.utils.HistoricType;
 
 @RestController
 @RequestMapping("unregistered_athletes")
@@ -51,10 +51,9 @@ public class UnregisteredAthleteController {
 		if (filters == null) {
 			filters = new ArrayList<String>();
 		}
-		filters.add(HistoricType.REGISTER.name() + "__-__-");
 		Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE);
-		List<AthleteDto> athletes = service
-				.findPagintation(new UnregisteredAthleteSpecificationConstructor<>(filters), pageable).getContent();
+		List<? extends GenericAthleteDao> athletes = service
+				.findDaoPagintation(new UnregisteredAthleteSpecificationConstructor<>(filters), pageable).getContent();
 		excelService.downloadAthletesExcel(columns, response, athletes, "Atletas");
 
 	}
