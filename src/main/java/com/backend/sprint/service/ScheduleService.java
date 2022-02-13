@@ -85,6 +85,10 @@ public class ScheduleService {
 		return map;
 	}
 
+	public String translateDay(String day) {
+		return dayTranslate.get(day);
+	}
+
 	public Set<ScheduleDto> convertToDto(Set<ScheduleDao> dao) {
 		return dao.parallelStream().map(this::convertToDto).collect(Collectors.toSet());
 	}

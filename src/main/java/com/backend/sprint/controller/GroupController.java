@@ -151,8 +151,9 @@ public class GroupController {
 
 		List<Long> groupIds = new ArrayList<>();
 		if (id == 0) {
-			groupIds = service.findAll().parallelStream().filter(d -> !d.getName().isEmpty()).map(GroupDto::getId)
-					.collect(Collectors.toList());
+			List<GroupDto> findAll = service.findAll();
+			groupIds = findAll.parallelStream().filter(d -> d.getName() != null && !d.getName().isEmpty())
+					.map(GroupDto::getId).collect(Collectors.toList());
 		} else {
 			groupIds.add(id);
 		}

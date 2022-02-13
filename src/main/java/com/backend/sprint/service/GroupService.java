@@ -20,8 +20,10 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 
+import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +36,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.backend.sprint.model.dao.AthleteDao;
 import com.backend.sprint.model.dao.GroupDao;
 import com.backend.sprint.model.dao.ScheduleDao;
 import com.backend.sprint.model.dto.AthleteDto;
@@ -172,27 +175,33 @@ public class GroupService {
 		XSSFWorkbook workbook = new XSSFWorkbook();
 
 		ids.stream().forEach(id -> {
-			List<AthleteDto> athletes = athleteService.findByGroupId(id);
+			List<AthleteDao> athletes = athleteService.findDaoByGroupId(id);
 			athletes.sort(
-					Comparator.comparing(AthleteDto::getFirstSurname).thenComparing(AthleteDto::getSecondSurname));
+					Comparator.comparing(AthleteDao::getFirstSurname).thenComparing(AthleteDao::getSecondSurname));
 			GroupDto group = this.findById(id);
 			List<String> scheduleDays = group.getScheduleIds().stream().map(d -> scheduleService.findById(d).getDay())
 					.collect(Collectors.toList());
 
+			XSSFCellStyle style = workbook.createCellStyle();
+			style.setBorderTop(BorderStyle.MEDIUM);
+			style.setBorderBottom(BorderStyle.MEDIUM);
+			style.setBorderLeft(BorderStyle.MEDIUM);
+			style.setBorderRight(BorderStyle.MEDIUM);
+
 			List<ExcelDataDto> data = new ArrayList<>();
 
 			ExcelDataDto groupHeader = new ExcelDataDto();
-			groupHeader.getData().add(new ExcelValueDto(group.getName(), CellType.STRING));
+			groupHeader.getData().add(new ExcelValueDto(group.getName(), CellType.STRING, style));
 			groupHeader.getData().add(new ExcelValueDto(
-					new DateFormatSymbols(new Locale("es", "ES")).getMonths()[month], CellType.STRING));
+					new DateFormatSymbols(new Locale("es", "ES")).getMonths()[month], CellType.STRING, style));
 			data.add(groupHeader);
 
 			ExcelDataDto header = new ExcelDataDto();
-			header.getData().add(new ExcelValueDto("ATLETA", CellType.STRING));
-			header.getData().add(new ExcelValueDto("FECHA NACIMIENTO", CellType.STRING));
-			header.getData()
-					.add(new ExcelValueDto("CATEGORIA " + Calendar.getInstance().get(Calendar.YEAR), CellType.STRING));
-			header.getData().add(new ExcelValueDto("DIAS", CellType.STRING));
+			header.getData().add(new ExcelValueDto("ATLETA", CellType.STRING, style));
+			header.getData().add(new ExcelValueDto("FECHA NACIMIENTO", CellType.STRING, style));
+			header.getData().add(new ExcelValueDto("CATEGORIA " + Calendar.getInstance().get(Calendar.YEAR),
+					CellType.STRING, style));
+			header.getData().add(new ExcelValueDto("DIAS", CellType.STRING, style));
 
 			LocalDate startDate;
 			LocalDate endDate;
@@ -213,36 +222,49 @@ public class GroupService {
 				endDate = LocalDateTime.ofInstant(cal.toInstant(), zid).toLocalDate();
 			}
 
+			int nd = 0;
 			for (LocalDate date = startDate; date.isBefore(endDate); date = date.plusDays(1)) {
 
 				DayOfWeek weekDay = date.getDayOfWeek();
 				int monthDay = date.getDayOfMonth();
 
 				if (scheduleDays.contains(weekDay.name())) {
-					header.getData().add(new ExcelValueDto(mapDay.get(weekDay) + "" + monthDay, CellType.STRING));
+					header.getData()
+							.add(new ExcelValueDto(mapDay.get(weekDay) + "" + monthDay, CellType.STRING, style));
+					nd++;
 				}
+
 			}
 			data.add(header);
+			final int numDays = nd;
 
 			List<ExcelDataDto> excelData = athletes.parallelStream().map(entity -> {
 				ExcelDataDto dataDto = new ExcelDataDto();
 				dataDto.getData()
 						.add(new ExcelValueDto(
 								entity.getFirstSurname() + " " + entity.getSecondSurname() + ", " + entity.getName(),
-								CellType.STRING));
-				dataDto.getData().add(new ExcelValueDto(dateFormat.format(entity.getBirthDate()), CellType.STRING));
-				dataDto.getData().add(new ExcelValueDto(entity.getCategory(), CellType.STRING));
-				dataDto.getData().add(new ExcelValueDto(entity.getSchedules().parallelStream()
-						.map(ScheduleDto::getDayTranslate).collect(Collectors.joining(",")), CellType.STRING));
+								CellType.STRING, style));
+				dataDto.getData()
+						.add(new ExcelValueDto(dateFormat.format(entity.getBirthDate()), CellType.STRING, style));
+				dataDto.getData().add(new ExcelValueDto(entity.getCategory(), CellType.STRING, style));
+				dataDto.getData()
+						.add(new ExcelValueDto(entity.getSchedules().parallelStream()
+								.map(scheduleDao -> scheduleService.translateDay(scheduleDao.getDay()))
+								.collect(Collectors.joining(",")), CellType.STRING, style));
+
+				for (int i = 0; i < numDays; i++) {
+					dataDto.getData().add(new ExcelValueDto("", CellType.STRING, style));
+				}
 				return dataDto;
 			}).collect(Collectors.toList());
 			data.addAll(excelData);
-			Sheet sheet = ExcelUtils.generateExcel(workbook, group.getName(), data);
 
-			IntStream.range(0, 4).parallel().forEach(i -> {
+			Sheet sheet = ExcelUtils.generateExcel(workbook, group.getName() + "_id_" + group.getId(), data);
+
+			IntStream.range(0, 4 + numDays).parallel().forEach(i -> {
 				sheet.autoSizeColumn(i);
 			});
-			IntStream.range(4, header.getData().size()).forEach(i -> sheet.setColumnWidth(i, 5000));
+//			IntStream.range(4, header.getData().size()).forEach(i -> sheet.setColumnWidth(i, 5000));
 
 		});
 

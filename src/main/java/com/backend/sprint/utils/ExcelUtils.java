@@ -21,7 +21,7 @@ public abstract class ExcelUtils {
 
 	public static Sheet generateExcel(XSSFWorkbook workbook, String sheetName, List<ExcelDataDto> data) {
 		// Create a Sheet
-		Sheet sheet = workbook.createSheet(sheetName);
+		Sheet sheet = workbook.createSheet(sheetName.replaceAll("[\\\\:?\\/*\\[\\]]", "_"));
 
 		// Creating data rows for each customer
 		IntStream.range(0, data.size()).forEach(i -> {
