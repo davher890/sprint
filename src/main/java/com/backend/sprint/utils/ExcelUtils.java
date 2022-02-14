@@ -24,12 +24,14 @@ public abstract class ExcelUtils {
 		Sheet sheet = workbook.createSheet(sheetName.replaceAll("[\\\\:?\\/*\\[\\]]", "_"));
 
 		// Creating data rows for each customer
-		IntStream.range(0, data.size()).forEach(i -> {
+		int dataSize = data.size();
+		IntStream.range(0, dataSize).forEach(i -> {
 
 			Row dataRow = sheet.createRow(i);
 			IntStream.range(0, data.get(i).getData().size()).forEach(j -> {
 				List<ExcelValueDto> data2 = data.get(i).getData();
-				Cell cell = dataRow.createCell(j, data2.get(j).getType());
+				CellType cellType = data2.get(j).getType();
+				Cell cell = dataRow.createCell(j, cellType);
 				cell.setCellValue(data2.get(j).getValue());
 				if (data2.get(j).getStyle() != null) {
 					cell.setCellStyle(data2.get(j).getStyle());

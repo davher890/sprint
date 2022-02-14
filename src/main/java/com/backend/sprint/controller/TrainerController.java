@@ -64,7 +64,7 @@ public class TrainerController {
 	@PostMapping("/excel")
 	public void excel(@RequestBody List<ColumnDto> columns, HttpServletResponse response) throws IOException {
 
-		List<TrainerDao> trainers = service.findAllExcel();
+		List<TrainerDao> trainers = service.findAllDao();
 
 		List<ExcelDataDto> data = new ArrayList<>();
 

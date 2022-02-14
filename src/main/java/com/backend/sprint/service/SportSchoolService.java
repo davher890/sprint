@@ -35,6 +35,11 @@ public class SportSchoolService {
 				.collect(Collectors.toList());
 	}
 
+	public List<SportSchoolDao> findAllDao() {
+		Iterable<SportSchoolDao> findAll = repository.findAll();
+		return StreamSupport.stream(findAll.spliterator(), false).collect(Collectors.toList());
+	}
+
 	public List<SelectOptionDto> findFeeTypesById(int sportSchoolId) {
 
 		List<SelectOptionDto> options = new ArrayList<SelectOptionDto>();

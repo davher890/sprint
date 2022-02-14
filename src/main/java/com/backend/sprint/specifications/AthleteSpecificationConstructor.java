@@ -52,31 +52,6 @@ public class AthleteSpecificationConstructor<AthleteDao> extends AbstractSpecifi
 				String operator = filter.split("__")[1];
 				String value = filter.split("__")[2].toLowerCase();
 
-//				if (field.equals(HistoricType.REGISTER.name())) {
-//					Predicate predicate = builder.or(
-//							builder.and(builder.isNull(root.get("lastRegisterDate")),
-//									builder.or(builder.isNull(root.get("lastUnregisterDate")),
-//											builder.greaterThan(root.get("lastUnregisterDate"),
-//													builder.currentTimestamp()))),
-//							builder.and(builder.isNotNull(root.get("lastRegisterDate")),
-//									builder.lessThanOrEqualTo(root.get("lastRegisterDate"), builder.currentTimestamp()),
-//									builder.or(builder.isNull(root.get("lastUnregisterDate")), builder
-//											.lessThan(root.get("lastUnregisterDate"), root.get("lastRegisterDate")))));
-//					return predicate;
-//				}
-//
-//				else if (field.equals(HistoricType.UNREGISTER.name())) {
-//					Predicate predicate = builder.not(builder.or(
-//							builder.and(builder.isNull(root.get("lastRegisterDate")),
-//									builder.or(builder.isNull(root.get("lastUnregisterDate")),
-//											builder.greaterThan(root.get("lastUnregisterDate"),
-//													builder.currentTimestamp()))),
-//							builder.and(builder.isNotNull(root.get("lastRegisterDate")),
-//									builder.lessThanOrEqualTo(root.get("lastRegisterDate"), builder.currentTimestamp()),
-//									builder.or(builder.isNull(root.get("lastUnregisterDate")), builder
-//											.lessThan(root.get("lastUnregisterDate"), root.get("lastRegisterDate"))))));
-//					return predicate;
-//				} else 
 				if (field.equals("groupId")) {
 					return builder.equal(root.get("group").get("id"), Long.valueOf(value));
 				} else if (field.equals("scheduleIds")) {

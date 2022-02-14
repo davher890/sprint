@@ -1,5 +1,6 @@
 package com.backend.sprint.repository;
 
+import java.util.List;
 import java.util.Set;
 
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -19,4 +20,8 @@ public interface GroupRepository
 
 	@Query(value = "SELECT * FROM groups WHERE specialization = ?1 AND active = true ORDER BY name ASC ", nativeQuery = true)
 	public Set<GroupDao> findBySpecialization(boolean specialization);
+
+	@Query(value = "SELECT * FROM groups WHERE active is true order by name", nativeQuery = true)
+	public List<GroupDao> findActive();
+
 }

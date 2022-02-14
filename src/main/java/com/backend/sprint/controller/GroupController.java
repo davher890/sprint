@@ -151,7 +151,7 @@ public class GroupController {
 
 		List<Long> groupIds = new ArrayList<>();
 		if (id == 0) {
-			List<GroupDto> findAll = service.findAll();
+			List<GroupDto> findAll = service.findActive();
 			groupIds = findAll.parallelStream().filter(d -> d.getName() != null && !d.getName().isEmpty())
 					.map(GroupDto::getId).collect(Collectors.toList());
 		} else {

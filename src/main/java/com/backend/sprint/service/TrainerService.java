@@ -36,7 +36,7 @@ public class TrainerService {
 				.collect(Collectors.toList());
 	}
 
-	public List<TrainerDao> findAllExcel() {
+	public List<TrainerDao> findAllDao() {
 		Iterable<TrainerDao> findAll = repository.findAll();
 		return StreamSupport.stream(findAll.spliterator(), false).collect(Collectors.toList());
 	}
