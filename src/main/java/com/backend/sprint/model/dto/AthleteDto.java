@@ -29,7 +29,7 @@ public class AthleteDto {
 	private Integer numDays;
 
 	private boolean imageAuth;
-	private String observations;
+
 	// Personal info
 	private String name;
 	private String firstSurname;
@@ -80,6 +80,8 @@ public class AthleteDto {
 	private String holderDni;
 
 	private Set<HistoricDto> historic;
+
+	private Set<ObservationDto> observations;
 
 	// Fee
 	private FeeDto fee;// Fee

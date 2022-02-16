@@ -18,14 +18,14 @@ import org.springframework.web.bind.annotation.RestController;
 import com.backend.sprint.model.dto.AthleteDto;
 import com.backend.sprint.model.dto.FeeDto;
 import com.backend.sprint.model.dto.HistoricDto;
+import com.backend.sprint.model.dto.ObservationDto;
 import com.backend.sprint.model.dto.SportdataDto;
 import com.backend.sprint.service.AthleteService;
 import com.backend.sprint.service.FeeService;
 import com.backend.sprint.service.HistoricService;
+import com.backend.sprint.service.ObservationService;
 import com.backend.sprint.service.SportdataService;
-import com.backend.sprint.specifications.AthleteSpecificationConstructor;
 import com.backend.sprint.specifications.SportdataSpecificationConstructor;
-import com.backend.sprint.utils.HistoricType;
 
 @RestController
 @RequestMapping("athletes")
@@ -38,20 +38,23 @@ public class AthleteController {
 	private HistoricService historicService;
 
 	@Autowired
+	private ObservationService observationService;
+
+	@Autowired
 	private SportdataService sportdataService;
 
 	@Autowired
 	private FeeService feeService;
 
-	@GetMapping("/historic")
-	public Page<AthleteDto> findHistoricPagintation(
-			@RequestParam(value = "filters", required = false) List<String> filters, Pageable pageable) {
-		if (filters == null) {
-			filters = new ArrayList<String>();
-		}
-		filters.add(HistoricType.UNREGISTER.name() + "__-__-");
-		return service.findPagintation(new AthleteSpecificationConstructor<>(filters), pageable);
-	}
+//	@GetMapping("/historic")
+//	public Page<AthleteDto> findHistoricPagintation(
+//			@RequestParam(value = "filters", required = false) List<String> filters, Pageable pageable) {
+//		if (filters == null) {
+//			filters = new ArrayList<String>();
+//		}
+//		filters.add(HistoricType.UNREGISTER.name() + "__-__-");
+//		return service.findPagintation(new AthleteSpecificationConstructor<>(filters), pageable);
+//	}
 
 	@GetMapping("/all")
 	public List<AthleteDto> findAll() {
@@ -90,6 +93,16 @@ public class AthleteController {
 	@PostMapping("/{id}/unregister")
 	public HistoricDto unregisterAthlete(@PathVariable int id, @RequestBody HistoricDto historic) throws PSQLException {
 		return historicService.unregister(id, historic);
+	}
+
+	@GetMapping("/{id}/historic")
+	public List<HistoricDto> getAthleteHistoric(@PathVariable int id) throws PSQLException {
+		return historicService.findAthleteHistoric(id);
+	}
+
+	@GetMapping("/{id}/observations")
+	public List<ObservationDto> getAthleteObservations(@PathVariable int id) throws PSQLException {
+		return observationService.findAthleteObservations(id);
 	}
 
 	@PostMapping("/fee")

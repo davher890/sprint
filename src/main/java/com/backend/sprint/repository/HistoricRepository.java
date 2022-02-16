@@ -14,5 +14,5 @@ public interface HistoricRepository
 		extends PagingAndSortingRepository<HistoricDao, Long>, JpaSpecificationExecutor<HistoricDao> {
 
 	@Query(value = "SELECT * FROM historic WHERE athlete_id = ?1 ORDER BY date DESC ", nativeQuery = true)
-	public Set<HistoricDao> findAthleteRegistration(long athleteId);
+	public Set<HistoricDao> findAthleteHistoric(long athleteId);
 }

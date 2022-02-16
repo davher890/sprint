@@ -43,8 +43,6 @@ public class AthleteDao {
 
 	private boolean imageAuth;
 
-	@Column(columnDefinition = "text")
-	private String observations;
 	// Personal info
 	@NotNull
 	private String name;
@@ -111,6 +109,9 @@ public class AthleteDao {
 
 	@OneToMany(mappedBy = "athlete")
 	private Set<HistoricDao> historic;
+
+	@OneToMany(mappedBy = "athlete")
+	private Set<ObservationDao> observations;
 
 	@NotNull
 	private long code;

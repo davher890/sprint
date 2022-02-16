@@ -47,8 +47,8 @@ public class HistoricService {
 		return convertToDto(repository.findById(id).orElse(null));
 	}
 
-	public List<HistoricDto> findAthleteRegistration(long id) {
-		return repository.findAthleteRegistration(id).stream().map(this::convertToDto).collect(Collectors.toList());
+	public List<HistoricDto> findAthleteHistoric(long id) {
+		return repository.findAthleteHistoric(id).stream().map(this::convertToDto).collect(Collectors.toList());
 	}
 
 	@Transactional

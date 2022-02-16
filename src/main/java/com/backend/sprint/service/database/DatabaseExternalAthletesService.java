@@ -192,7 +192,6 @@ public class DatabaseExternalAthletesService extends DatabaseService {
 				athlete.setAddress(address);
 				athlete.setPostalCode(postalCode);
 				athlete.setMunicipality(municipality);
-				athlete.setObservations(observations);
 
 				// Bank Info
 				athlete.setName(name);
