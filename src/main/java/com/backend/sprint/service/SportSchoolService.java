@@ -77,6 +77,13 @@ public class SportSchoolService {
 		return convertToDto(repository.save(convertToDao(dto)));
 	}
 
+	public SportSchoolDto deleteById(long id) {
+
+		SportSchoolDto sportSchool = this.findById(id);
+		sportSchool.setActive(false);
+		return this.save(sportSchool);
+	}
+
 	private SportSchoolDto convertToDto(SportSchoolDao dao) {
 		if (dao == null) {
 			return null;

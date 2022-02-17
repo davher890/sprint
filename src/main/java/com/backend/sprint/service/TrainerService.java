@@ -56,6 +56,13 @@ public class TrainerService {
 		return convertToDto(repository.save(dao));
 	}
 
+	public TrainerDto deleteById(long id) {
+
+		TrainerDto trainer = this.findById(id);
+		trainer.setActive(false);
+		return this.save(trainer);
+	}
+
 	private TrainerDto convertToDto(TrainerDao dao) {
 		if (dao == null) {
 			return null;

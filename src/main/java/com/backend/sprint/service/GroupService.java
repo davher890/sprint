@@ -21,10 +21,8 @@ import java.util.stream.StreamSupport;
 
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
-import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -180,21 +178,11 @@ public class GroupService {
 
 		XSSFWorkbook workbook = new XSSFWorkbook();
 
-		XSSFCellStyle headerStyle = workbook.createCellStyle();
-		headerStyle.setBorderTop(BorderStyle.THIN);
-		headerStyle.setBorderBottom(BorderStyle.THIN);
-		headerStyle.setBorderLeft(BorderStyle.THIN);
-		headerStyle.setBorderRight(BorderStyle.THIN);
-
 		XSSFCellStyle style = workbook.createCellStyle();
 		style.setBorderTop(BorderStyle.THIN);
 		style.setBorderBottom(BorderStyle.THIN);
 		style.setBorderLeft(BorderStyle.THIN);
 		style.setBorderRight(BorderStyle.THIN);
-		XSSFFont font = workbook.createFont();
-		font.setBold(false);
-		font.setColor(IndexedColors.BLACK.getIndex());
-		style.setFont(font);
 
 		LocalDate startDate;
 		LocalDate endDate;
@@ -223,17 +211,17 @@ public class GroupService {
 			List<ExcelDataDto> data = new ArrayList<>();
 
 			ExcelDataDto groupHeader = new ExcelDataDto();
-			groupHeader.getData().add(new ExcelValueDto(group.getName(), CellType.STRING, headerStyle));
+			groupHeader.getData().add(new ExcelValueDto(group.getName(), CellType.STRING, style));
 			groupHeader.getData().add(new ExcelValueDto(
-					new DateFormatSymbols(new Locale("es", "ES")).getMonths()[month], CellType.STRING, headerStyle));
+					new DateFormatSymbols(new Locale("es", "ES")).getMonths()[month], CellType.STRING, style));
 			data.add(groupHeader);
 
 			ExcelDataDto header = new ExcelDataDto();
-			header.getData().add(new ExcelValueDto("ATLETA", CellType.STRING, headerStyle));
-			header.getData().add(new ExcelValueDto("FECHA NACIMIENTO", CellType.STRING, headerStyle));
+			header.getData().add(new ExcelValueDto("ATLETA", CellType.STRING, style));
+			header.getData().add(new ExcelValueDto("FECHA NACIMIENTO", CellType.STRING, style));
 			header.getData().add(new ExcelValueDto("CATEGORIA " + Calendar.getInstance().get(Calendar.YEAR),
-					CellType.STRING, headerStyle));
-			header.getData().add(new ExcelValueDto("DIAS", CellType.STRING, headerStyle));
+					CellType.STRING, style));
+			header.getData().add(new ExcelValueDto("DIAS", CellType.STRING, style));
 
 			int nd = 0;
 			for (LocalDate date = startDate; date.isBefore(endDate); date = date.plusDays(1)) {
@@ -243,7 +231,7 @@ public class GroupService {
 
 				if (scheduleDays.contains(weekDay.name())) {
 					header.getData()
-							.add(new ExcelValueDto(mapDay.get(weekDay) + "" + monthDay, CellType.STRING, headerStyle));
+							.add(new ExcelValueDto(mapDay.get(weekDay) + "" + monthDay, CellType.STRING, style));
 					nd++;
 				}
 
@@ -274,6 +262,11 @@ public class GroupService {
 			data.addAll(excelData);
 
 			Sheet sheet = ExcelUtils.generateExcel(workbook, group.getName() + "_id_" + group.getId(), data);
+			sheet.createFreezePane(0, 2);
+			sheet.setMargin(Sheet.TopMargin, 0);
+			sheet.setMargin(Sheet.BottomMargin, 0);
+			sheet.setMargin(Sheet.LeftMargin, 0);
+			sheet.setMargin(Sheet.RightMargin, 0);
 
 			IntStream.range(0, 4 + numDays).parallel().forEach(i -> {
 				sheet.autoSizeColumn(i);

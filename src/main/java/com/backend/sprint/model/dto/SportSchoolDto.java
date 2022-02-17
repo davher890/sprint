@@ -25,6 +25,8 @@ public class SportSchoolDto {
 
 	private String municipality;
 
+	private boolean active = true;
+
 	@CreationTimestamp
 	private Date createdAt;
 

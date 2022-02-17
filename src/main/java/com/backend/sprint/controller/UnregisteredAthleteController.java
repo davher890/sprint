@@ -40,6 +40,7 @@ public class UnregisteredAthleteController {
 		if (filters == null) {
 			filters = new ArrayList<String>();
 		}
+		filters.add("active__==__true");
 		return service.findPagintation(new UnregisteredAthleteSpecificationConstructor<>(filters), pageable);
 	}
 

@@ -24,6 +24,7 @@ import com.backend.sprint.model.dto.TrainerDto;
 import com.backend.sprint.service.AthleteService;
 import com.backend.sprint.service.FamilyService;
 import com.backend.sprint.service.HistoricService;
+import com.backend.sprint.service.ObservationService;
 import com.backend.sprint.service.SportSchoolService;
 import com.backend.sprint.service.TrainerService;
 import com.backend.sprint.utils.HistoricType;
@@ -37,37 +38,40 @@ public class DatabaseExternalAthletesService extends DatabaseService {
 	private static final int FAMILY_CODE = 1;
 	private static final int ATHLETE_CODE = 2;
 	private static final int ATHLETE = 3;
-	private static final int ATHLETE_SURNAMES = 4;
-	private static final int ATHLETE_NAME = 5;
-	private static final int BIRTHDATE = 6;
-	private static final int YEAR = 7;
-	private static final int AGE = 8;
-	private static final int GENDER = 9;
-	private static final int DNI = 10;
-	private static final int PHONE_1 = 11;
-	private static final int PHONE_2 = 12;
-	private static final int PHONE_3 = 13;
-	private static final int ADDRESS = 14;
-	private static final int POSTCAL_CODE = 15;
-	private static final int MUNICIPALITY = 16;
-	private static final int FATHER_MAIL = 17;
-	private static final int MOTHER_MAIL = 18;
-	private static final int MAIL = 19;
-	private static final int FATHER_NAME = 20;
-	private static final int MOTHER_NAME = 21;
-	private static final int HOLDER_NAME = 22;
-	private static final int HOLDER_DNI = 23;
-	private static final int IBAN = 24;
-	private static final int CATEGORY = 25;
-	private static final int LICENSE = 26;
-	private static final int LICENSE_TYPE = 27;
-	private static final int DORSAL_CATEGORY = 28;
-	private static final int DORSAL = 29;
-	private static final int PAYMENT_TYPE = 31;
-	private static final int FEE_TYPE = 32;
-	private static final int OBSERVATIONS = 37;
+	private static final int ATHLETE_FIRSTSURNAME = 4;
+	private static final int ATHLETE_SECONDSURNAME = 5;
+	private static final int ATHLETE_NAME = 6;
+	private static final int BIRTHDATE = 7;
+	private static final int YEAR = 8;
+	private static final int AGE = 9;
+	private static final int GENDER = 10;
+	private static final int DNI = 11;
+	private static final int PHONE_1 = 12;
+	private static final int PHONE_2 = 13;
+	private static final int PHONE_3 = 14;
+	private static final int ADDRESS = 15;
+	private static final int POSTCAL_CODE = 16;
+	private static final int MUNICIPALITY = 17;
+	private static final int FATHER_MAIL = 18;
+	private static final int MOTHER_MAIL = 19;
+	private static final int MAIL = 20;
+	private static final int FATHER_NAME = 21;
+	private static final int MOTHER_NAME = 22;
+	private static final int HOLDER_NAME = 23;
+	private static final int HOLDER_DNI = 24;
+	private static final int IBAN = 25;
+	private static final int CATEGORY = 26;
+	private static final int LICENSE = 27;
+	private static final int LICENSE_TYPE = 28;
+	private static final int DORSAL_CATEGORY = 29;
+	private static final int DORSAL = 30;
+	private static final int PAYMENT_TYPE = 37;
+	private static final int FEE_TYPE = 38;
 
-	private static final int REGISTER_DATE = 43;
+	private static final int OBSERVATIONS_SEASON = 46;
+	private static final int OBSERVATIONS_2021_PAYMENT = 48;
+
+	private static final int REGISTER_DATE = 52;
 
 	private static final String DATE_SEPARATOR = "-";
 
@@ -88,6 +92,9 @@ public class DatabaseExternalAthletesService extends DatabaseService {
 	@Autowired
 	private HistoricService historicService;
 
+	@Autowired
+	private ObservationService observationService;
+
 	public List<AthleteDto> dbFillAtheltesData(String csvName) throws IOException, ParseException {
 
 		SportSchoolDto sportSchool = sportSchoolService.findById(3);
@@ -102,14 +109,8 @@ public class DatabaseExternalAthletesService extends DatabaseService {
 						|| line[AUTH_IMG].trim().equals("SI")) ? true : false;
 				long familyCode = Long.valueOf(line[FAMILY_CODE].trim());
 				long athleteCode = Long.valueOf(line[ATHLETE_CODE].trim());
-				List<String> split = Arrays.asList(line[ATHLETE_SURNAMES].split(" "));
-				String firstSurname = split.get(0).trim();
-				String secondSurname = "";
-				if (split.size() > 1) {
-					secondSurname = split.subList(1, split.size()).stream().reduce((identity, accumulator) -> {
-						return identity.trim() + " " + accumulator.trim();
-					}).orElse(null);
-				}
+				String firstSurname = line[ATHLETE_FIRSTSURNAME].trim();
+				String secondSurname = line[ATHLETE_SECONDSURNAME].trim();
 				String name = line[ATHLETE_NAME].trim();
 				Date birthDate = null;
 				if (!line[BIRTHDATE].trim().isEmpty() && !line[BIRTHDATE].trim().isEmpty()) {
@@ -160,15 +161,9 @@ public class DatabaseExternalAthletesService extends DatabaseService {
 
 				String paymentType = line[PAYMENT_TYPE].trim();
 
-				String observations = line[OBSERVATIONS].trim();
-
 				// New Athlete
 				AthleteDto athlete;
-//				if (birthDate == null) {
 				athlete = athleteService.findByCode(athleteCode);
-//				} else {
-//					athlete = athleteService.findByUniqueColumns(name, firstSurname, secondSurname, birthDate);
-//				}
 				if (athlete == null) {
 					athlete = new AthleteDto();
 				}
@@ -202,7 +197,6 @@ public class DatabaseExternalAthletesService extends DatabaseService {
 				athlete.setHolderFirstSurname(holderFirstSurname);
 				athlete.setHolderSecondSurname(holderSecondSurname);
 				athlete.setHolderDni(holderDni);
-				// athlete.setNumDays(numDays);
 
 				// Familiar Info
 				athlete.setFamiliarOneName(fatherName);
@@ -259,6 +253,11 @@ public class DatabaseExternalAthletesService extends DatabaseService {
 					}
 					historicService.save(historic);
 				}
+
+				// Observations
+				observationService.save(getObservation(line, OBSERVATIONS_SEASON, null, athlete.getId()));
+				observationService.save(getObservation(line, OBSERVATIONS_2021_PAYMENT, "2021-07-01", athlete.getId()));
+
 				return athlete;
 			} catch (Exception e) {
 				logger.error(String.join("_", line));

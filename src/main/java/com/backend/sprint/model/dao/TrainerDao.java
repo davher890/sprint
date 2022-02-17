@@ -2,6 +2,7 @@ package com.backend.sprint.model.dao;
 
 import java.util.Date;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -37,6 +38,9 @@ public class TrainerDao {
 	private String dni;
 
 	private String mail;
+
+	@Column(columnDefinition = "boolean default true")
+	private boolean active;
 
 	@CreationTimestamp
 	private Date createdAt;

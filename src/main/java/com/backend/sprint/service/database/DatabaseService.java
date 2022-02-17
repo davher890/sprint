@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.backend.sprint.model.dto.NameDataDto;
+import com.backend.sprint.model.dto.ObservationDto;
 import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
@@ -50,6 +52,23 @@ public class DatabaseService {
 		CSVReader csvReader = new CSVReaderBuilder(Files.newBufferedReader(file.toPath())).withSkipLines(1)
 				.withCSVParser(parser).build();
 		return csvReader;
+	}
+
+	protected ObservationDto getObservation(String[] row, int column, String date, long athleteId)
+			throws ParseException {
+
+		String text = row[column];
+
+		if (text != null && !text.trim().isEmpty() && athleteId > 0) {
+			ObservationDto obs = new ObservationDto();
+			obs.setAthleteId(athleteId);
+			obs.setText(text);
+			if (date != null) {
+				obs.setCreatedAt(dayFormat.parse(date));
+			}
+			return obs;
+		}
+		return null;
 	}
 
 	public NameDataDto getNameData(String[] line, int position) {

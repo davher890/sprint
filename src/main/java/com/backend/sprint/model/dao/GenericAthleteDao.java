@@ -83,6 +83,8 @@ public class GenericAthleteDao {
 	private Date lastRegisterDate;
 	private Date lastUnregisterDate;
 
+	private boolean active;
+
 	private Date createdAt;
 
 	private Date updatedAt;

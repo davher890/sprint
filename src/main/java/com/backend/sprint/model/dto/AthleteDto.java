@@ -92,7 +92,10 @@ public class AthleteDto {
 	private long code;
 
 	private Date lastRegisterDate;
+
 	private Date lastUnregisterDate;
+
+	private boolean active = true;
 
 	private Date createdAt;
 

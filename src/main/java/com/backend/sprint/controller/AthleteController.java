@@ -7,6 +7,7 @@ import org.postgresql.util.PSQLException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -45,16 +46,6 @@ public class AthleteController {
 
 	@Autowired
 	private FeeService feeService;
-
-//	@GetMapping("/historic")
-//	public Page<AthleteDto> findHistoricPagintation(
-//			@RequestParam(value = "filters", required = false) List<String> filters, Pageable pageable) {
-//		if (filters == null) {
-//			filters = new ArrayList<String>();
-//		}
-//		filters.add(HistoricType.UNREGISTER.name() + "__-__-");
-//		return service.findPagintation(new AthleteSpecificationConstructor<>(filters), pageable);
-//	}
 
 	@GetMapping("/all")
 	public List<AthleteDto> findAll() {
@@ -113,6 +104,11 @@ public class AthleteController {
 	@PostMapping("")
 	public AthleteDto save(@RequestBody AthleteDto dto) {
 		return service.save(dto);
+	}
+
+	@DeleteMapping("/{id}")
+	public AthleteDto deleteById(@PathVariable long id) {
+		return service.deleteById(id);
 	}
 
 }

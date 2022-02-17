@@ -24,6 +24,8 @@ public class TrainerDto {
 
 	private String mail;
 
+	private boolean active = true;
+
 	private Date createdAt;
 
 	private Date updatedAt;

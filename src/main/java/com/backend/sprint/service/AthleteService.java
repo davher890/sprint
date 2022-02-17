@@ -26,6 +26,7 @@ import com.backend.sprint.repository.GroupRepository;
 import com.backend.sprint.repository.ScheduleRepository;
 import com.backend.sprint.repository.SportSchoolRepository;
 import com.backend.sprint.specifications.AthleteSpecificationConstructor;
+import com.backend.sprint.utils.AthleteUtils;
 import com.backend.sprint.utils.HistoricType;
 
 @Service
@@ -154,6 +155,13 @@ public class AthleteService {
 		return repository.findByGroupId(id).stream().map(this::convertToDto).collect(Collectors.toList());
 	}
 
+	public AthleteDto deleteById(long id) {
+
+		AthleteDto athlete = this.findById(id);
+		athlete.setActive(false);
+		return this.save(athlete);
+	}
+
 	private List<AthleteDto> convertToDto(List<AthleteDao> dao) {
 		return dao.stream().map(this::convertToDto).collect(Collectors.toList());
 	}
@@ -184,6 +192,10 @@ public class AthleteService {
 			dto.setNumDays(dto.getScheduleIds().size());
 			dto.setDays(dao.getSchedules().parallelStream().map(ScheduleDao::getDay).collect(Collectors.joining(",")));
 		}
+
+		dto.setLastRegisterDate(AthleteUtils.getLastRegisterDate(dao));
+		dto.setLastUnregisterDate(AthleteUtils.getLastUnregisterDate(dao));
+
 		return dto;
 	}
 
