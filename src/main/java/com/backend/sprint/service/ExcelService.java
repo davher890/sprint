@@ -110,7 +110,10 @@ public class ExcelService {
 			dataDto.getData().addAll(columns.stream().filter(ColumnDto::isShow).map(d -> {
 				try {
 					SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
-					if (d.getDataField().equals("sportSchoolId")) {
+					if (d.getDataField().equals("familyCode")) {
+						return new ExcelValueDto(String.valueOf(entity.getFamily().getCode()),
+								ExcelUtils.getCellType(d));
+					} else if (d.getDataField().equals("sportSchoolId")) {
 						return new ExcelValueDto(entity.getSportSchool().getName(), ExcelUtils.getCellType(d));
 					} else if (d.getDataField().equals("groupName")) {
 						return new ExcelValueDto(entity.getGroup().getName(), ExcelUtils.getCellType(d));
