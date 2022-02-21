@@ -49,6 +49,7 @@ public class ExcelService {
 			ExcelDataDto dataDto = new ExcelDataDto();
 			dataDto.getData().addAll(columns.parallelStream().filter(ColumnDto::isShow).map(d -> {
 				try {
+					SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
 					if (d.getDataField().equals("sportSchoolId")) {
 						return new ExcelValueDto(entity.getSportSchoolName(), ExcelUtils.getCellType(d));
 					} else if (d.getDataField().equals("birthDate")) {
@@ -108,6 +109,7 @@ public class ExcelService {
 			ExcelDataDto dataDto = new ExcelDataDto();
 			dataDto.getData().addAll(columns.stream().filter(ColumnDto::isShow).map(d -> {
 				try {
+					SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
 					if (d.getDataField().equals("sportSchoolId")) {
 						return new ExcelValueDto(entity.getSportSchool().getName(), ExcelUtils.getCellType(d));
 					} else if (d.getDataField().equals("groupName")) {
