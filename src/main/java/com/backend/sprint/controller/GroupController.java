@@ -165,4 +165,10 @@ public class GroupController {
 		IOUtils.copy(new ByteArrayInputStream(outputStream.toByteArray()), response.getOutputStream());
 	}
 
+	@GetMapping("/{idA}/swap/{idB}")
+	public List<GroupDto> swapGroupsAthletes(@PathVariable("idA") long groupAId, @PathVariable("idB") long groupBId,
+			@RequestParam(value = "groupAAthletes", required = true) List<Long> groupAAthletes,
+			@RequestParam(value = "groupBAthletes", required = true) List<Long> groupBAthletes) {
+		return service.swapGropupsAthletes(groupAId, groupBId, groupAAthletes, groupBAthletes);
+	}
 }

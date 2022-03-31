@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -292,6 +293,28 @@ public class GroupService {
 
 	public List<AthleteDto> findGroupAthletes(int id) {
 		return athleteService.findByGroupId(id);
+	}
+
+	public List<GroupDto> swapGropupsAthletes(long groupAId, long groupBId, List<Long> groupAAthletes,
+			List<Long> groupBAthletes) {
+
+		for (Long athleteId : groupAAthletes) {
+			AthleteDto athlete = athleteService.findById(athleteId);
+			if (athlete.getGroupId() != groupAId) {
+				athlete.setGroupId(groupAId);
+				athleteService.save(athlete);
+			}
+		}
+
+		for (Long athleteId : groupBAthletes) {
+			AthleteDto athlete = athleteService.findById(athleteId);
+			if (athlete.getGroupId() != groupBId) {
+				athlete.setGroupId(groupBId);
+				athleteService.save(athlete);
+			}
+		}
+
+		return Arrays.asList(new GroupDto[] { this.findById(groupAId), this.findById(groupBId) });
 	}
 
 }
