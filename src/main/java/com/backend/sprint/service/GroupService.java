@@ -31,6 +31,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -91,10 +92,10 @@ public class GroupService {
 		}
 	};
 
-	public Page<GroupDto> findPagintation(Specification<GroupDao> specification, Pageable pageable) {
-		Sort sortOrder = Sort.by("name");
+	public Page<GroupDto> findPagintation(Specification<GroupDao> specification, Pageable pageable, String sort,
+			Direction sortDirection) {
 		Page<GroupDao> daoPage = repository.findAll(specification,
-				PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sortOrder));
+				PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(sortDirection, sort)));
 		return daoPage.map(dao -> convertToDto(dao));
 	}
 

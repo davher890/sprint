@@ -16,6 +16,7 @@ import org.apache.poi.util.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -44,12 +45,13 @@ public class SportSchoolController {
 
 	@GetMapping("")
 	public Page<SportSchoolDto> findPagintation(@RequestParam(value = "filters", required = false) List<String> filters,
-			Pageable pageable) {
+			Pageable pageable, String sort, Direction sortDirection) {
 		if (filters == null) {
 			filters = new ArrayList<String>();
 		}
 		filters.add("active__==__true");
-		return service.findPagintation(new SportSchoolSpecificationConstructor<>(filters), pageable);
+		return service.findPagintation(new SportSchoolSpecificationConstructor<>(filters), pageable, sort,
+				sortDirection);
 	}
 
 	@GetMapping("/all")

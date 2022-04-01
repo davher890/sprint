@@ -3,7 +3,10 @@ package com.backend.sprint.service;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,8 +22,10 @@ public class UnregisteredAthleteService {
 	@Autowired
 	private UnregisteredAthleteRepository repository;
 
-	public Page<AthleteDto> findPagintation(Specification<UnregisteredAthleteDao> specification, Pageable pageable) {
-		Page<UnregisteredAthleteDao> daoPage = repository.findAll(specification, pageable);
+	public Page<AthleteDto> findPagintation(Specification<UnregisteredAthleteDao> specification, Pageable pageable,
+			String sort, Direction sortDirection) {
+		Page<UnregisteredAthleteDao> daoPage = repository.findAll(specification,
+				PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(sortDirection, sort)));
 		return daoPage.map(dao -> convertToDto(dao));
 	}
 

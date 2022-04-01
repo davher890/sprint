@@ -14,6 +14,7 @@ import org.apache.poi.util.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -43,8 +44,8 @@ public class FamilyController {
 
 	@GetMapping("")
 	public Page<FamilyDto> findPagintation(@RequestParam(value = "filters", required = false) List<String> filters,
-			Pageable pageable) {
-		return service.findPagintation(new FamilySpecificationConstructor<>(filters), pageable);
+			Pageable pageable, String sort, Direction sortDirection) {
+		return service.findPagintation(new FamilySpecificationConstructor<>(filters), pageable, sort, sortDirection);
 	}
 
 	@GetMapping("/all")

@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -46,13 +47,14 @@ public class ScheduleService {
 	@Autowired
 	private ScheduleRepository repository;
 
-	public Page<ScheduleDto> findPagintation(Specification<ScheduleDao> specification, Pageable pageable, String sort) {
+	public Page<ScheduleDto> findPagintation(Specification<ScheduleDao> specification, Pageable pageable, String sort,
+			Direction sortDirection) {
 		Sort sortOrder = null;
 		if (sort != null) {
 			sortOrder = Sort.by(sort);
 		}
 		Page<ScheduleDao> daoPage = repository.findAll(specification,
-				PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sortOrder));
+				PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(sortDirection, sort)));
 		return daoPage.map(dao -> convertToDto(dao));
 	}
 

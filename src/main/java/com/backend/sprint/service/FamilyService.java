@@ -9,7 +9,10 @@ import java.util.stream.StreamSupport;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,8 +32,10 @@ public class FamilyService {
 	@Autowired
 	private AthleteService athleteService;
 
-	public Page<FamilyDto> findPagintation(Specification<FamilyDao> specification, Pageable pageable) {
-		Page<FamilyDao> daoPage = repository.findAll(specification, pageable);
+	public Page<FamilyDto> findPagintation(Specification<FamilyDao> specification, Pageable pageable, String sort,
+			Direction sortDirection) {
+		Page<FamilyDao> daoPage = repository.findAll(specification,
+				PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(sortDirection, sort)));
 		return daoPage.map(dao -> convertToDto(dao));
 	}
 

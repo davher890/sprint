@@ -8,7 +8,10 @@ import java.util.stream.StreamSupport;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,8 +28,10 @@ public class SportSchoolService {
 	@Autowired
 	private SportSchoolRepository repository;
 
-	public Page<SportSchoolDto> findPagintation(Specification<SportSchoolDao> specification, Pageable pageable) {
-		Page<SportSchoolDao> daoPage = repository.findAll(specification, pageable);
+	public Page<SportSchoolDto> findPagintation(Specification<SportSchoolDao> specification, Pageable pageable,
+			String sort, Direction sortDirection) {
+		Page<SportSchoolDao> daoPage = repository.findAll(specification,
+				PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(sortDirection, sort)));
 		return daoPage.map(dao -> convertToDto(dao));
 	}
 

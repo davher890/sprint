@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,8 +27,8 @@ public class UserController {
 
 	@GetMapping("")
 	public Page<UserDto> findPagintation(@RequestParam(value = "filters", required = false) List<String> filters,
-			Pageable pageable) {
-		return service.findPagintation(new GroupSpecificationConstructor<>(filters), pageable);
+			Pageable pageable, String sort, Direction sortDirection) {
+		return service.findPagintation(new GroupSpecificationConstructor<>(filters), pageable, sort, sortDirection);
 	}
 
 	@GetMapping("/{id}")
