@@ -32,7 +32,7 @@ public abstract class AbstractSpecifictionConstructor<E> implements Specificatio
 
 				String field = filter.split("__")[0];
 				String operator = filter.split("__")[1];
-				String value = filter.split("__")[2].toLowerCase();
+				String value = filter.split("__")[2];
 
 				return filterPredicate(root, builder, field, operator, value);
 			}).reduce((c1, c2) -> builder.and(c1, c2)).get();
