@@ -318,4 +318,17 @@ public class GroupService {
 		return Arrays.asList(new GroupDto[] { this.findById(groupAId), this.findById(groupBId) });
 	}
 
+	public GroupDto swapGropupsAthletes(long groupId, List<Long> athletesIds) {
+
+		for (Long athleteId : athletesIds) {
+			AthleteDto athlete = athleteService.findById(athleteId);
+			if (athlete.getGroupId() != groupId) {
+				athlete.setGroupId(groupId);
+				athleteService.save(athlete);
+			}
+		}
+
+		return this.findById(groupId);
+	}
+
 }
