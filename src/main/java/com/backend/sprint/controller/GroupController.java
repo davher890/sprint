@@ -172,4 +172,10 @@ public class GroupController {
 			@RequestParam(value = "groupBAthletes", required = true) List<Long> groupBAthletes) {
 		return service.swapGropupsAthletes(groupAId, groupBId, groupAAthletes, groupBAthletes);
 	}
+
+	@GetMapping("/{id}/swap")
+	public GroupDto swapGroupsAthletes(@PathVariable("id") long groupId,
+			@RequestParam(value = "athletesIds", required = true) List<Long> ahtletesIds) {
+		return service.swapGropupsAthletes(groupId, ahtletesIds);
+	}
 }
