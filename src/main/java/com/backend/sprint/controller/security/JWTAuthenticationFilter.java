@@ -32,12 +32,12 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 		try {
 			UserDto creds = new ObjectMapper().readValue(request.getInputStream(), UserDto.class);
 
-			return authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(creds.getUsername(),
-					creds.getPassword(), new ArrayList<>()));
+			UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(creds.getUsername(),
+					creds.getPassword(), new ArrayList<>());
+			return authenticationManager.authenticate(authentication);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-
 	}
 
 	@Override
@@ -46,7 +46,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
 		UserDetailsBean userDetails = (UserDetailsBean) auth.getPrincipal();
 
-		String token = JwtUtils.generateJwtToken(userDetails.getUsername(), userDetails.getId());
+		String token = JwtUtils.generateJwtToken(userDetails.getUser());
 		response.addHeader(SecurityConstants.HEADER_STRING, SecurityConstants.TOKEN_PREFIX + " " + token);
 		response.addHeader("Access-Control-Expose-Headers", SecurityConstants.HEADER_STRING);
 	}

@@ -1,6 +1,7 @@
 package com.backend.sprint.beans;
 
 import java.util.Collection;
+import java.util.Set;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -38,6 +39,14 @@ public class UserDetailsBean implements UserDetails {
 
 	public long getId() {
 		return user.getId();
+	}
+
+	public Set<Long> getSportSchoolIds() {
+		return user.getSportSchoolIds();
+	}
+
+	public UserDto getUser() {
+		return user;
 	}
 
 	@Override

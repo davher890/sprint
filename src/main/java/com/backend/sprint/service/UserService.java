@@ -16,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.backend.sprint.model.dao.SportSchoolDao;
 import com.backend.sprint.model.dao.UserDao;
 import com.backend.sprint.model.dto.UserDto;
 import com.backend.sprint.repository.UserRepository;
@@ -56,6 +57,8 @@ public class UserService {
 		}
 
 		UserDto dto = new ModelMapper().map(dao, UserDto.class);
+
+		dto.setSportSchoolIds(dao.getSportSchools().stream().map(SportSchoolDao::getId).collect(Collectors.toSet()));
 		return dto;
 	}
 

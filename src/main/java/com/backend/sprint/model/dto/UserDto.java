@@ -1,5 +1,7 @@
 package com.backend.sprint.model.dto;
 
+import java.util.Set;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -10,6 +12,8 @@ import lombok.ToString;
 public class UserDto {
 
 	private long id;
+
+	private Set<Long> sportSchoolIds;
 
 	private String username;
 
