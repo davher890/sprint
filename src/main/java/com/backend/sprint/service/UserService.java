@@ -80,9 +80,9 @@ public class UserService {
 			dao.setPassword(passwordEncoder.encode(dto.getPassword()));
 		}
 
-		if (dto.getUpdatedById() != 0) {
-			dao.setUpdatedBy(repository.findById(dto.getUpdatedById()).get());
-		}
+//		if (dto.getUpdatedById() != 0) {
+//			dao.setUpdatedBy(repository.findById(dto.getUpdatedById()).get());
+//		}
 		if (dto.getSportSchoolIds() != null) {
 			dao.setSportSchools(dto.getSportSchoolIds().stream().map(sportSchoolId -> {
 				return sportSchoolRepository.findById(sportSchoolId).get();
@@ -104,7 +104,6 @@ public class UserService {
 
 		String newPassword = dto.getNewPassword();
 		String oldPassword = dto.getOldPassword();
-		
 
 		if (passwordEncoder.matches(oldPassword, dto.getPassword())) {
 			dto.setPassword(passwordEncoder.encode(newPassword));
