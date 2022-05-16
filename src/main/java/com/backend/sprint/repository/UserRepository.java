@@ -12,4 +12,6 @@ import com.backend.sprint.model.dao.UserDao;
 public interface UserRepository extends PagingAndSortingRepository<UserDao, Long>, JpaSpecificationExecutor<UserDao> {
 
 	Optional<UserDao> findByUsername(String username);
+
+	Optional<UserDao> findByEmail(String email);
 }

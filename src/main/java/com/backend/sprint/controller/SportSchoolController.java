@@ -6,6 +6,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
@@ -17,6 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,6 +35,7 @@ import com.backend.sprint.model.dto.ExcelDataDto;
 import com.backend.sprint.model.dto.ExcelValueDto;
 import com.backend.sprint.model.dto.SelectOptionDto;
 import com.backend.sprint.model.dto.SportSchoolDto;
+import com.backend.sprint.model.dto.UserDto;
 import com.backend.sprint.service.SportSchoolService;
 import com.backend.sprint.specifications.SportSchoolSpecificationConstructor;
 import com.backend.sprint.utils.ExcelUtils;
@@ -45,11 +49,20 @@ public class SportSchoolController {
 
 	@GetMapping("")
 	public Page<SportSchoolDto> findPagintation(@RequestParam(value = "filters", required = false) List<String> filters,
-			Pageable pageable, String sort, Direction sortDirection) {
+			Pageable pageable, @RequestParam(defaultValue = "id") String sort,
+			@RequestParam(defaultValue = "DESC") Direction sortDirection) {
 		if (filters == null) {
 			filters = new ArrayList<String>();
 		}
 		filters.add("active__==__true");
+
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		UserDto user = (UserDto) auth.getPrincipal();
+		Set<Long> sportSchoolIds = user.getSportSchoolIds();
+		if (sportSchoolIds.size() == 0) {
+			return null;
+		}
+		filters.add("id__in__" + sportSchoolIds.stream().map(String::valueOf).collect(Collectors.joining(",")));
 		return service.findPagintation(new SportSchoolSpecificationConstructor<>(filters), pageable, sort,
 				sortDirection);
 	}
@@ -71,6 +84,11 @@ public class SportSchoolController {
 
 	@PostMapping("")
 	public SportSchoolDto save(@RequestBody SportSchoolDto dto) {
+
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		UserDto user = (UserDto) auth.getPrincipal();
+		dto.setUpdatedById(user.getId());
+
 		return service.save(dto);
 	}
 

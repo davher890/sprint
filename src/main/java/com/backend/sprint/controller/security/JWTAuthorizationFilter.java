@@ -2,6 +2,8 @@ package com.backend.sprint.controller.security;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -51,14 +53,17 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 			// parse the token.
 			DecodedJWT decodedJwtToken = JwtUtils.getJwtTokenClaims(encodedJwtToken);
 			String userStr = decodedJwtToken.getSubject();
-			Long userId = decodedJwtToken.getClaim("user_id").asLong();
+			Long[] sportSchoolIds = decodedJwtToken.getClaim(SecurityConstants.SPORT_SCHOOL_IDS).asArray(Long.class);
 
 			if (userStr != null) {
+				Long userId = decodedJwtToken.getClaim(SecurityConstants.USER_ID).asLong();
+
 				UserDto user = new UserDto();
 				user.setUsername(userStr);
 				user.setId(userId);
+				user.setSportSchoolIds(new HashSet<Long>(Arrays.asList(sportSchoolIds)));
 
-				String token = JwtUtils.generateJwtToken(user.getUsername(), user.getId());
+				String token = JwtUtils.generateJwtToken(user);
 				response.addHeader(SecurityConstants.HEADER_STRING, SecurityConstants.TOKEN_PREFIX + " " + token);
 
 				// new arraylist means authorities

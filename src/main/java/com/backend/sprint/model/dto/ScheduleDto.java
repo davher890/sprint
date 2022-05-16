@@ -34,6 +34,8 @@ public class ScheduleDto {
 
 	private Date updatedAt;
 
+	private long updatedById;
+
 	public ScheduleDto(String day, int startHour, int startMinute, int endHour, int endMinute) {
 		this.day = day;
 		this.startHour = startHour;

@@ -30,4 +30,6 @@ public class TrainerDto {
 
 	private Date updatedAt;
 
+	private long updatedById;
+
 }

@@ -25,6 +25,7 @@ import com.backend.sprint.repository.FamilyRepository;
 import com.backend.sprint.repository.GroupRepository;
 import com.backend.sprint.repository.ScheduleRepository;
 import com.backend.sprint.repository.SportSchoolRepository;
+import com.backend.sprint.repository.UserRepository;
 import com.backend.sprint.specifications.AthleteSpecificationConstructor;
 import com.backend.sprint.utils.AthleteUtils;
 import com.backend.sprint.utils.HistoricType;
@@ -53,6 +54,9 @@ public class AthleteService {
 
 	@Autowired
 	private FamilyRepository familyRepository;
+
+	@Autowired
+	private UserRepository userRepository;
 
 	@Autowired
 	private FamilyService familyService;
@@ -185,6 +189,10 @@ public class AthleteService {
 			dto.setFamilyCode(dao.getFamily().getCode());
 		}
 
+		if (dao.getUpdatedBy() != null) {
+			dto.setUpdatedById(dao.getUpdatedBy().getId());
+		}
+
 		if (dao.getSchedules() != null) {
 			dto.setSchedules(
 					dao.getSchedules().parallelStream().map(scheduleService::convertToDto).collect(Collectors.toSet()));
@@ -225,6 +233,10 @@ public class AthleteService {
 
 		if (dto.getFamilyId() != 0) {
 			dao.setFamily(familyRepository.findById(dto.getFamilyId()).get());
+		}
+
+		if (dto.getUpdatedById() != 0) {
+			dao.setUpdatedBy(userRepository.findById(dto.getUpdatedById()).get());
 		}
 
 		if (dto.getCode() == 0) {

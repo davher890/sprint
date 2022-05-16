@@ -38,4 +38,6 @@ public class GroupDto {
 
 	private String errorMessage;
 
+	private long updatedById;
+
 }

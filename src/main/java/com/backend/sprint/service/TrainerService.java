@@ -19,6 +19,7 @@ import com.backend.sprint.model.dao.TrainerDao;
 import com.backend.sprint.model.dto.GroupDto;
 import com.backend.sprint.model.dto.TrainerDto;
 import com.backend.sprint.repository.TrainerRepository;
+import com.backend.sprint.repository.UserRepository;
 
 @Service
 public class TrainerService {
@@ -28,6 +29,9 @@ public class TrainerService {
 
 	@Autowired
 	private GroupService groupService;
+
+	@Autowired
+	private UserRepository userRepository;
 
 	public Page<TrainerDto> findPagintation(Specification<TrainerDao> specification, Pageable pageable, String sort,
 			Direction sortDirection) {
@@ -77,6 +81,11 @@ public class TrainerService {
 		Set<Long> groupIds = groupService.findByTrainerId(dao.getId()).stream().map(GroupDto::getId)
 				.collect(Collectors.toSet());
 		dto.setGroupIds(groupIds);
+
+		if (dao.getUpdatedBy() != null) {
+			dto.setUpdatedById(dao.getUpdatedBy().getId());
+		}
+
 		return dto;
 	}
 
@@ -84,7 +93,13 @@ public class TrainerService {
 		if (dto == null) {
 			return null;
 		}
-		return new ModelMapper().map(dto, TrainerDao.class);
+		TrainerDao dao = new ModelMapper().map(dto, TrainerDao.class);
+
+		if (dto.getUpdatedById() != 0) {
+			dao.setUpdatedBy(userRepository.findById(dto.getUpdatedById()).get());
+		}
+
+		return dao;
 	}
 
 }

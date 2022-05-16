@@ -7,6 +7,8 @@ import org.postgresql.util.PSQLException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,6 +23,7 @@ import com.backend.sprint.model.dto.FeeDto;
 import com.backend.sprint.model.dto.HistoricDto;
 import com.backend.sprint.model.dto.ObservationDto;
 import com.backend.sprint.model.dto.SportdataDto;
+import com.backend.sprint.model.dto.UserDto;
 import com.backend.sprint.service.AthleteService;
 import com.backend.sprint.service.FeeService;
 import com.backend.sprint.service.HistoricService;
@@ -103,6 +106,11 @@ public class AthleteController {
 
 	@PostMapping("")
 	public AthleteDto save(@RequestBody AthleteDto dto) {
+
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		UserDto user = (UserDto) auth.getPrincipal();
+		dto.setUpdatedById(user.getId());
+
 		return service.save(dto);
 	}
 

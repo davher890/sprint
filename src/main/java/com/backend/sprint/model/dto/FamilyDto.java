@@ -3,9 +3,6 @@ package com.backend.sprint.model.dto;
 import java.util.Date;
 import java.util.Set;
 
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -23,10 +20,8 @@ public class FamilyDto {
 
 	private int count;
 
-	@CreationTimestamp
 	private Date createdAt;
 
-	@UpdateTimestamp
 	private Date updatedAt;
 
 }

@@ -17,6 +17,7 @@ import com.backend.sprint.model.dao.ObservationDao;
 import com.backend.sprint.model.dto.ObservationDto;
 import com.backend.sprint.repository.AthleteRepository;
 import com.backend.sprint.repository.ObservationRepository;
+import com.backend.sprint.repository.UserRepository;
 
 @Service
 @Transactional
@@ -27,6 +28,9 @@ public class ObservationService {
 
 	@Autowired
 	private AthleteRepository athleteRepository;
+
+	@Autowired
+	private UserRepository userRepository;
 
 	public Page<ObservationDto> findPagintation(Specification<ObservationDao> specification, Pageable pageable) {
 		Page<ObservationDao> daoPage = repository.findAll(specification, pageable);
@@ -57,6 +61,11 @@ public class ObservationService {
 		}
 		ObservationDto dto = new ModelMapper().map(dao, ObservationDto.class);
 		dto.setAthleteId(dao.getAthlete().getId());
+
+		if (dao.getUpdatedBy() != null) {
+			dto.setUpdatedById(dao.getUpdatedBy().getId());
+		}
+
 		return dto;
 	}
 
@@ -65,6 +74,11 @@ public class ObservationService {
 		if (dto.getAthleteId() != 0) {
 			dao.setAthlete(athleteRepository.findById(dto.getAthleteId()).get());
 		}
+
+		if (dto.getUpdatedById() != 0) {
+			dao.setUpdatedBy(userRepository.findById(dto.getUpdatedById()).get());
+		}
+
 		return dao;
 	}
 
