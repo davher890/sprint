@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.backend.sprint.model.dao.ScheduleDao;
 import com.backend.sprint.model.dto.ScheduleDto;
 import com.backend.sprint.repository.ScheduleRepository;
+import com.backend.sprint.repository.UserRepository;
 
 @Service
 @Transactional
@@ -47,12 +48,11 @@ public class ScheduleService {
 	@Autowired
 	private ScheduleRepository repository;
 
+	@Autowired
+	private UserRepository userRepository;
+
 	public Page<ScheduleDto> findPagintation(Specification<ScheduleDao> specification, Pageable pageable, String sort,
 			Direction sortDirection) {
-		Sort sortOrder = null;
-		if (sort != null) {
-			sortOrder = Sort.by(sort);
-		}
 		Page<ScheduleDao> daoPage = repository.findAll(specification,
 				PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(sortDirection, sort)));
 		return daoPage.map(dao -> convertToDto(dao));
@@ -82,9 +82,14 @@ public class ScheduleService {
 		if (dao == null) {
 			return null;
 		}
-		ScheduleDto map = new ModelMapper().map(dao, ScheduleDto.class);
-		map.setDayTranslate(dayTranslate.get(map.getDay()));
-		return map;
+		ScheduleDto dto = new ModelMapper().map(dao, ScheduleDto.class);
+		dto.setDayTranslate(dayTranslate.get(dto.getDay()));
+
+		if (dao.getUpdatedBy() != null) {
+			dto.setUpdatedById(dao.getUpdatedBy().getId());
+		}
+
+		return dto;
 	}
 
 	public String translateDay(String day) {
@@ -99,7 +104,13 @@ public class ScheduleService {
 		if (dto == null) {
 			return null;
 		}
-		return new ModelMapper().map(dto, ScheduleDao.class);
+		ScheduleDao dao = new ModelMapper().map(dto, ScheduleDao.class);
+
+		if (dto.getUpdatedById() != 0) {
+			dao.setUpdatedBy(userRepository.findById(dto.getUpdatedById()).get());
+		}
+
+		return dao;
 	}
 
 }

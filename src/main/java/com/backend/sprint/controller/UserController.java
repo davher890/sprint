@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,7 +29,8 @@ public class UserController {
 
 	@GetMapping("")
 	public Page<UserDto> findPagintation(@RequestParam(value = "filters", required = false) List<String> filters,
-			Pageable pageable, String sort, Direction sortDirection) {
+			Pageable pageable, @RequestParam(defaultValue = "id") String sort,
+			@RequestParam(defaultValue = "DESC") Direction sortDirection) {
 		return service.findPagintation(new GroupSpecificationConstructor<>(filters), pageable, sort, sortDirection);
 	}
 
@@ -37,8 +40,18 @@ public class UserController {
 	}
 
 	@PostMapping("")
-	public UserDto save(@RequestBody UserDto user) throws Exception {
-		return service.save(user);
+	public UserDto save(@RequestBody UserDto dto) throws Exception {
+
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		UserDto user = (UserDto) auth.getPrincipal();
+		dto.setUpdatedById(user.getId());
+
+		return service.save(dto);
+	}
+
+	@PostMapping("/password")
+	public UserDto changePassword(@RequestBody UserDto dto) throws Exception {
+		return service.changePassword(dto);
 	}
 
 }

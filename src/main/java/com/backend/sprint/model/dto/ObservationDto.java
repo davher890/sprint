@@ -20,4 +20,6 @@ public class ObservationDto {
 	private Date createdAt;
 
 	private Date updatedAt;
+
+	private long updatedById;
 }

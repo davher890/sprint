@@ -1,5 +1,6 @@
 package com.backend.sprint.model.dto;
 
+import java.util.Date;
 import java.util.Set;
 
 import lombok.Getter;
@@ -17,10 +18,20 @@ public class UserDto {
 
 	private String username;
 
-	private String mail;
+	private String email;
 
 	private String password;
 
+	private String oldPassword;
+
+	private String newPassword;
+
 	private String token;
+
+	private Date createdAt;
+
+	private Date updatedAt;
+
+	private long updatedById;
 
 }

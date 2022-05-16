@@ -49,6 +49,7 @@ import com.backend.sprint.repository.GroupRepository;
 import com.backend.sprint.repository.ScheduleRepository;
 import com.backend.sprint.repository.SportSchoolRepository;
 import com.backend.sprint.repository.TrainerRepository;
+import com.backend.sprint.repository.UserRepository;
 import com.backend.sprint.utils.ExcelUtils;
 
 @Service
@@ -63,6 +64,9 @@ public class GroupService {
 
 	@Autowired
 	private ScheduleRepository scheduleRepository;
+
+	@Autowired
+	private UserRepository userRepository;
 
 	@Autowired
 	private ScheduleService scheduleService;
@@ -148,6 +152,10 @@ public class GroupService {
 			dto.setScheduleIds(schedules.parallelStream().map(ScheduleDto::getId).collect(Collectors.toSet()));
 			dto.setSchedules(schedules);
 		}
+		if (dao.getUpdatedBy() != null) {
+			dto.setUpdatedById(dao.getUpdatedBy().getId());
+		}
+
 		return dto;
 	}
 
@@ -168,6 +176,10 @@ public class GroupService {
 		if (dto.getSportSchoolId() != 0) {
 			dao.setSportSchool(sportSchoolRepository.findById(dto.getSportSchoolId()).get());
 		}
+		if (dto.getUpdatedById() != 0) {
+			dao.setUpdatedBy(userRepository.findById(dto.getUpdatedById()).get());
+		}
+
 		return dao;
 	}
 

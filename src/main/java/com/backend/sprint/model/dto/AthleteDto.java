@@ -103,4 +103,6 @@ public class AthleteDto {
 
 	private String errorMessage;
 
+	private long updatedById;
+
 }

@@ -20,6 +20,7 @@ import com.backend.sprint.model.dao.SportSchoolDao;
 import com.backend.sprint.model.dto.SelectOptionDto;
 import com.backend.sprint.model.dto.SportSchoolDto;
 import com.backend.sprint.repository.SportSchoolRepository;
+import com.backend.sprint.repository.UserRepository;
 
 @Service
 @Transactional
@@ -27,6 +28,9 @@ public class SportSchoolService {
 
 	@Autowired
 	private SportSchoolRepository repository;
+
+	@Autowired
+	private UserRepository userRepository;
 
 	public Page<SportSchoolDto> findPagintation(Specification<SportSchoolDao> specification, Pageable pageable,
 			String sort, Direction sortDirection) {
@@ -93,14 +97,25 @@ public class SportSchoolService {
 		if (dao == null) {
 			return null;
 		}
-		return new ModelMapper().map(dao, SportSchoolDto.class);
+		SportSchoolDto dto = new ModelMapper().map(dao, SportSchoolDto.class);
+
+		if (dao.getUpdatedBy() != null) {
+			dto.setUpdatedById(dao.getUpdatedBy().getId());
+		}
+		return dto;
 	}
 
 	private SportSchoolDao convertToDao(SportSchoolDto dto) {
 		if (dto == null) {
 			return null;
 		}
-		return new ModelMapper().map(dto, SportSchoolDao.class);
+		SportSchoolDao dao = new ModelMapper().map(dto, SportSchoolDao.class);
+
+		if (dto.getUpdatedById() != 0) {
+			dao.setUpdatedBy(userRepository.findById(dto.getUpdatedById()).get());
+		}
+
+		return dao;
 	}
 
 }

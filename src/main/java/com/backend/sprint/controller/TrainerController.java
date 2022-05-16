@@ -17,6 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,6 +33,7 @@ import com.backend.sprint.model.dto.ColumnDto;
 import com.backend.sprint.model.dto.ExcelDataDto;
 import com.backend.sprint.model.dto.ExcelValueDto;
 import com.backend.sprint.model.dto.TrainerDto;
+import com.backend.sprint.model.dto.UserDto;
 import com.backend.sprint.service.TrainerService;
 import com.backend.sprint.specifications.TrainerSpecificationConstructor;
 import com.backend.sprint.utils.ExcelUtils;
@@ -44,7 +47,8 @@ public class TrainerController {
 
 	@GetMapping("")
 	public Page<TrainerDto> findPagintation(@RequestParam(value = "filters", required = false) List<String> filters,
-			Pageable pageable, String sort, Direction sortDirection) {
+			Pageable pageable, @RequestParam(defaultValue = "id") String sort,
+			@RequestParam(defaultValue = "DESC") Direction sortDirection) {
 		if (filters == null) {
 			filters = new ArrayList<String>();
 		}
@@ -64,6 +68,11 @@ public class TrainerController {
 
 	@PostMapping("")
 	public TrainerDto save(@RequestBody TrainerDto dto) {
+
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		UserDto user = (UserDto) auth.getPrincipal();
+		dto.setUpdatedById(user.getId());
+
 		return service.save(dto);
 	}
 

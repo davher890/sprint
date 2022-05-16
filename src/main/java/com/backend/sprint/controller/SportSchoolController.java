@@ -84,6 +84,11 @@ public class SportSchoolController {
 
 	@PostMapping("")
 	public SportSchoolDto save(@RequestBody SportSchoolDto dto) {
+
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		UserDto user = (UserDto) auth.getPrincipal();
+		dto.setUpdatedById(user.getId());
+
 		return service.save(dto);
 	}
 

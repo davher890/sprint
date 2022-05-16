@@ -37,6 +37,10 @@ public class UserDetailsBean implements UserDetails {
 		return user.getUsername();
 	}
 
+	public String getEmail() {
+		return user.getEmail();
+	}
+
 	public long getId() {
 		return user.getId();
 	}

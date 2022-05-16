@@ -125,4 +125,8 @@ public class AthleteDao {
 	@UpdateTimestamp
 	private Date updatedAt;
 
+	@ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@JoinColumn(name = "user_id")
+	private UserDao updatedBy;
+
 }
