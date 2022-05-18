@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
@@ -18,6 +19,7 @@ public abstract class AbstractSpecifictionConstructor<E> implements Specificatio
 	 */
 	private static final long serialVersionUID = 1L;
 	protected List<String> filters;
+	private List<String> booleanOps = Arrays.asList(new String[] { "==" });
 
 	public AbstractSpecifictionConstructor(List<String> filters) {
 		this.filters = filters;
@@ -34,42 +36,52 @@ public abstract class AbstractSpecifictionConstructor<E> implements Specificatio
 				String operator = filter.split("__")[1];
 				String value = filter.split("__")[2];
 
-				return filterPredicate(root, builder, field, operator, value);
+				if (operator.equals("==")) {
+					return filterPredicateBoolean(root.get(field), builder, operator, value);
+				} else {
+					return filterPredicateString(root.get(field), builder, operator, value);
+				}
 			}).reduce((c1, c2) -> builder.and(c1, c2)).get();
 		}
 		return result;
 	}
 
-	protected Predicate filterPredicate(Root<E> root, CriteriaBuilder builder, String field, String operator,
+	protected Predicate filterPredicateBoolean(Path<Boolean> rootField, CriteriaBuilder builder, String operator,
 			String value) {
 		Predicate predicate = null;
+
+		boolean boolValue = Boolean.parseBoolean(value);
+		if (boolValue) {
+			predicate = builder.isTrue(rootField);
+		} else {
+			predicate = builder.isFalse(rootField);
+		}
+		return predicate;
+	}
+
+	protected Predicate filterPredicateString(Path<String> rootField, CriteriaBuilder builder, String operator,
+			String value) {
+		Predicate predicate = null;
+
 		if (operator.equals("LIKE")) {
-			predicate = builder.like(builder.lower(root.get(field)), "%" + value.toLowerCase().trim() + "%");
-		} else if (operator.equals("==")) {
-			boolean boolValue = Boolean.parseBoolean(value);
-			if (boolValue) {
-				predicate = builder.isTrue(root.get(field));
-			} else {
-				predicate = builder.isFalse(root.get(field));
-			}
+			predicate = builder.like(builder.lower(rootField), "%" + value.toLowerCase().trim() + "%");
 		} else if (operator.equals("=")) {
-			predicate = builder.equal(root.get(field), value);
+			predicate = builder.equal(rootField, value);
 		} else if (operator.equals("!=")) {
-			predicate = builder.notEqual(root.get(field), value);
+			predicate = builder.notEqual(rootField, value);
 		} else if (operator.equals(">")) {
-			predicate = builder.greaterThan(root.get(field), value);
+			predicate = builder.greaterThan(rootField, value);
 		} else if (operator.equals(">=")) {
-			predicate = builder.greaterThanOrEqualTo(root.get(field), value);
+			predicate = builder.greaterThanOrEqualTo(rootField, value);
 		} else if (operator.equals("<")) {
-			predicate = builder.lessThan(root.get(field), value);
+			predicate = builder.lessThan(rootField, value);
 		} else if (operator.equals("<=")) {
-			predicate = builder.lessThanOrEqualTo(root.get(field), value);
+			predicate = builder.lessThanOrEqualTo(rootField, value);
 		} else if (operator.toLowerCase().equals("in")) {
 			List<Integer> idList = Arrays.asList(value.split(",")).parallelStream().map(d -> Integer.parseInt(d))
 					.collect(Collectors.toList());
-			predicate = root.get(field).in(idList);
+			predicate = rootField.in(idList);
 		}
-
 		return predicate;
 	}
 

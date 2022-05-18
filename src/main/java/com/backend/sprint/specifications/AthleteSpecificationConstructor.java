@@ -53,7 +53,7 @@ public class AthleteSpecificationConstructor<AthleteDao> extends AbstractSpecifi
 				String value = filter.split("__")[2].toLowerCase();
 
 				if (field.equals("groupId")) {
-					return builder.equal(root.get("group").get("id"), Long.valueOf(value));
+					return filterPredicateString(root.get("group").get("id"), builder, operator, value);
 				} else if (field.equals("scheduleIds")) {
 					Predicate predicate = builder.conjunction();
 					for (String scheduleId : value.split("_")) {
@@ -62,17 +62,15 @@ public class AthleteSpecificationConstructor<AthleteDao> extends AbstractSpecifi
 					}
 					return predicate;
 				} else if (field.equals("groupName")) {
-					Predicate predicate = builder.like(builder.lower(root.get("group").get("name")),
-							"%" + value.toLowerCase().trim() + "%");
-					return predicate;
+					return filterPredicateString(root.get("group").get("name"), builder, operator, value);
 				} else if (field.equals("sportSchoolId")) {
-					Predicate predicate = builder.equal(root.get("sportSchool").get("id"), Long.valueOf(value));
-					return predicate;
+					return filterPredicateString(root.get("sportSchool").get("id"), builder, operator, value);
 				} else if (field.equals("familyId")) {
-					Predicate predicate = builder.equal(root.get("family").get("id"), Long.valueOf(value));
-					return predicate;
+					return filterPredicateString(root.get("family").get("id"), builder, operator, value);
+				} else if (field.equals("active")) {
+					return filterPredicateBoolean(root.get(field), builder, operator, value);
 				} else {
-					return super.filterPredicate(root, builder, field, operator, value);
+					return filterPredicateString(root.get(field), builder, operator, value);
 				}
 			}).reduce((c1, c2) -> builder.and(c1, c2)).get();
 		}

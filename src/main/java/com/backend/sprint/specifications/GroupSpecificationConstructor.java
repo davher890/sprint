@@ -29,10 +29,11 @@ public class GroupSpecificationConstructor<GroupDao> extends AbstractSpecifictio
 				String value = filter.split("__")[2].toLowerCase();
 
 				if (field.equals("sportSchoolId")) {
-					Predicate predicate = builder.equal(root.get("sportSchool").get("id"), Long.valueOf(value));
-					return predicate;
+					return filterPredicateString(root.get("sportSchool").get("id"), builder, operator, value);
+				} else if (field.equals("active")) {
+					return filterPredicateBoolean(root.get(field), builder, operator, value);
 				} else {
-					return super.filterPredicate(root, builder, field, operator, value);
+					return filterPredicateString(root.get(field), builder, operator, value);
 				}
 			}).reduce((c1, c2) -> builder.and(c1, c2)).get();
 		}

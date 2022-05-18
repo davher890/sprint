@@ -9,6 +9,11 @@ import javax.persistence.criteria.Root;
 
 public class SportdataSpecificationConstructor<SportdataDao> extends AbstractSpecifictionConstructor<SportdataDao> {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public SportdataSpecificationConstructor(List<String> filters) {
 		super(filters);
 	}
@@ -24,10 +29,9 @@ public class SportdataSpecificationConstructor<SportdataDao> extends AbstractSpe
 				String value = filter.split("__")[2].toLowerCase();
 
 				if (field.equals("athleteId")) {
-					Predicate predicate = builder.equal(root.get("athlete").get("id"), Long.valueOf(value));
-					return predicate;
+					return super.filterPredicateString(root.get("athlete").get("id"), builder, operator, value);
 				} else {
-					return super.filterPredicate(root, builder, field, operator, value);
+					return super.toPredicate(root, query, builder);
 				}
 			}).reduce((c1, c2) -> builder.and(c1, c2)).get();
 		}
