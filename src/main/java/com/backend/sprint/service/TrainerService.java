@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import com.backend.sprint.model.dao.TrainerDao;
 import com.backend.sprint.model.dto.GroupDto;
 import com.backend.sprint.model.dto.TrainerDto;
+import com.backend.sprint.repository.SportSchoolRepository;
 import com.backend.sprint.repository.TrainerRepository;
 import com.backend.sprint.repository.UserRepository;
 
@@ -31,6 +32,9 @@ public class TrainerService {
 	private GroupService groupService;
 
 	@Autowired
+	private SportSchoolRepository sportSchoolRepository;
+
+	@Autowired
 	private UserRepository userRepository;
 
 	public Page<TrainerDto> findPagintation(Specification<TrainerDao> specification, Pageable pageable, String sort,
@@ -40,24 +44,26 @@ public class TrainerService {
 		return daoPage.map(dao -> convertToDto(dao));
 	}
 
-	public List<TrainerDto> findAll() {
-		return StreamSupport.stream(repository.findAll().spliterator(), false).map(this::convertToDto)
+	public List<TrainerDto> findAllById(Set<Long> sportSchoolIds) {
+		return StreamSupport.stream(repository.findAllById(sportSchoolIds).spliterator(), false).map(this::convertToDto)
 				.collect(Collectors.toList());
 	}
 
-	public List<TrainerDao> findAllDao() {
-		Iterable<TrainerDao> findAll = repository.findAll();
+	public List<TrainerDao> findAllByIdDao(Set<Long> sportSchoolIds) {
+		Iterable<TrainerDao> findAll = repository.findAllById(sportSchoolIds);
 		return StreamSupport.stream(findAll.spliterator(), false).collect(Collectors.toList());
 	}
 
 	public TrainerDto findById(long id) {
-		TrainerDao dao = repository.findById(id).orElse(null);
-		return convertToDto(dao);
+		return convertToDto(repository.findById(id).orElse(null));
 	}
 
 	public TrainerDto findByName(String name) {
-		TrainerDao dao = repository.findByName(name);
-		return convertToDto(dao);
+		return convertToDto(repository.findByName(name));
+	}
+
+	public Set<TrainerDto> findBySportSchoolId(long id) {
+		return repository.findBySportSchoolId(id).stream().map(this::convertToDto).collect(Collectors.toSet());
 	}
 
 	public TrainerDto save(TrainerDto dto) {
@@ -82,6 +88,7 @@ public class TrainerService {
 				.collect(Collectors.toSet());
 		dto.setGroupIds(groupIds);
 
+		dto.setSportSchoolId(dao.getSportSchool().getId());
 		if (dao.getUpdatedBy() != null) {
 			dto.setUpdatedById(dao.getUpdatedBy().getId());
 		}
@@ -94,7 +101,7 @@ public class TrainerService {
 			return null;
 		}
 		TrainerDao dao = new ModelMapper().map(dto, TrainerDao.class);
-
+		dao.setSportSchool(sportSchoolRepository.findById(dto.getSportSchoolId()).get());
 		if (dto.getUpdatedById() != 0) {
 			dao.setUpdatedBy(userRepository.findById(dto.getUpdatedById()).get());
 		}

@@ -2,6 +2,7 @@ package com.backend.sprint.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -39,13 +40,13 @@ public class SportSchoolService {
 		return daoPage.map(dao -> convertToDto(dao));
 	}
 
-	public List<SportSchoolDto> findAll() {
-		return StreamSupport.stream(repository.findAll().spliterator(), false).map(this::convertToDto)
+	public List<SportSchoolDto> findAllById(Set<Long> ids) {
+		return StreamSupport.stream(repository.findAllById(ids).spliterator(), false).map(this::convertToDto)
 				.collect(Collectors.toList());
 	}
 
-	public List<SportSchoolDao> findAllDao() {
-		Iterable<SportSchoolDao> findAll = repository.findAll();
+	public List<SportSchoolDao> findAllByIdDao(Set<Long> ids) {
+		Iterable<SportSchoolDao> findAll = repository.findAllById(ids);
 		return StreamSupport.stream(findAll.spliterator(), false).collect(Collectors.toList());
 	}
 
@@ -70,7 +71,10 @@ public class SportSchoolService {
 			options.add(new SelectOptionDto("LICENCIA", "Licencia"));
 			options.add(new SelectOptionDto("SOCIO", "Socio"));
 			options.add(new SelectOptionDto("ENTRENADOR", "Entrenadores"));
+		} else {
+			options.add(new SelectOptionDto("CLUB", "Club"));
 		}
+
 		return options;
 	}
 

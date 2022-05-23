@@ -33,6 +33,10 @@ public class TrainerDao {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 
+	@ManyToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "sport_school_id")
+	private SportSchoolDao sportSchool;
+
 	@NotNull
 	private String name;
 

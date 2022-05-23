@@ -33,10 +33,15 @@ import com.backend.sprint.model.dao.SportSchoolDao;
 import com.backend.sprint.model.dto.ColumnDto;
 import com.backend.sprint.model.dto.ExcelDataDto;
 import com.backend.sprint.model.dto.ExcelValueDto;
+import com.backend.sprint.model.dto.GroupDto;
 import com.backend.sprint.model.dto.SelectOptionDto;
 import com.backend.sprint.model.dto.SportSchoolDto;
+import com.backend.sprint.model.dto.TrainerDto;
 import com.backend.sprint.model.dto.UserDto;
+import com.backend.sprint.service.GroupService;
 import com.backend.sprint.service.SportSchoolService;
+import com.backend.sprint.service.TrainerService;
+import com.backend.sprint.service.UserService;
 import com.backend.sprint.specifications.SportSchoolSpecificationConstructor;
 import com.backend.sprint.utils.ExcelUtils;
 
@@ -46,6 +51,15 @@ public class SportSchoolController {
 
 	@Autowired
 	private SportSchoolService service;
+
+	@Autowired
+	private GroupService groupService;
+
+	@Autowired
+	private TrainerService trainerService;
+
+	@Autowired
+	private UserService userService;
 
 	@GetMapping("")
 	public Page<SportSchoolDto> findPagintation(@RequestParam(value = "filters", required = false) List<String> filters,
@@ -60,7 +74,7 @@ public class SportSchoolController {
 		UserDto user = (UserDto) auth.getPrincipal();
 		Set<Long> sportSchoolIds = user.getSportSchoolIds();
 		if (sportSchoolIds.size() == 0) {
-			return null;
+			return Page.empty();
 		}
 		filters.add("id__in__" + sportSchoolIds.stream().map(String::valueOf).collect(Collectors.joining(",")));
 		return service.findPagintation(new SportSchoolSpecificationConstructor<>(filters), pageable, sort,
@@ -69,7 +83,11 @@ public class SportSchoolController {
 
 	@GetMapping("/all")
 	public List<SportSchoolDto> findAll() {
-		return service.findAll();
+
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		UserDto user = (UserDto) auth.getPrincipal();
+
+		return service.findAllById(user.getSportSchoolIds());
 	}
 
 	@GetMapping("/{id}")
@@ -82,14 +100,30 @@ public class SportSchoolController {
 		return service.findFeeTypesById(id);
 	}
 
+	@GetMapping("/{id}/groups")
+	public Set<GroupDto> findSportSchoolGroups(@PathVariable int id,
+			@RequestParam(value = "specialization", required = false) Boolean specialization) {
+		return groupService.findBySportSchoolId(id, specialization);
+	}
+
+	@GetMapping("/{id}/trainers")
+	public Set<TrainerDto> findSportSchoolTRainers(@PathVariable int id) {
+		return trainerService.findBySportSchoolId(id);
+	}
+
 	@PostMapping("")
 	public SportSchoolDto save(@RequestBody SportSchoolDto dto) {
 
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		UserDto user = (UserDto) auth.getPrincipal();
-		dto.setUpdatedById(user.getId());
+//		dto.setUpdatedById(user.getId());
+//		Error when uncomment the previous line
+		dto = service.save(dto);
 
-		return service.save(dto);
+		user.getSportSchoolIds().add(dto.getId());
+		userService.save(user);
+
+		return dto;
 	}
 
 	@DeleteMapping("/{id}")
@@ -100,7 +134,10 @@ public class SportSchoolController {
 	@PostMapping("/excel")
 	public void excel(@RequestBody List<ColumnDto> columns, HttpServletResponse response) throws IOException {
 
-		List<SportSchoolDao> sportSchools = service.findAllDao();
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		UserDto user = (UserDto) auth.getPrincipal();
+
+		List<SportSchoolDao> sportSchools = service.findAllByIdDao(user.getSportSchoolIds());
 
 		List<ExcelDataDto> data = new ArrayList<>();
 

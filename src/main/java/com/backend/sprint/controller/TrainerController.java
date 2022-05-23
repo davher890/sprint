@@ -6,6 +6,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
@@ -53,12 +54,25 @@ public class TrainerController {
 			filters = new ArrayList<String>();
 		}
 		filters.add("active__==__true");
+
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		UserDto user = (UserDto) auth.getPrincipal();
+		Set<Long> sportSchoolIds = user.getSportSchoolIds();
+		if (sportSchoolIds.size() == 0) {
+			return null;
+		}
+		filters.add(
+				"sportSchoolId__in__" + sportSchoolIds.stream().map(String::valueOf).collect(Collectors.joining(",")));
 		return service.findPagintation(new TrainerSpecificationConstructor<>(filters), pageable, sort, sortDirection);
 	}
 
 	@GetMapping("/all")
 	public List<TrainerDto> findAll() {
-		return service.findAll();
+
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		UserDto user = (UserDto) auth.getPrincipal();
+
+		return service.findAllById(user.getSportSchoolIds());
 	}
 
 	@GetMapping("/{id}")
@@ -84,7 +98,10 @@ public class TrainerController {
 	@PostMapping("/excel")
 	public void excel(@RequestBody List<ColumnDto> columns, HttpServletResponse response) throws IOException {
 
-		List<TrainerDao> trainers = service.findAllDao();
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		UserDto user = (UserDto) auth.getPrincipal();
+
+		List<TrainerDao> trainers = service.findAllByIdDao(user.getSportSchoolIds());
 
 		List<ExcelDataDto> data = new ArrayList<>();
 

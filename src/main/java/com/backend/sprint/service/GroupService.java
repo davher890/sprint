@@ -117,8 +117,13 @@ public class GroupService {
 		return convertToDto(repository.findById(id).orElse(null));
 	}
 
-	public Set<GroupDto> findByTrainerId(long idtrainer) {
-		return repository.findByTrainerId(idtrainer).stream().map(this::convertToDto).collect(Collectors.toSet());
+	public Set<GroupDto> findByTrainerId(long trainerId) {
+		return repository.findByTrainerId(trainerId).stream().map(this::convertToDto).collect(Collectors.toSet());
+	}
+
+	public Set<GroupDto> findBySportSchoolId(long sportSchoolId, Boolean specialization) {
+		return repository.findBySportSchoolId(sportSchoolId, specialization).stream().map(this::convertToDto)
+				.collect(Collectors.toSet());
 	}
 
 	public GroupDto findByNameAndSportSchool(String name, int sportSchoolId) {

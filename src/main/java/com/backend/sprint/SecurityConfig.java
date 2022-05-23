@@ -17,6 +17,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import com.backend.sprint.controller.security.JWTAuthenticationFilter;
 import com.backend.sprint.controller.security.JWTAuthorizationFilter;
 import com.backend.sprint.service.UserDetailsServiceImpl;
+import com.backend.sprint.service.UserService;
 
 @Configuration
 @EnableWebMvc
@@ -25,6 +26,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Autowired
 	private UserDetailsServiceImpl userSecurityService;
+
+	@Autowired
+	private UserService userService;
 
 	@Autowired
 	private PasswordEncoder passwordEncoder;
@@ -40,7 +44,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //				.antMatchers(USERS_URL).permitAll()
 				.antMatchers(DATABASE_URL).permitAll().anyRequest().authenticated().and()
 				.addFilter(new JWTAuthenticationFilter(authenticationManager()))
-				.addFilter(new JWTAuthorizationFilter(authenticationManager())).sessionManagement()
+				.addFilter(new JWTAuthorizationFilter(authenticationManager(), userService)).sessionManagement()
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 	}
 

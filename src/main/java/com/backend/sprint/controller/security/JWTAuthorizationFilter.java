@@ -2,8 +2,6 @@ package com.backend.sprint.controller.security;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -17,12 +15,16 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.backend.sprint.model.dto.UserDto;
+import com.backend.sprint.service.UserService;
 import com.backend.sprint.utils.JwtUtils;
 
 public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 
-	public JWTAuthorizationFilter(AuthenticationManager authManager) {
+	private UserService userService;
+
+	public JWTAuthorizationFilter(AuthenticationManager authManager, UserService userService) {
 		super(authManager);
+		this.userService = userService;
 	}
 
 	@Override
@@ -53,18 +55,15 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 			// parse the token.
 			DecodedJWT decodedJwtToken = JwtUtils.getJwtTokenClaims(encodedJwtToken);
 			String userStr = decodedJwtToken.getSubject();
-			Long[] sportSchoolIds = decodedJwtToken.getClaim(SecurityConstants.SPORT_SCHOOL_IDS).asArray(Long.class);
 
 			if (userStr != null) {
 				Long userId = decodedJwtToken.getClaim(SecurityConstants.USER_ID).asLong();
 
-				UserDto user = new UserDto();
-				user.setUsername(userStr);
-				user.setId(userId);
-				user.setSportSchoolIds(new HashSet<Long>(Arrays.asList(sportSchoolIds)));
+				UserDto user = userService.findById(userId);
 
 				String token = JwtUtils.generateJwtToken(user);
 				response.addHeader(SecurityConstants.HEADER_STRING, SecurityConstants.TOKEN_PREFIX + " " + token);
+				response.addHeader("Access-Control-Expose-Headers", SecurityConstants.HEADER_STRING);
 
 				// new arraylist means authorities
 				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, null,

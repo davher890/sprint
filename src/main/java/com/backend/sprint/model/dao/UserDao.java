@@ -39,6 +39,10 @@ public class UserDao {
 	@JoinTable(joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "sport_school_id"))
 	private Set<SportSchoolDao> sportSchools;
 
+	@ManyToMany(cascade = CascadeType.ALL)
+	@JoinTable(joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+	private Set<RoleDao> roles;
+
 	@NotNull
 	private String username;
 
