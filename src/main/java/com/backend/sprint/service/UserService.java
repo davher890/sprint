@@ -65,6 +65,8 @@ public class UserService {
 		if (dao.getSportSchools() != null) {
 			dto.setSportSchoolIds(
 					dao.getSportSchools().stream().map(SportSchoolDao::getId).collect(Collectors.toSet()));
+			dto.setSportSchoolNames(
+					dao.getSportSchools().stream().map(SportSchoolDao::getName).collect(Collectors.toSet()));
 		}
 		if (dao.getUpdatedBy() != null) {
 			dto.setUpdatedById(dao.getUpdatedBy().getId());

@@ -17,14 +17,18 @@ public class JwtUtils {
 	public static String generateJwtToken(UserDto userDto) {
 
 		Set<Long> sportShoolIds = userDto.getSportSchoolIds();
+		Set<String> sportShoolNames = userDto.getSportSchoolNames();
 		if (sportShoolIds == null) {
 			sportShoolIds = new HashSet<Long>();
+			sportShoolNames = new HashSet<String>();
 		}
 		String token = JWT.create().withSubject(userDto.getUsername())
 				.withExpiresAt(new Date((new Date()).getTime() + SecurityConstants.EXPIRATION_TIME))
 				.withClaim(SecurityConstants.USER_ID, userDto.getId())
 				.withArrayClaim(SecurityConstants.SPORT_SCHOOL_IDS,
 						sportShoolIds.toArray(new Long[sportShoolIds.size()]))
+				.withArrayClaim(SecurityConstants.SPORT_SCHOOL_NAMES,
+						sportShoolNames.toArray(new String[sportShoolNames.size()]))
 				.sign(Algorithm.HMAC512(SecurityConstants.SECRET.getBytes()));
 		return token;
 	}
