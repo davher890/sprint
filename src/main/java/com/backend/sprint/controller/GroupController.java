@@ -72,7 +72,7 @@ public class GroupController {
 		UserDto user = (UserDto) auth.getPrincipal();
 		Set<Long> sportSchoolIds = user.getSportSchoolIds();
 		if (sportSchoolIds.size() == 0) {
-			return null;
+			return Page.empty();
 		}
 		filters.add(
 				"sportSchoolId__in__" + sportSchoolIds.stream().map(String::valueOf).collect(Collectors.joining(",")));
