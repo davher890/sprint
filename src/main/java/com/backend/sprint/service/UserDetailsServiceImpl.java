@@ -25,6 +25,10 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 		UserDto user = userService.findByEmail(mail);
 
 		if (user != null) {
+
+			if (!user.isActive()) {
+				throw new UsernameNotFoundException("User deactivated");
+			}
 			user.setPassword(user.getPassword());
 
 			Set<SimpleGrantedAuthority> authorities = new HashSet<>();

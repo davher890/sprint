@@ -30,6 +30,10 @@ public class UserDto {
 
 	private String token;
 
+	private boolean isAdmin;
+
+	private boolean active = true;
+
 	private Date createdAt;
 
 	private Date updatedAt;

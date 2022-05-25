@@ -102,6 +102,10 @@ public class UserService {
 		return convertToDto(repository.findByEmail(email).get());
 	}
 
+	public List<UserDto> findAdminUsers() {
+		return repository.findAdminUsers().stream().map(this::convertToDto).collect(Collectors.toList());
+	}
+
 	public UserDto changePassword(UserDto dto) {
 
 		String newPassword = dto.getNewPassword();

@@ -112,13 +112,18 @@ public class SportSchoolController {
 	}
 
 	@PostMapping("")
-	public SportSchoolDto save(@RequestBody SportSchoolDto dto) {
+	public SportSchoolDto save(@RequestBody SportSchoolDto ss) {
 
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		UserDto user = (UserDto) auth.getPrincipal();
 //		dto.setUpdatedById(user.getId());
 //		Error when uncomment the previous line
-		dto = service.save(dto);
+		final SportSchoolDto dto = service.save(ss);
+
+		userService.findAdminUsers().forEach(d -> {
+			d.getSportSchoolIds().add(dto.getId());
+			userService.save(d);
+		});
 
 		user.getSportSchoolIds().add(dto.getId());
 		userService.save(user);

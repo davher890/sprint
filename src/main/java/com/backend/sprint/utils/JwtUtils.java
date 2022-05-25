@@ -25,6 +25,7 @@ public class JwtUtils {
 		String token = JWT.create().withSubject(userDto.getUsername())
 				.withExpiresAt(new Date((new Date()).getTime() + SecurityConstants.EXPIRATION_TIME))
 				.withClaim(SecurityConstants.USER_ID, userDto.getId())
+				.withClaim(SecurityConstants.IS_ADMIN, userDto.isAdmin())
 				.withArrayClaim(SecurityConstants.SPORT_SCHOOL_IDS,
 						sportShoolIds.toArray(new Long[sportShoolIds.size()]))
 				.withArrayClaim(SecurityConstants.SPORT_SCHOOL_NAMES,
