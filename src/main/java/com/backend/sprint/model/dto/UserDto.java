@@ -18,6 +18,10 @@ public class UserDto {
 
 	private Set<String> sportSchoolNames;
 
+	private Set<Long> groupIds;
+
+	private Set<String> groupNames;
+
 	private String username;
 
 	private String email;

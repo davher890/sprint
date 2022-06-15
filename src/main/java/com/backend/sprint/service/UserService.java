@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.backend.sprint.model.dao.SportSchoolDao;
 import com.backend.sprint.model.dao.UserDao;
 import com.backend.sprint.model.dto.UserDto;
+import com.backend.sprint.repository.GroupRepository;
 import com.backend.sprint.repository.SportSchoolRepository;
 import com.backend.sprint.repository.UserRepository;
 
@@ -34,6 +35,9 @@ public class UserService {
 
 	@Autowired
 	private SportSchoolRepository sportSchoolRepository;
+
+	@Autowired
+	private GroupRepository groupRepository;
 
 	public Page<UserDto> findPagintation(Specification<UserDao> specification, Pageable pageable, String sort,
 			Direction sortDirection) {
@@ -90,16 +94,17 @@ public class UserService {
 				return sportSchoolRepository.findById(sportSchoolId).get();
 			}).collect(Collectors.toSet()));
 		}
+		if (dto.getGroupIds() != null) {
+			dao.setGroups(dto.getGroupIds().stream().map(groupId -> {
+				return groupRepository.findById(groupId).get();
+			}).collect(Collectors.toSet()));
+		}
 
 		return dao;
 	}
 
-	public UserDto findByUsername(String username) {
-		return convertToDto(repository.findByUsername(username).get());
-	}
-
 	public UserDto findByEmail(String email) {
-		return convertToDto(repository.findByEmail(email).get());
+		return convertToDto(repository.findByEmail(email));
 	}
 
 	public List<UserDto> findAdminUsers() {

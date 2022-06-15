@@ -74,6 +74,10 @@ public class GroupController {
 		if (sportSchoolIds.size() == 0) {
 			return Page.empty();
 		}
+		Set<Long> groupIds = user.getGroupIds();
+		if (groupIds.size() > 0) {
+			filters.add("id__in__" + groupIds.stream().map(String::valueOf).collect(Collectors.joining(",")));
+		}
 		filters.add(
 				"sportSchoolId__in__" + sportSchoolIds.stream().map(String::valueOf).collect(Collectors.joining(",")));
 		return service.findPagintation(new GroupSpecificationConstructor<>(filters), pageable, sort, sortDirection);

@@ -55,6 +55,10 @@ public class RegisteredAthleteController {
 		if (sportSchoolIds.size() == 0) {
 			return Page.empty();
 		}
+		Set<Long> groupIds = user.getGroupIds();
+		if (groupIds.size() > 0) {
+			filters.add("groupId__in__" + groupIds.stream().map(String::valueOf).collect(Collectors.joining(",")));
+		}
 		filters.add(
 				"sportSchoolId__in__" + sportSchoolIds.stream().map(String::valueOf).collect(Collectors.joining(",")));
 		return service.findPagintation(new RegisteredAthleteSpecificationConstructor<>(filters), pageable, sort,
