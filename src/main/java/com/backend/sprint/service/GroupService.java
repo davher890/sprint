@@ -10,6 +10,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -18,6 +19,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.apache.poi.ss.usermodel.BorderStyle;
@@ -122,6 +124,13 @@ public class GroupService {
 	}
 
 	public Set<GroupDto> findBySportSchoolId(long sportSchoolId, Boolean specialization) {
+		if (specialization == null) {
+			return Stream
+					.concat(repository.findBySportSchoolId(sportSchoolId, true).stream(),
+							repository.findBySportSchoolId(sportSchoolId, false).stream())
+					.map(this::convertToDto).sorted(Comparator.comparing(GroupDto::getName))
+					.collect(Collectors.toSet());
+		}
 		return repository.findBySportSchoolId(sportSchoolId, specialization).stream().map(this::convertToDto)
 				.collect(Collectors.toSet());
 	}

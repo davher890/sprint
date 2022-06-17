@@ -87,6 +87,9 @@ public class SportSchoolController {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		UserDto user = (UserDto) auth.getPrincipal();
 
+		if (user.isAdmin()) {
+			return service.findAll();
+		}
 		return service.findAllById(user.getSportSchoolIds());
 	}
 
@@ -107,7 +110,7 @@ public class SportSchoolController {
 	}
 
 	@GetMapping("/{id}/trainers")
-	public Set<TrainerDto> findSportSchoolTRainers(@PathVariable int id) {
+	public Set<TrainerDto> findSportSchoolTrainers(@PathVariable int id) {
 		return trainerService.findBySportSchoolId(id);
 	}
 

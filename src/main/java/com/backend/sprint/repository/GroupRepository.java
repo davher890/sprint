@@ -18,7 +18,7 @@ public interface GroupRepository
 	@Query(value = "SELECT * FROM groups WHERE trainer_id = ?1 AND active = true", nativeQuery = true)
 	public Set<GroupDao> findByTrainerId(long trainerId);
 
-	@Query(value = "SELECT * FROM groups WHERE sport_school_id = ?1 AND active = true AND specialization = ?2", nativeQuery = true)
+	@Query(value = "SELECT * FROM groups WHERE sport_school_id = ?1 AND active = true AND specialization = ?2 ORDER BY name", nativeQuery = true)
 	public Set<GroupDao> findBySportSchoolId(long sportSchoolId, boolean specialization);
 
 	@Query(value = "SELECT * FROM groups WHERE specialization = ?1 AND active = true ORDER BY name ASC ", nativeQuery = true)

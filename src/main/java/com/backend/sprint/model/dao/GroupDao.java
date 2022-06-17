@@ -36,15 +36,15 @@ public class GroupDao {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 
-	@ManyToOne(cascade = CascadeType.ALL)
+	@ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	@JoinColumn(name = "sport_school_id")
 	private SportSchoolDao sportSchool;
 
-	@ManyToMany(cascade = CascadeType.ALL)
+	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	@JoinTable(joinColumns = @JoinColumn(name = "group_id"), inverseJoinColumns = @JoinColumn(name = "schedule_id"))
 	private Set<ScheduleDao> schedules;
 
-	@ManyToOne(cascade = CascadeType.ALL)
+	@ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	@JoinColumn(name = "trainer_id")
 	private TrainerDao trainer;
 

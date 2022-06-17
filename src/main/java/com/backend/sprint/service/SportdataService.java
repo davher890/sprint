@@ -46,9 +46,14 @@ public class SportdataService {
 		return repository.findByAthleteId(id).stream().map(this::convertToDto).collect(Collectors.toList());
 	}
 
-	@Transactional
 	public SportdataDto save(SportdataDto dto) throws DataIntegrityViolationException {
 		return convertToDto(repository.save(convertToDao(dto)));
+	}
+
+	public void deleteById(long id) {
+//		SportdataDto dto = this.findById(id);
+		repository.deleteById(id);
+//		return null;
 	}
 
 	private SportdataDto convertToDto(SportdataDao dao) {

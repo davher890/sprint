@@ -56,7 +56,7 @@ public class RegisteredAthleteController {
 			return Page.empty();
 		}
 		Set<Long> groupIds = user.getGroupIds();
-		if (groupIds.size() > 0) {
+		if (groupIds != null && groupIds.size() > 0) {
 			filters.add("groupId__in__" + groupIds.stream().map(String::valueOf).collect(Collectors.joining(",")));
 		}
 		filters.add(
