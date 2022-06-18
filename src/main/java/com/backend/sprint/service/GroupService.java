@@ -123,16 +123,23 @@ public class GroupService {
 		return repository.findByTrainerId(trainerId).stream().map(this::convertToDto).collect(Collectors.toSet());
 	}
 
-	public Set<GroupDto> findBySportSchoolId(long sportSchoolId, Boolean specialization) {
+	public List<GroupDto> findBySportSchoolIdAndGroupId(long sportSchoolId, Set<Long> groupIds,
+			Boolean specialization) {
+
+		return repository.findBySportSchoolIdAndGroupIds(sportSchoolId, groupIds, specialization).stream()
+				.map(this::convertToDto).collect(Collectors.toList());
+	}
+
+	public List<GroupDto> findBySportSchoolId(long sportSchoolId, Boolean specialization) {
 		if (specialization == null) {
 			return Stream
 					.concat(repository.findBySportSchoolId(sportSchoolId, true).stream(),
 							repository.findBySportSchoolId(sportSchoolId, false).stream())
 					.map(this::convertToDto).sorted(Comparator.comparing(GroupDto::getName))
-					.collect(Collectors.toSet());
+					.collect(Collectors.toList());
 		}
 		return repository.findBySportSchoolId(sportSchoolId, specialization).stream().map(this::convertToDto)
-				.collect(Collectors.toSet());
+				.collect(Collectors.toList());
 	}
 
 	public GroupDto findByNameAndSportSchool(String name, int sportSchoolId) {

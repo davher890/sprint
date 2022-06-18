@@ -104,8 +104,17 @@ public class SportSchoolController {
 	}
 
 	@GetMapping("/{id}/groups")
-	public Set<GroupDto> findSportSchoolGroups(@PathVariable int id,
+	public List<GroupDto> findSportSchoolGroups(@PathVariable int id,
 			@RequestParam(value = "specialization", required = false) Boolean specialization) {
+
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		UserDto user = (UserDto) auth.getPrincipal();
+
+		Set<Long> groupIds = user.getGroupIds();
+		if (groupIds != null && groupIds.size() > 0) {
+			return groupService.findBySportSchoolIdAndGroupId(id, groupIds, specialization);
+		}
+
 		return groupService.findBySportSchoolId(id, specialization);
 	}
 
