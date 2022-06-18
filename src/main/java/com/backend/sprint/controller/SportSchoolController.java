@@ -110,9 +110,11 @@ public class SportSchoolController {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		UserDto user = (UserDto) auth.getPrincipal();
 
-		Set<Long> groupIds = user.getGroupIds();
-		if (groupIds != null && groupIds.size() > 0) {
-			return groupService.findBySportSchoolIdAndGroupId(id, groupIds, specialization);
+		if (!user.isAdmin()) {
+			Set<Long> groupIds = user.getGroupIds();
+			if (groupIds != null && groupIds.size() > 0) {
+				return groupService.findBySportSchoolIdAndGroupId(id, groupIds, specialization);
+			}
 		}
 
 		return groupService.findBySportSchoolId(id, specialization);

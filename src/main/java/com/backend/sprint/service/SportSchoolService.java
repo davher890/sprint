@@ -1,6 +1,7 @@
 package com.backend.sprint.service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -42,12 +43,12 @@ public class SportSchoolService {
 
 	public List<SportSchoolDto> findAll() {
 		return StreamSupport.stream(repository.findAll().spliterator(), false).map(this::convertToDto)
-				.collect(Collectors.toList());
+				.sorted(Comparator.comparing(SportSchoolDto::getName)).collect(Collectors.toList());
 	}
 
 	public List<SportSchoolDto> findAllById(Set<Long> ids) {
 		return StreamSupport.stream(repository.findAllById(ids).spliterator(), false).map(this::convertToDto)
-				.collect(Collectors.toList());
+				.sorted(Comparator.comparing(SportSchoolDto::getName)).collect(Collectors.toList());
 	}
 
 	public List<SportSchoolDao> findAllByIdDao(Set<Long> ids) {

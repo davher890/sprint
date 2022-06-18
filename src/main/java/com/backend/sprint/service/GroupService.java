@@ -20,7 +20,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.CellType;
@@ -34,7 +33,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -105,16 +103,6 @@ public class GroupService {
 		return daoPage.map(dao -> convertToDto(dao));
 	}
 
-	public List<GroupDto> findAll() {
-		return StreamSupport.stream(repository.findAll(Sort.by(Order.by("name")).ascending()).spliterator(), false)
-				.map(this::convertToDto).collect(Collectors.toList());
-	}
-
-	public List<GroupDto> findActive() {
-		return StreamSupport.stream(repository.findActive().spliterator(), false).map(this::convertToDto)
-				.collect(Collectors.toList());
-	}
-
 	public GroupDto findById(long id) {
 		return convertToDto(repository.findById(id).orElse(null));
 	}
@@ -126,6 +114,13 @@ public class GroupService {
 	public List<GroupDto> findBySportSchoolIdAndGroupId(long sportSchoolId, Set<Long> groupIds,
 			Boolean specialization) {
 
+		if (specialization == null) {
+			return Stream
+					.concat(repository.findBySportSchoolIdAndGroupIds(sportSchoolId, groupIds, true).stream(),
+							repository.findBySportSchoolIdAndGroupIds(sportSchoolId, groupIds, true).stream())
+					.map(this::convertToDto).sorted(Comparator.comparing(GroupDto::getName))
+					.collect(Collectors.toList());
+		}
 		return repository.findBySportSchoolIdAndGroupIds(sportSchoolId, groupIds, specialization).stream()
 				.map(this::convertToDto).collect(Collectors.toList());
 	}
