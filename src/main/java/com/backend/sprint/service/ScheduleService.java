@@ -73,6 +73,10 @@ public class ScheduleService {
 		return convertToDto(dao);
 	}
 
+	public List<ScheduleDto> findByGroupId(long groupId) {
+		return repository.findByGroupId(groupId).stream().map(this::convertToDto).collect(Collectors.toList());
+	}
+
 	public ScheduleDto save(ScheduleDto dto) {
 		ScheduleDao dao = convertToDao(dto);
 		return convertToDto(repository.save(dao));

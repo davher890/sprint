@@ -39,7 +39,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.backend.sprint.model.dao.AthleteDao;
 import com.backend.sprint.model.dao.GroupDao;
-import com.backend.sprint.model.dao.ScheduleDao;
 import com.backend.sprint.model.dto.AthleteDto;
 import com.backend.sprint.model.dto.ExcelDataDto;
 import com.backend.sprint.model.dto.ExcelValueDto;
@@ -199,11 +198,6 @@ public class GroupService {
 		return dao;
 	}
 
-	public List<ScheduleDto> findGroupSchedules(long id) {
-		return repository.findById(id).get().getSchedules().stream().map(ScheduleDao::getId)
-				.map(scheduleService::findById).collect(Collectors.toList());
-	}
-
 	public XSSFWorkbook getGroupAttendance(List<Long> ids, int month) throws IOException {
 
 		XSSFWorkbook workbook = new XSSFWorkbook();
@@ -236,7 +230,7 @@ public class GroupService {
 		ids.stream().forEach(id -> {
 			GroupDto group = this.findById(id);
 			List<String> scheduleDays = group.getScheduleIds().parallelStream()
-					.map(d -> scheduleService.findById(d).getDay()).collect(Collectors.toList());
+					.map(d -> scheduleRepository.findById(d).get().getDay()).collect(Collectors.toList());
 
 			List<ExcelDataDto> data = new ArrayList<>();
 

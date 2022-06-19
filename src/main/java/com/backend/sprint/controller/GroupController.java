@@ -41,6 +41,7 @@ import com.backend.sprint.model.dto.UserDto;
 import com.backend.sprint.service.AthleteService;
 import com.backend.sprint.service.ExcelService;
 import com.backend.sprint.service.GroupService;
+import com.backend.sprint.service.ScheduleService;
 import com.backend.sprint.specifications.AthleteSpecificationConstructor;
 import com.backend.sprint.specifications.GroupSpecificationConstructor;
 
@@ -53,6 +54,9 @@ public class GroupController {
 
 	@Autowired
 	private AthleteService athleteService;
+
+	@Autowired
+	private ScheduleService scheduleService;
 
 	@Autowired
 	private ExcelService excelService;
@@ -93,7 +97,7 @@ public class GroupController {
 
 	@GetMapping("/{id}/schedules")
 	public List<ScheduleDto> findGroupSchedules(@PathVariable int id) {
-		return service.findGroupSchedules(id);
+		return scheduleService.findByGroupId(id);
 	}
 
 	@GetMapping("/{id}/athletes")
