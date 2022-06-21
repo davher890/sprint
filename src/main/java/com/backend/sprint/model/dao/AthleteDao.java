@@ -63,7 +63,7 @@ public class AthleteDao {
 	@JoinColumn(name = "group_id")
 	private GroupDao group;
 
-	@ManyToMany(cascade = CascadeType.ALL)
+	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	@JoinTable(joinColumns = @JoinColumn(name = "athlete_id"), inverseJoinColumns = @JoinColumn(name = "schedule_id"))
 	private Set<ScheduleDao> schedules;
 
@@ -107,11 +107,14 @@ public class AthleteDao {
 	private String holderSecondSurname;
 	private String holderDni;
 
-	@OneToMany(mappedBy = "athlete")
+	@OneToMany(mappedBy = "athlete", fetch = FetchType.LAZY)
 	private Set<HistoricDao> historic;
 
-	@OneToMany(mappedBy = "athlete")
+	@OneToMany(mappedBy = "athlete", fetch = FetchType.LAZY)
 	private Set<ObservationDao> observations;
+
+	@OneToMany(mappedBy = "athlete", fetch = FetchType.LAZY)
+	private Set<SportdataDao> sportdatas;
 
 	@NotNull
 	private long code;

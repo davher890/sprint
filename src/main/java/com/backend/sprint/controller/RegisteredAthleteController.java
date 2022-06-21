@@ -56,7 +56,7 @@ public class RegisteredAthleteController {
 			return Page.empty();
 		}
 		Set<Long> groupIds = user.getGroupIds();
-		if (groupIds.size() > 0) {
+		if (groupIds != null && groupIds.size() > 0) {
 			filters.add("groupId__in__" + groupIds.stream().map(String::valueOf).collect(Collectors.joining(",")));
 		}
 		filters.add(
@@ -73,6 +73,21 @@ public class RegisteredAthleteController {
 		if (filters == null) {
 			filters = new ArrayList<String>();
 		}
+		filters.add("active__==__true");
+
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		UserDto user = (UserDto) auth.getPrincipal();
+		Set<Long> sportSchoolIds = user.getSportSchoolIds();
+		if (sportSchoolIds.size() == 0) {
+			return;
+		}
+		Set<Long> groupIds = user.getGroupIds();
+		if (groupIds != null && groupIds.size() > 0) {
+			filters.add("groupId__in__" + groupIds.stream().map(String::valueOf).collect(Collectors.joining(",")));
+		}
+		filters.add(
+				"sportSchoolId__in__" + sportSchoolIds.stream().map(String::valueOf).collect(Collectors.joining(",")));
+
 		Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE);
 		List<? extends GenericAthleteDao> athletes = service
 				.findDaoPagintation(new RegisteredAthleteSpecificationConstructor<>(filters), pageable).getContent();

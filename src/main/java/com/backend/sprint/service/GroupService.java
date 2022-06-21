@@ -18,7 +18,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.StreamSupport;
 
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.CellType;
@@ -32,7 +31,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,6 +38,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.backend.sprint.model.dao.AthleteDao;
 import com.backend.sprint.model.dao.GroupDao;
 import com.backend.sprint.model.dao.ScheduleDao;
+import com.backend.sprint.model.dao.SportSchoolDao;
+import com.backend.sprint.model.dao.TrainerDao;
+import com.backend.sprint.model.dao.UserDao;
 import com.backend.sprint.model.dto.AthleteDto;
 import com.backend.sprint.model.dto.ExcelDataDto;
 import com.backend.sprint.model.dto.ExcelValueDto;
@@ -103,16 +104,6 @@ public class GroupService {
 		return daoPage.map(dao -> convertToDto(dao));
 	}
 
-	public List<GroupDto> findAll() {
-		return StreamSupport.stream(repository.findAll(Sort.by(Order.by("name")).ascending()).spliterator(), false)
-				.map(this::convertToDto).collect(Collectors.toList());
-	}
-
-	public List<GroupDto> findActive() {
-		return StreamSupport.stream(repository.findActive().spliterator(), false).map(this::convertToDto)
-				.collect(Collectors.toList());
-	}
-
 	public GroupDto findById(long id) {
 		return convertToDto(repository.findById(id).orElse(null));
 	}
@@ -121,9 +112,14 @@ public class GroupService {
 		return repository.findByTrainerId(trainerId).stream().map(this::convertToDto).collect(Collectors.toSet());
 	}
 
-	public Set<GroupDto> findBySportSchoolId(long sportSchoolId, Boolean specialization) {
-		return repository.findBySportSchoolId(sportSchoolId, specialization).stream().map(this::convertToDto)
-				.collect(Collectors.toSet());
+	public List<GroupDto> findBySportSchoolIdAndGroupId(long sportSchoolId, Set<Long> groupIds) {
+		return repository.findBySportSchoolIdAndGroupIds(sportSchoolId, groupIds).stream().map(this::convertToDto)
+				.collect(Collectors.toList());
+	}
+
+	public List<GroupDto> findBySportSchoolId(long sportSchoolId) {
+		return repository.findBySportSchoolId(sportSchoolId).stream().map(this::convertToDto)
+				.collect(Collectors.toList());
 	}
 
 	public GroupDto findByNameAndSportSchool(String name, int sportSchoolId) {
@@ -144,21 +140,25 @@ public class GroupService {
 			return null;
 		}
 		GroupDto dto = new ModelMapper().map(dao, GroupDto.class);
-		if (dao.getTrainer() != null) {
-			dto.setTrainerId(dao.getTrainer().getId());
+		TrainerDao trainer = dao.getTrainer();
+		if (trainer != null) {
+			dto.setTrainerId(trainer.getId());
 		}
-		if (dao.getSportSchool() != null) {
-			dto.setSportSchoolId(dao.getSportSchool().getId());
-			dto.setSportSchoolName(dao.getSportSchool().getName());
+		SportSchoolDao sportSchool = dao.getSportSchool();
+		if (sportSchool != null) {
+			dto.setSportSchoolId(sportSchool.getId());
+			dto.setSportSchoolName(sportSchool.getName());
 		}
 
-		if (dao.getSchedules() != null) {
-			Set<ScheduleDto> schedules = scheduleService.convertToDto(dao.getSchedules());
+		Set<ScheduleDao> schedulesDao = dao.getSchedules();
+		if (schedulesDao != null) {
+			Set<ScheduleDto> schedules = scheduleService.convertToDto(schedulesDao);
 			dto.setScheduleIds(schedules.parallelStream().map(ScheduleDto::getId).collect(Collectors.toSet()));
 			dto.setSchedules(schedules);
 		}
-		if (dao.getUpdatedBy() != null) {
-			dto.setUpdatedById(dao.getUpdatedBy().getId());
+		UserDao updatedBy = dao.getUpdatedBy();
+		if (updatedBy != null) {
+			dto.setUpdatedById(updatedBy.getId());
 		}
 
 		return dto;
@@ -186,11 +186,6 @@ public class GroupService {
 		}
 
 		return dao;
-	}
-
-	public List<ScheduleDto> findGroupSchedules(long id) {
-		return repository.findById(id).get().getSchedules().stream().map(ScheduleDao::getId)
-				.map(scheduleService::findById).collect(Collectors.toList());
 	}
 
 	public XSSFWorkbook getGroupAttendance(List<Long> ids, int month) throws IOException {
@@ -225,7 +220,7 @@ public class GroupService {
 		ids.stream().forEach(id -> {
 			GroupDto group = this.findById(id);
 			List<String> scheduleDays = group.getScheduleIds().parallelStream()
-					.map(d -> scheduleService.findById(d).getDay()).collect(Collectors.toList());
+					.map(d -> scheduleRepository.findById(d).get().getDay()).collect(Collectors.toList());
 
 			List<ExcelDataDto> data = new ArrayList<>();
 

@@ -1,7 +1,7 @@
 package com.backend.sprint.model.dao;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -24,7 +24,7 @@ public class SportdataDao {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 
-	@ManyToOne(cascade = CascadeType.ALL)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "athlete_id")
 	private AthleteDao athlete;
 
@@ -41,6 +41,8 @@ public class SportdataDao {
 	private String outstandingResults;
 
 	private String injuries;
+
+	private String numCompetitions;
 
 	private String observations;
 

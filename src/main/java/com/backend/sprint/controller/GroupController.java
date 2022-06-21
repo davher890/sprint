@@ -5,8 +5,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -43,6 +41,7 @@ import com.backend.sprint.model.dto.UserDto;
 import com.backend.sprint.service.AthleteService;
 import com.backend.sprint.service.ExcelService;
 import com.backend.sprint.service.GroupService;
+import com.backend.sprint.service.ScheduleService;
 import com.backend.sprint.specifications.AthleteSpecificationConstructor;
 import com.backend.sprint.specifications.GroupSpecificationConstructor;
 
@@ -55,6 +54,9 @@ public class GroupController {
 
 	@Autowired
 	private AthleteService athleteService;
+
+	@Autowired
+	private ScheduleService scheduleService;
 
 	@Autowired
 	private ExcelService excelService;
@@ -83,16 +85,6 @@ public class GroupController {
 		return service.findPagintation(new GroupSpecificationConstructor<>(filters), pageable, sort, sortDirection);
 	}
 
-	@GetMapping("/all")
-	public List<GroupDto> findAll(@RequestParam(value = "specialization", required = false) Boolean specialization) {
-
-		if (specialization == null) {
-			return service.findAll();
-		} else {
-			return service.findBySpecialization(specialization);
-		}
-	}
-
 	@GetMapping("/{id}")
 	public GroupDto findById(@PathVariable long id) {
 		return service.findById(id);
@@ -105,7 +97,7 @@ public class GroupController {
 
 	@GetMapping("/{id}/schedules")
 	public List<ScheduleDto> findGroupSchedules(@PathVariable int id) {
-		return service.findGroupSchedules(id);
+		return scheduleService.findByGroupId(id);
 	}
 
 	@GetMapping("/{id}/athletes")
@@ -164,20 +156,22 @@ public class GroupController {
 
 	@GetMapping("/{id}/attendance")
 	public void getGroupAttendance(@PathVariable("id") long id,
-			@RequestParam(value = "month", required = false) Integer month, HttpServletResponse response)
+			@RequestParam(value = "month", required = true) int month,
+			@RequestParam(value = "sport_school_id", required = true) long sportSchoolId, HttpServletResponse response)
 			throws IOException {
 
-		if (month == null) {
-			Calendar cal = Calendar.getInstance();
-			cal.setTime(new Date());
-			month = cal.get(Calendar.MONTH);
-		}
-
 		List<Long> groupIds = new ArrayList<>();
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		UserDto user = (UserDto) auth.getPrincipal();
+
 		if (id == 0) {
-			List<GroupDto> findAll = service.findActive();
-			groupIds = findAll.parallelStream().filter(d -> d.getName() != null && !d.getName().isEmpty())
-					.map(GroupDto::getId).collect(Collectors.toList());
+			if (user.getGroupIds() != null && user.getGroupIds().size() > 0) {
+				groupIds.addAll(user.getGroupIds());
+			} else {
+				List<GroupDto> findAll = service.findBySportSchoolId(sportSchoolId);
+				groupIds = findAll.parallelStream().filter(d -> d.getName() != null && !d.getName().isEmpty())
+						.map(GroupDto::getId).collect(Collectors.toList());
+			}
 		} else {
 			groupIds.add(id);
 		}

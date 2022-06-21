@@ -29,5 +29,7 @@ public class SportdataDto {
 
 	private String injuries;
 
+	private String numCompetitions;
+
 	private String observations;
 }

@@ -17,4 +17,9 @@ public interface UserRepository extends PagingAndSortingRepository<UserDao, Long
 
 	@Query(value = "SELECT * FROM users WHERE is_admin is true", nativeQuery = true)
 	List<UserDao> findAdminUsers();
+
+	@Query(value = "SELECT distinct(uss2.user_id) as user_id FROM users_sport_schools uss1 "
+			+ "INNER JOIN users_sport_schools uss2 ON uss1.sport_school_id = uss2.sport_school_id "
+			+ "WHERE uss1.user_id = ?1 ", nativeQuery = true)
+	List<Long> findManagerUserUserIds(long id);
 }

@@ -36,15 +36,15 @@ public class UserDao {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 
-	@ManyToMany(cascade = CascadeType.ALL)
+	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	@JoinTable(joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "sport_school_id"))
 	private Set<SportSchoolDao> sportSchools;
 
-	@ManyToMany(cascade = CascadeType.ALL)
+	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	@JoinTable(joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "group_id"))
 	private Set<GroupDao> groups;
 
-	@ManyToMany(cascade = CascadeType.ALL)
+	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	@JoinTable(joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
 	private Set<RoleDao> roles;
 
@@ -59,6 +59,9 @@ public class UserDao {
 
 	@Column(columnDefinition = "boolean default false")
 	private boolean isAdmin;
+
+	@Column(columnDefinition = "boolean default false")
+	private boolean isManager;
 
 	@Column(columnDefinition = "boolean default true")
 	private boolean active;

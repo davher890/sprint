@@ -36,10 +36,10 @@ public class ScheduleDao {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 
-	@ManyToMany(mappedBy = "schedules", cascade = CascadeType.ALL)
+	@ManyToMany(mappedBy = "schedules", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private Set<GroupDao> groups;
 
-	@ManyToMany(mappedBy = "schedules", cascade = CascadeType.ALL)
+	@ManyToMany(mappedBy = "schedules", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private Set<AthleteDao> athletes;
 
 	@NotNull

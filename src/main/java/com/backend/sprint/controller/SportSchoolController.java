@@ -87,6 +87,9 @@ public class SportSchoolController {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		UserDto user = (UserDto) auth.getPrincipal();
 
+		if (user.isAdmin()) {
+			return service.findAll();
+		}
 		return service.findAllById(user.getSportSchoolIds());
 	}
 
@@ -101,13 +104,23 @@ public class SportSchoolController {
 	}
 
 	@GetMapping("/{id}/groups")
-	public Set<GroupDto> findSportSchoolGroups(@PathVariable int id,
-			@RequestParam(value = "specialization", required = false) Boolean specialization) {
-		return groupService.findBySportSchoolId(id, specialization);
+	public List<GroupDto> findSportSchoolGroups(@PathVariable int id) {
+
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		UserDto user = (UserDto) auth.getPrincipal();
+
+		if (!user.isAdmin()) {
+			Set<Long> groupIds = user.getGroupIds();
+			if (groupIds != null && groupIds.size() > 0) {
+				return groupService.findBySportSchoolIdAndGroupId(id, groupIds);
+			}
+		}
+
+		return groupService.findBySportSchoolId(id);
 	}
 
 	@GetMapping("/{id}/trainers")
-	public Set<TrainerDto> findSportSchoolTRainers(@PathVariable int id) {
+	public Set<TrainerDto> findSportSchoolTrainers(@PathVariable int id) {
 		return trainerService.findBySportSchoolId(id);
 	}
 

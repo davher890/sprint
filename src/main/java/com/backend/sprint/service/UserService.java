@@ -16,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.backend.sprint.model.dao.GroupDao;
 import com.backend.sprint.model.dao.SportSchoolDao;
 import com.backend.sprint.model.dao.UserDao;
 import com.backend.sprint.model.dto.UserDto;
@@ -72,6 +73,10 @@ public class UserService {
 			dto.setSportSchoolNames(
 					dao.getSportSchools().stream().map(SportSchoolDao::getName).collect(Collectors.toSet()));
 		}
+		if (dao.getGroups() != null) {
+			dto.setGroupIds(dao.getGroups().stream().map(GroupDao::getId).collect(Collectors.toSet()));
+			dto.setGroupNames(dao.getGroups().stream().map(GroupDao::getName).collect(Collectors.toSet()));
+		}
 		if (dao.getUpdatedBy() != null) {
 			dto.setUpdatedById(dao.getUpdatedBy().getId());
 		}
@@ -109,6 +114,10 @@ public class UserService {
 
 	public List<UserDto> findAdminUsers() {
 		return repository.findAdminUsers().stream().map(this::convertToDto).collect(Collectors.toList());
+	}
+
+	public List<Long> findManagerUserUserIds(long id) {
+		return repository.findManagerUserUserIds(id);
 	}
 
 	public UserDto changePassword(UserDto dto) {
