@@ -51,9 +51,7 @@ public class SportdataService {
 	}
 
 	public void deleteById(long id) {
-//		SportdataDto dto = this.findById(id);
 		repository.deleteById(id);
-//		return null;
 	}
 
 	private SportdataDto convertToDto(SportdataDao dao) {

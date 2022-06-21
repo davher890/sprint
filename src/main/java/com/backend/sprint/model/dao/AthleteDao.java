@@ -113,6 +113,9 @@ public class AthleteDao {
 	@OneToMany(mappedBy = "athlete", fetch = FetchType.LAZY)
 	private Set<ObservationDao> observations;
 
+	@OneToMany(mappedBy = "athlete", fetch = FetchType.LAZY)
+	private Set<SportdataDao> sportdatas;
+
 	@NotNull
 	private long code;
 
