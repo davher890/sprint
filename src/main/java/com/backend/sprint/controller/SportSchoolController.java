@@ -119,6 +119,13 @@ public class SportSchoolController {
 		return groupService.findBySportSchoolId(id);
 	}
 
+	@GetMapping("/groups")
+	public List<GroupDto> findSportSchoolsGroups(
+			@RequestParam(value = "ids", required = false) List<Long> sportSchoolIds) {
+
+		return groupService.findBySportSchoolIds(sportSchoolIds);
+	}
+
 	@GetMapping("/{id}/trainers")
 	public Set<TrainerDto> findSportSchoolTrainers(@PathVariable int id) {
 		return trainerService.findBySportSchoolId(id);

@@ -13,4 +13,6 @@ public interface SportdataRepository
 
 	@Query(value = "SELECT * FROM sportdata WHERE athlete_id = ?1", nativeQuery = true)
 	public List<SportdataDao> findByAthleteId(long athleteId);
+
+	public void deleteById(long id);
 }
