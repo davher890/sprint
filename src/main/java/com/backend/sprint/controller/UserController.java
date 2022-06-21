@@ -1,6 +1,8 @@
 package com.backend.sprint.controller;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -18,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.backend.sprint.model.dto.UserDto;
 import com.backend.sprint.service.UserService;
-import com.backend.sprint.specifications.GroupSpecificationConstructor;
+import com.backend.sprint.specifications.UserSpecificationConstructor;
 
 @RestController
 @RequestMapping("users")
@@ -31,7 +33,21 @@ public class UserController {
 	public Page<UserDto> findPagintation(@RequestParam(value = "filters", required = false) List<String> filters,
 			Pageable pageable, @RequestParam(defaultValue = "id") String sort,
 			@RequestParam(defaultValue = "DESC") Direction sortDirection) {
-		return service.findPagintation(new GroupSpecificationConstructor<>(filters), pageable, sort, sortDirection);
+
+		if (filters == null) {
+			filters = new ArrayList<String>();
+		}
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		UserDto user = (UserDto) auth.getPrincipal();
+		if (user.isAdmin()) {
+			return service.findPagintation(new UserSpecificationConstructor<>(filters), pageable, sort, sortDirection);
+		} else if (user.isManager()) {
+			List<Long> userIds = service.findManagerUserUserIds(user.getId());
+			filters.add("id__in__" + userIds.stream().map(String::valueOf).collect(Collectors.joining(",")));
+			return service.findPagintation(new UserSpecificationConstructor<>(filters), pageable, sort, sortDirection);
+		} else {
+			return Page.empty();
+		}
 	}
 
 	@GetMapping("/{id}")

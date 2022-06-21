@@ -168,7 +168,7 @@ public class GroupController {
 			if (user.getGroupIds() != null && user.getGroupIds().size() > 0) {
 				groupIds.addAll(user.getGroupIds());
 			} else {
-				List<GroupDto> findAll = service.findBySportSchoolId(sportSchoolId, null);
+				List<GroupDto> findAll = service.findBySportSchoolId(sportSchoolId);
 				groupIds = findAll.parallelStream().filter(d -> d.getName() != null && !d.getName().isEmpty())
 						.map(GroupDto::getId).collect(Collectors.toList());
 			}

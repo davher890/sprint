@@ -10,6 +10,9 @@ public class SecurityConstants {
 
 	public static final String USER_ID = "user_id";
 	public static final String IS_ADMIN = "is_admin";
+	public static final String IS_MANAGER = "is_manager";
 	public static final String SPORT_SCHOOL_IDS = "sport_school_ids";
 	public static final String SPORT_SCHOOL_NAMES = "sport_school_names";
+	public static final String GROUP_NAMES = "group_names";
+	public static final String GROUP_IDS = "group_ids";
 }

@@ -10,7 +10,6 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -19,7 +18,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.CellType;
@@ -39,6 +37,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.backend.sprint.model.dao.AthleteDao;
 import com.backend.sprint.model.dao.GroupDao;
+import com.backend.sprint.model.dao.ScheduleDao;
+import com.backend.sprint.model.dao.SportSchoolDao;
+import com.backend.sprint.model.dao.TrainerDao;
+import com.backend.sprint.model.dao.UserDao;
 import com.backend.sprint.model.dto.AthleteDto;
 import com.backend.sprint.model.dto.ExcelDataDto;
 import com.backend.sprint.model.dto.ExcelValueDto;
@@ -110,29 +112,13 @@ public class GroupService {
 		return repository.findByTrainerId(trainerId).stream().map(this::convertToDto).collect(Collectors.toSet());
 	}
 
-	public List<GroupDto> findBySportSchoolIdAndGroupId(long sportSchoolId, Set<Long> groupIds,
-			Boolean specialization) {
-
-		if (specialization == null) {
-			return Stream
-					.concat(repository.findBySportSchoolIdAndGroupIds(sportSchoolId, groupIds, true).stream(),
-							repository.findBySportSchoolIdAndGroupIds(sportSchoolId, groupIds, true).stream())
-					.map(this::convertToDto).sorted(Comparator.comparing(GroupDto::getName))
-					.collect(Collectors.toList());
-		}
-		return repository.findBySportSchoolIdAndGroupIds(sportSchoolId, groupIds, specialization).stream()
-				.map(this::convertToDto).collect(Collectors.toList());
+	public List<GroupDto> findBySportSchoolIdAndGroupId(long sportSchoolId, Set<Long> groupIds) {
+		return repository.findBySportSchoolIdAndGroupIds(sportSchoolId, groupIds).stream().map(this::convertToDto)
+				.collect(Collectors.toList());
 	}
 
-	public List<GroupDto> findBySportSchoolId(long sportSchoolId, Boolean specialization) {
-		if (specialization == null) {
-			return Stream
-					.concat(repository.findBySportSchoolId(sportSchoolId, true).stream(),
-							repository.findBySportSchoolId(sportSchoolId, false).stream())
-					.map(this::convertToDto).sorted(Comparator.comparing(GroupDto::getName))
-					.collect(Collectors.toList());
-		}
-		return repository.findBySportSchoolId(sportSchoolId, specialization).stream().map(this::convertToDto)
+	public List<GroupDto> findBySportSchoolId(long sportSchoolId) {
+		return repository.findBySportSchoolId(sportSchoolId).stream().map(this::convertToDto)
 				.collect(Collectors.toList());
 	}
 
@@ -154,21 +140,25 @@ public class GroupService {
 			return null;
 		}
 		GroupDto dto = new ModelMapper().map(dao, GroupDto.class);
-		if (dao.getTrainer() != null) {
-			dto.setTrainerId(dao.getTrainer().getId());
+		TrainerDao trainer = dao.getTrainer();
+		if (trainer != null) {
+			dto.setTrainerId(trainer.getId());
 		}
-		if (dao.getSportSchool() != null) {
-			dto.setSportSchoolId(dao.getSportSchool().getId());
-			dto.setSportSchoolName(dao.getSportSchool().getName());
+		SportSchoolDao sportSchool = dao.getSportSchool();
+		if (sportSchool != null) {
+			dto.setSportSchoolId(sportSchool.getId());
+			dto.setSportSchoolName(sportSchool.getName());
 		}
 
-		if (dao.getSchedules() != null) {
-			Set<ScheduleDto> schedules = scheduleService.convertToDto(dao.getSchedules());
+		Set<ScheduleDao> schedulesDao = dao.getSchedules();
+		if (schedulesDao != null) {
+			Set<ScheduleDto> schedules = scheduleService.convertToDto(schedulesDao);
 			dto.setScheduleIds(schedules.parallelStream().map(ScheduleDto::getId).collect(Collectors.toSet()));
 			dto.setSchedules(schedules);
 		}
-		if (dao.getUpdatedBy() != null) {
-			dto.setUpdatedById(dao.getUpdatedBy().getId());
+		UserDao updatedBy = dao.getUpdatedBy();
+		if (updatedBy != null) {
+			dto.setUpdatedById(updatedBy.getId());
 		}
 
 		return dto;

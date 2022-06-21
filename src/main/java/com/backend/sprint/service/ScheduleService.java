@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.backend.sprint.model.dao.ScheduleDao;
+import com.backend.sprint.model.dao.UserDao;
 import com.backend.sprint.model.dto.ScheduleDto;
 import com.backend.sprint.repository.ScheduleRepository;
 import com.backend.sprint.repository.UserRepository;
@@ -89,8 +90,9 @@ public class ScheduleService {
 		ScheduleDto dto = new ModelMapper().map(dao, ScheduleDto.class);
 		dto.setDayTranslate(dayTranslate.get(dto.getDay()));
 
-		if (dao.getUpdatedBy() != null) {
-			dto.setUpdatedById(dao.getUpdatedBy().getId());
+		UserDao updatedBy = dao.getUpdatedBy();
+		if (updatedBy != null) {
+			dto.setUpdatedById(updatedBy.getId());
 		}
 
 		return dto;
@@ -110,8 +112,9 @@ public class ScheduleService {
 		}
 		ScheduleDao dao = new ModelMapper().map(dto, ScheduleDao.class);
 
-		if (dto.getUpdatedById() != 0) {
-			dao.setUpdatedBy(userRepository.findById(dto.getUpdatedById()).get());
+		long updatedById = dto.getUpdatedById();
+		if (updatedById != 0) {
+			dao.setUpdatedBy(userRepository.findById(updatedById).get());
 		}
 
 		return dao;

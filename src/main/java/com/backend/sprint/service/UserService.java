@@ -116,6 +116,10 @@ public class UserService {
 		return repository.findAdminUsers().stream().map(this::convertToDto).collect(Collectors.toList());
 	}
 
+	public List<Long> findManagerUserUserIds(long id) {
+		return repository.findManagerUserUserIds(id);
+	}
+
 	public UserDto changePassword(UserDto dto) {
 
 		String newPassword = dto.getNewPassword();

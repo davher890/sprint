@@ -60,6 +60,9 @@ public class UserDao {
 	@Column(columnDefinition = "boolean default false")
 	private boolean isAdmin;
 
+	@Column(columnDefinition = "boolean default false")
+	private boolean isManager;
+
 	@Column(columnDefinition = "boolean default true")
 	private boolean active;
 

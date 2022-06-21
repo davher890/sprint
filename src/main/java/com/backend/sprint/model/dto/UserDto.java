@@ -36,6 +36,8 @@ public class UserDto {
 
 	private boolean isAdmin;
 
+	private boolean isManager;
+
 	private boolean active = true;
 
 	private Date createdAt;
