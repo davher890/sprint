@@ -117,6 +117,11 @@ public class GroupService {
 				.collect(Collectors.toList());
 	}
 
+	public List<GroupDto> findBySportSchoolIds(List<Long> sportSchoolIds) {
+		return repository.findBySportSchoolIds(sportSchoolIds).stream().map(this::convertToDto)
+				.collect(Collectors.toList());
+	}
+
 	public List<GroupDto> findBySportSchoolId(long sportSchoolId) {
 		return repository.findBySportSchoolId(sportSchoolId).stream().map(this::convertToDto)
 				.collect(Collectors.toList());

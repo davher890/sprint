@@ -1,5 +1,6 @@
 package com.backend.sprint.repository;
 
+import java.util.List;
 import java.util.Set;
 
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -16,6 +17,9 @@ public interface GroupRepository
 
 	@Query(value = "SELECT * FROM groups WHERE trainer_id = ?1 AND active = true ORDER BY name", nativeQuery = true)
 	public Set<GroupDao> findByTrainerId(long trainerId);
+
+	@Query(value = "SELECT * FROM groups WHERE sport_school_id IN (?1) AND active = true ORDER BY name", nativeQuery = true)
+	public Set<GroupDao> findBySportSchoolIds(List<Long> sportSchoolIds);
 
 	@Query(value = "SELECT * FROM groups WHERE sport_school_id = ?1 AND active = true ORDER BY name", nativeQuery = true)
 	public Set<GroupDao> findBySportSchoolId(long sportSchoolId);
