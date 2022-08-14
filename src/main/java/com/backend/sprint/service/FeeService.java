@@ -20,21 +20,42 @@ public class FeeService {
 
 		fee.setEnrollmentFee(this.getEnrollmentFee(dto));
 
-		fee.setMembershipFee(this.getMembershipFee());
+		fee.setMembershipFee(this.getMembershipFee(dto));
 
 		return fee;
 
 	}
 
 	// Annually
-	public int getMembershipFee() {
-		return 20;
+	public float getMembershipFee(AthleteDto dto) {
+
+		float fee = 20;
+
+		FamilyDto family = familyService.findByCode(dto.getFamilyCode());
+		int familyCount = family.getCount();
+		if (familyCount > 0) {
+
+			// Already registered athlete
+			if (dto.getId() > 0) {
+				if (familyCount > 3) {
+					fee /= familyCount;
+				}
+			}
+			// New athlete
+			if (dto.getId() == 0) {
+				if (familyCount > 2) {
+					fee /= (familyCount + 1);
+				}
+			}
+
+		}
+		return fee;
 	}
 
 	// Once
 	public int getEnrollmentFee(AthleteDto dto) {
 
-		int fee = 0;
+		int fee = 40;
 
 		if (dto.getSportSchoolId() == 3) {
 			fee = 10;
@@ -43,11 +64,17 @@ public class FeeService {
 				FamilyDto family = familyService.findByCode(dto.getFamilyCode());
 				// if (dto.getLicenseType().equals("PISTAS") ||
 				// dto.getLicenseType().equals("LICENCIA")) {
-				if (family.getCount() > 1) {
-					fee = 20;
-				} else {
-					fee = 40;
+				if (dto.getId() == 0) {
+					if (family.getCount() > 0) {
+						fee = 20;
+					}
 				}
+				if (dto.getId() > 0) {
+					if (family.getCount() > 1) {
+						fee = 20;
+					}
+				}
+
 				// A partir del tercer miembro solo se paga una cuota de socio por
 				// familia
 			}
@@ -61,7 +88,13 @@ public class FeeService {
 		int fee = 0;
 
 		if (dto.isSpecialization()) {
-			fee = 100;
+			if (dto.getSportSchoolId() == 1) {
+				fee = 115;
+			} else if (dto.getSportSchoolId() == 2) {
+				fee = 100;
+			} else {
+				fee = 100;
+			}
 		} else {
 			if (dto.getScheduleIds() != null) {
 				switch (dto.getScheduleIds().size()) {
@@ -80,13 +113,14 @@ public class FeeService {
 					}
 					break;
 				case 3:
-				default:
 					if (dto.getSportSchoolId() == 1) {
 						fee = 115;
 					} else if (dto.getSportSchoolId() == 2) {
 						fee = 100;
 					}
 					break;
+				default:
+					fee = 0;
 				}
 			}
 		}

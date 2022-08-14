@@ -159,6 +159,10 @@ public class AthleteService {
 		return repository.findByGroupId(id).stream().map(this::convertToDto).collect(Collectors.toList());
 	}
 
+	public void deleteByGroupId(long id) {
+		repository.deleteGroupAthletes(id);
+	}
+
 	public AthleteDto deleteById(long id) {
 
 		AthleteDto athlete = this.findById(id);

@@ -26,7 +26,7 @@ public class PaymentService {
 
 		// All athletes membership fee
 		List<AthleteDto> athletes = athleteService.findAllRegistered().parallelStream().map(d -> {
-			d.setPaymentAmount(feeService.getMembershipFee());
+			d.setPaymentAmount(feeService.getMembershipFee(d));
 			return d;
 		}).collect(Collectors.toList());
 

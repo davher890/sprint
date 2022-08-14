@@ -297,16 +297,22 @@ public class GroupService {
 
 	public GroupDto deleteById(long id) {
 
-		GroupDto group = this.findById(id);
-		List<AthleteDto> groupAthletes = athleteService.findByGroupId(id);
-		if (groupAthletes != null && groupAthletes.size() > 0) {
-			// Error: First remove athletes from group
-			group.setErrorMessage("No se puede borrar un grupo que contiene atletas.");
-			return group;
-		} else {
+		try {
+			GroupDto group = this.findById(id);
+			athleteService.deleteByGroupId(id);
+//			if (groupAthletes != null && groupAthletes.size() > 0) {
+//				// Error: First remove athletes from group
+//				group.setErrorMessage("No se puede borrar un grupo que contiene atletas.");
+//				return group;
+//			} else {
 			group.setActive(false);
 			return this.save(group);
+//			}
+		} catch (Exception e) {
+			System.out.print(e);
+			// TODO: handle exception
 		}
+		return null;
 	}
 
 	public List<AthleteDto> findGroupAthletes(int id) {

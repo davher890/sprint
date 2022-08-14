@@ -7,6 +7,7 @@ import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
@@ -83,5 +84,9 @@ public interface AthleteRepository
 
 	@Query(value = "SELECT * FROM athletes WHERE group_id = ?1 ORDER BY first_surname, second_surname", nativeQuery = true)
 	public List<AthleteDao> findByGroupId(long groupId);
+
+	@Modifying
+	@Query(value = "UPDATE athletes SET group_id = NULL WHERE group_id = ?1", nativeQuery = true)
+	public void deleteGroupAthletes(long groupId);
 
 }
