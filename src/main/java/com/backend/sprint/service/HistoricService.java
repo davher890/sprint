@@ -1,6 +1,8 @@
 package com.backend.sprint.service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -18,6 +20,7 @@ import com.backend.sprint.model.dto.AthleteDto;
 import com.backend.sprint.model.dto.HistoricDto;
 import com.backend.sprint.repository.AthleteRepository;
 import com.backend.sprint.repository.HistoricRepository;
+import com.backend.sprint.utils.AthleteUtils;
 import com.backend.sprint.utils.HistoricType;
 
 @Service
@@ -51,9 +54,23 @@ public class HistoricService {
 		return repository.findAthleteHistoric(id).stream().map(this::convertToDto).collect(Collectors.toList());
 	}
 
-	@Transactional
 	public HistoricDto save(HistoricDto dto) throws DataIntegrityViolationException {
-		return convertToDto(repository.save(convertToDao(dto)));
+
+		HistoricDto historic = convertToDto(repository.save(convertToDao(dto)));
+
+		long athleteId = historic.getAthleteId();
+
+		AthleteDto athlete = athleteService.findById(athleteId);
+		Set<HistoricDto> historics = athlete.getHistoric();
+		if (historics == null) {
+			historics = new HashSet<HistoricDto>();
+		}
+		historics.add(historic);
+		athlete.setLastRegisterDate(AthleteUtils.getLastRegisterDate(historics));
+		athlete.setLastUnregisterDate(AthleteUtils.getLastUnregisterDate(historics));
+		athleteService.save(athlete);
+
+		return historic;
 	}
 
 	public HistoricDto register(int id, HistoricDto historic) {

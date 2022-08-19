@@ -13,21 +13,21 @@ import org.springframework.web.bind.annotation.RestController;
 import com.backend.sprint.model.dto.AthleteDto;
 import com.backend.sprint.service.database.DatabaseExternalAthletesService;
 import com.backend.sprint.service.database.DatabaseHistoricService;
+import com.backend.sprint.service.database.DatabaseParentsAthletesService;
 import com.backend.sprint.service.database.DatabaseSportSchoolAthletesService;
 
 @RestController
 @RequestMapping("database")
 public class DatabaseController {
 
-	private static String dbDemoPath = "BD/Demo/";
-
-	private static String dbPath = "BD/";
-
 	@Autowired
 	private DatabaseSportSchoolAthletesService service;
 
 	@Autowired
 	private DatabaseExternalAthletesService externalService;
+
+	@Autowired
+	private DatabaseParentsAthletesService parentsService;
 
 	@Autowired
 	private DatabaseHistoricService historicService;
@@ -45,25 +45,31 @@ public class DatabaseController {
 		if (csvName == null) {
 			return null;
 		}
-		return service.dbFillAtheltesData(sportSchoolId, dbPath + "/" + csvName);
-	}
-
-	@GetMapping("demo/{id}/athletes")
-	public List<AthleteDto> dbFillAtheltesDemoData(@PathVariable(name = "id") int sportSchoolId)
-			throws IOException, ParseException {
-		String csvName = dbDemoPath + "BD" + sportSchoolId + ".csv";
 		return service.dbFillAtheltesData(sportSchoolId, csvName);
 	}
 
+//	@GetMapping("demo/{id}/athletes")
+//	public List<AthleteDto> dbFillAtheltesDemoData(@PathVariable(name = "id") int sportSchoolId)
+//			throws IOException, ParseException {
+//		String csvName = dbDemoPath + "BD" + sportSchoolId + ".csv";
+//		return service.dbFillAtheltesData(sportSchoolId, csvName);
+//	}
+
 	@GetMapping("/externo/athletes")
 	public List<AthleteDto> dbFillExternalAtheltesData() throws IOException, ParseException {
-		String csvName = dbPath + "BD_EXTERNOS.csv";
+		String csvName = "BD_EXTERNOS.csv";
 		return externalService.dbFillAtheltesData(csvName);
+	}
+
+	@GetMapping("/padres/athletes")
+	public List<AthleteDto> dbFillPadresAtheltesData() throws IOException, ParseException {
+		String csvName = "BD_PADRES.csv";
+		return parentsService.dbFillAtheltesData(csvName);
 	}
 
 	@GetMapping("historic")
 	public List<AthleteDto> dbFillAtheltesHistoric() throws IOException, ParseException {
-		String csvName = dbPath + "BD_HISTORICO.csv";
+		String csvName = "BD_HISTORICO.csv";
 		return historicService.dbFillAtheltesData(csvName);
 	}
 

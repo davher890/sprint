@@ -1,10 +1,14 @@
 package com.backend.sprint.utils;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
+
+import org.json.JSONObject;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -18,16 +22,21 @@ public class JwtUtils {
 
 		Set<Long> sportShoolIds = userDto.getSportSchoolIds();
 		Set<Long> groupIds = userDto.getGroupIds();
-		Set<String> sportShoolNames = userDto.getSportSchoolNames();
-		Set<String> groupNames = userDto.getGroupNames();
+		Map<Long, String> sportSchoolMap = userDto.getSportSchoolMap();
+		Map<Long, String> groupMap = userDto.getGroupMap();
+//		Set<String> sportShoolNames = userDto.getSportSchoolNames();
+//		Set<String> groupNames = userDto.getGroupNames();
 		if (sportShoolIds == null) {
 			sportShoolIds = new HashSet<Long>();
-			sportShoolNames = new HashSet<String>();
+			groupMap = new HashMap<Long, String>();
+//			sportShoolNames = new HashSet<String>();
 		}
 		if (groupIds == null) {
 			groupIds = new HashSet<Long>();
-			groupNames = new HashSet<String>();
+			groupMap = new HashMap<Long, String>();
+//			groupNames = new HashSet<String>();
 		}
+
 		String token = JWT.create().withSubject(userDto.getUsername())
 				.withExpiresAt(new Date((new Date()).getTime() + SecurityConstants.EXPIRATION_TIME))
 				.withClaim(SecurityConstants.USER_ID, userDto.getId())
@@ -36,9 +45,10 @@ public class JwtUtils {
 				.withArrayClaim(SecurityConstants.SPORT_SCHOOL_IDS,
 						sportShoolIds.toArray(new Long[sportShoolIds.size()]))
 				.withArrayClaim(SecurityConstants.GROUP_IDS, groupIds.toArray(new Long[groupIds.size()]))
-				.withArrayClaim(SecurityConstants.SPORT_SCHOOL_NAMES,
-						sportShoolNames.toArray(new String[sportShoolNames.size()]))
-				.withArrayClaim(SecurityConstants.GROUP_NAMES, groupNames.toArray(new String[groupNames.size()]))
+				.withClaim(SecurityConstants.GROUP_MAP, new JSONObject(groupMap).toString())
+				.withClaim(SecurityConstants.SPORT_SCHOOL_MAP, new JSONObject(sportSchoolMap).toString())
+//				.withArrayClaim(SecurityConstants.SPORT_SCHOOL_NAMES,sportShoolNames.toArray(new String[sportShoolNames.size()]))
+//				.withArrayClaim(SecurityConstants.GROUP_NAMES, groupNames.toArray(new String[groupNames.size()]))
 				.sign(Algorithm.HMAC512(SecurityConstants.SECRET.getBytes()));
 		return token;
 	}

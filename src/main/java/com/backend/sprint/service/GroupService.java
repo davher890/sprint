@@ -32,6 +32,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,6 +48,7 @@ import com.backend.sprint.model.dto.ExcelDataDto;
 import com.backend.sprint.model.dto.ExcelValueDto;
 import com.backend.sprint.model.dto.GroupDto;
 import com.backend.sprint.model.dto.ScheduleDto;
+import com.backend.sprint.model.dto.UserDto;
 import com.backend.sprint.repository.GroupRepository;
 import com.backend.sprint.repository.ScheduleRepository;
 import com.backend.sprint.repository.SportSchoolRepository;
@@ -128,7 +131,7 @@ public class GroupService {
 	}
 
 	public GroupDto findByNameAndSportSchool(String name, int sportSchoolId) {
-		return convertToDto(repository.findByName(name, sportSchoolId));
+		return convertToDto(repository.findByName(name.trim(), sportSchoolId));
 	}
 
 	public List<GroupDto> findBySpecialization(boolean specialization) {
@@ -137,6 +140,9 @@ public class GroupService {
 	}
 
 	public GroupDto save(GroupDto dto) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		UserDto user = (UserDto) auth.getPrincipal();
+		dto.setUpdatedById(user.getId());
 		return convertToDto(repository.save(convertToDao(dto)));
 	}
 

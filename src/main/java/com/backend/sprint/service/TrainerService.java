@@ -13,11 +13,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.backend.sprint.model.dao.TrainerDao;
 import com.backend.sprint.model.dto.GroupDto;
 import com.backend.sprint.model.dto.TrainerDto;
+import com.backend.sprint.model.dto.UserDto;
 import com.backend.sprint.repository.SportSchoolRepository;
 import com.backend.sprint.repository.TrainerRepository;
 import com.backend.sprint.repository.UserRepository;
@@ -67,8 +70,12 @@ public class TrainerService {
 	}
 
 	public TrainerDto save(TrainerDto dto) {
-		TrainerDao dao = convertToDao(dto);
-		return convertToDto(repository.save(dao));
+
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		UserDto user = (UserDto) auth.getPrincipal();
+		dto.setUpdatedById(user.getId());
+
+		return convertToDto(repository.save(convertToDao(dto)));
 	}
 
 	public TrainerDto deleteById(long id) {

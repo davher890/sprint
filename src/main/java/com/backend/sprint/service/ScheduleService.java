@@ -16,12 +16,15 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.backend.sprint.model.dao.ScheduleDao;
 import com.backend.sprint.model.dao.UserDao;
 import com.backend.sprint.model.dto.ScheduleDto;
+import com.backend.sprint.model.dto.UserDto;
 import com.backend.sprint.repository.ScheduleRepository;
 import com.backend.sprint.repository.UserRepository;
 
@@ -79,8 +82,12 @@ public class ScheduleService {
 	}
 
 	public ScheduleDto save(ScheduleDto dto) {
-		ScheduleDao dao = convertToDao(dto);
-		return convertToDto(repository.save(dao));
+
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		UserDto user = (UserDto) auth.getPrincipal();
+		dto.setUpdatedById(user.getId());
+
+		return convertToDto(repository.save(convertToDao(dto)));
 	}
 
 	public ScheduleDto convertToDto(ScheduleDao dao) {

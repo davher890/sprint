@@ -11,14 +11,46 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.backend.sprint.model.dto.NameDataDto;
 import com.backend.sprint.model.dto.ObservationDto;
+import com.backend.sprint.service.AthleteService;
+import com.backend.sprint.service.FamilyService;
+import com.backend.sprint.service.GroupService;
+import com.backend.sprint.service.HistoricService;
+import com.backend.sprint.service.ObservationService;
+import com.backend.sprint.service.SportSchoolService;
+import com.backend.sprint.service.TrainerService;
 import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 
+@Service
 public class DatabaseService {
+
+	@Autowired
+	protected FamilyService familyService;
+
+	@Autowired
+	protected GroupService groupService;
+
+	@Autowired
+	protected AthleteService athleteService;
+
+	@Autowired
+	protected TrainerService trainerService;
+
+	@Autowired
+	protected SportSchoolService sportSchoolService;
+
+	@Autowired
+	protected HistoricService historicService;
+
+	@Autowired
+	protected ObservationService observationService;
 
 	DateFormat historicDateFormat = new SimpleDateFormat("dd/MM/yyyy");
 	DateFormat dateFormat = new SimpleDateFormat("MM/dd/yy");
@@ -54,7 +86,7 @@ public class DatabaseService {
 		return csvReader;
 	}
 
-	protected ObservationDto getObservation(String[] row, int column, String date, long athleteId)
+	protected ObservationDto getObservation(String[] row, int column, String date, long athleteId, long userId)
 			throws ParseException {
 
 		String text = row[column];
@@ -66,6 +98,7 @@ public class DatabaseService {
 			if (date != null) {
 				obs.setCreatedAt(dayFormat.parse(date));
 			}
+			obs.setUpdatedById(userId);
 			return obs;
 		}
 		return null;
@@ -101,5 +134,12 @@ public class DatabaseService {
 			}
 		}
 		return name;
+	}
+
+	protected ObservationDto saveObservation(ObservationDto dto) {
+		if (dto != null) {
+			return observationService.save(dto);
+		}
+		return null;
 	}
 }

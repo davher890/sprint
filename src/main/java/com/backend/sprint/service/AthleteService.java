@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +22,7 @@ import com.backend.sprint.model.dao.ScheduleDao;
 import com.backend.sprint.model.dto.AthleteDto;
 import com.backend.sprint.model.dto.FamilyDto;
 import com.backend.sprint.model.dto.HistoricDto;
+import com.backend.sprint.model.dto.UserDto;
 import com.backend.sprint.repository.AthleteRepository;
 import com.backend.sprint.repository.FamilyRepository;
 import com.backend.sprint.repository.GroupRepository;
@@ -27,7 +30,6 @@ import com.backend.sprint.repository.ScheduleRepository;
 import com.backend.sprint.repository.SportSchoolRepository;
 import com.backend.sprint.repository.UserRepository;
 import com.backend.sprint.specifications.AthleteSpecificationConstructor;
-import com.backend.sprint.utils.AthleteUtils;
 import com.backend.sprint.utils.HistoricType;
 
 @Service
@@ -105,6 +107,12 @@ public class AthleteService {
 	}
 
 	public AthleteDto save(AthleteDto dto) {
+
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		if (auth != null && auth.getPrincipal() != null) {
+			UserDto user = (UserDto) auth.getPrincipal();
+			dto.setUpdatedById(user.getId());
+		}
 
 		if (dto.getBirthDate() != null) {
 			Calendar calendar = Calendar.getInstance();
@@ -205,9 +213,6 @@ public class AthleteService {
 			dto.setDays(dao.getSchedules().parallelStream().map(ScheduleDao::getDay).collect(Collectors.joining(",")));
 		}
 
-		dto.setLastRegisterDate(AthleteUtils.getLastRegisterDate(dao));
-		dto.setLastUnregisterDate(AthleteUtils.getLastUnregisterDate(dao));
-
 		return dto;
 	}
 
@@ -233,14 +238,20 @@ public class AthleteService {
 
 		if (dto.getGroupId() != 0) {
 			dao.setGroup(groupRepository.findById(dto.getGroupId()).get());
+		} else {
+			dao.setGroup(null);
 		}
 
 		if (dto.getFamilyId() != 0) {
 			dao.setFamily(familyRepository.findById(dto.getFamilyId()).get());
+		} else {
+			dao.setFamily(null);
 		}
 
 		if (dto.getUpdatedById() != 0) {
 			dao.setUpdatedBy(userRepository.findById(dto.getUpdatedById()).get());
+		} else {
+			dao.setUpdatedBy(null);
 		}
 
 		if (dto.getCode() == 0) {

@@ -83,10 +83,6 @@ public class TrainerController {
 	@PostMapping("")
 	public TrainerDto save(@RequestBody TrainerDto dto) {
 
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		UserDto user = (UserDto) auth.getPrincipal();
-		dto.setUpdatedById(user.getId());
-
 		return service.save(dto);
 	}
 

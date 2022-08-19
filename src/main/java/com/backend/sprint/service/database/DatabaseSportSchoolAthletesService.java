@@ -1,5 +1,6 @@
 package com.backend.sprint.service.database;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.Arrays;
@@ -11,10 +12,16 @@ import java.util.stream.StreamSupport;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.backend.sprint.model.dto.AthleteDto;
 import com.backend.sprint.model.dto.FamilyDto;
 import com.backend.sprint.model.dto.GroupDto;
@@ -22,13 +29,7 @@ import com.backend.sprint.model.dto.HistoricDto;
 import com.backend.sprint.model.dto.NameDataDto;
 import com.backend.sprint.model.dto.SportSchoolDto;
 import com.backend.sprint.model.dto.TrainerDto;
-import com.backend.sprint.service.AthleteService;
-import com.backend.sprint.service.FamilyService;
-import com.backend.sprint.service.GroupService;
-import com.backend.sprint.service.HistoricService;
-import com.backend.sprint.service.ObservationService;
-import com.backend.sprint.service.SportSchoolService;
-import com.backend.sprint.service.TrainerService;
+import com.backend.sprint.model.dto.UserDto;
 import com.backend.sprint.utils.HistoricType;
 import com.backend.sprint.utils.LicenseType;
 import com.opencsv.CSVReader;
@@ -54,9 +55,9 @@ public class DatabaseSportSchoolAthletesService extends DatabaseService {
 	private static final int ADDRESS = 15;
 	private static final int POSTCAL_CODE = 16;
 	private static final int MUNICIPALITY = 17;
-	private static final int FATHER_MAIL = 18;
-	private static final int MOTHER_MAIL = 19;
-	private static final int MAIL = 20;
+	private static final int MAIL = 18;
+	private static final int FATHER_MAIL = 19;
+	private static final int MOTHER_MAIL = 20;
 	private static final int FATHER_NAME = 21;
 	private static final int MOTHER_NAME = 22;
 	private static final int HOLDER_NAME = 23;
@@ -67,59 +68,45 @@ public class DatabaseSportSchoolAthletesService extends DatabaseService {
 	private static final int LICENSE_TYPE = 28;
 	private static final int DORSAL_CATEGORY = 29;
 	private static final int DORSAL = 30;
-	private static final int GROUP_NAME = 32;
-	private static final int GROUP_TYPE = 33;
-	private static final int DAYS = 34;
-	private static final int NUM_DAYS = 35;
-	private static final int SCHEDULE = 36;
-	private static final int PAYMENT_TYPE = 37;
-	private static final int FEE_TYPE = 38;
-	private static final int OBSERVATIONS_SEASON = 46;
-	private static final int OBSERVATIONS_1_PAYMENT = 48;
-	private static final int OBSERVATIONS_1T_1 = 50;
-	private static final int OBSERVATIONS_1T_2 = 52;
-	private static final int OBSERVATIONS_LICENCIA = 54;
-	private static final int OBSERVATIONS_2T_1 = 56;
-	private static final int OBSERVATIONS_2T_2 = 58;
-	private static final int OBSERVATIONS_3T_1 = 60;
-	private static final int OBSERVATIONS_3T_2 = 62;
+	private static final int GROUP_NAME = 31;
+	private static final int GROUP_TYPE = 32;
+	private static final int DAYS = 33;
+	private static final int NUM_DAYS = 34;
+	private static final int SCHEDULE = 35;
+	private static final int PAYMENT_TYPE = 36;
+	private static final int FEE_TYPE = 37;
+	private static final int OBSERVATIONS_SEASON = 44;
+	private static final int OBSERVATIONS_1_PAYMENT = 46;
+	private static final int OBSERVATIONS_1T_1 = 48;
+	private static final int OBSERVATIONS_1T_2 = 50;
+	private static final int OBSERVATIONS_LICENCIA = 52;
+	private static final int OBSERVATIONS_2T_1 = 54;
+	private static final int OBSERVATIONS_2T_2 = 56;
+	private static final int OBSERVATIONS_3T_1 = 58;
+	private static final int OBSERVATIONS_3T_2 = 60;
 
-	private static final int REGISTER_DATE = 64;
+	private static final int REGISTER_DATE = 62;
 
 	private static final String DATE_SEPARATOR = "-";
 
 	private Logger logger = LoggerFactory.getLogger(DatabaseSportSchoolAthletesService.class);
 
-	@Autowired
-	private FamilyService familyService;
-
-	@Autowired
-	private AthleteService athleteService;
-
-	@Autowired
-	private TrainerService trainerService;
-
-	@Autowired
-	private GroupService groupService;
-
-	@Autowired
-	private SportSchoolService sportSchoolService;
-
-	@Autowired
-	private HistoricService historicService;
-
-	@Autowired
-	private ObservationService observationService;
-
 	public List<AthleteDto> dbFillAtheltesData(int sportSchoolId, String csvName) throws IOException, ParseException {
 
 		SportSchoolDto sportSchool = sportSchoolService.findById(sportSchoolId);
-		String fileName = System.getProperty("user.dir") + "/src/main/resources/" + csvName;
 
-		Long[] athleteTestList = { 29241L, 29251L, 29261L, 29271L, 29281L, 29291L, 29301L, 29321L, 29331L, 29491L,
-				29501L, 29521L, 29531L, 29532L, 29533L, 29671L, 29681L };
+		Long[] athleteTestList = { 30781L, 30782L, 30971L, 30981L, 31111L, 31121L, 31251L, 31381L, 31411L };
 
-		CSVReader csvReader = readFile(fileName);
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		UserDto user = (UserDto) auth.getPrincipal();
+
+//		ProfileCredentialsProvider creds = new ProfileCredentialsProvider("davher890");
+		DefaultAWSCredentialsProviderChain creds = new DefaultAWSCredentialsProviderChain();
+		Regions region = Regions.US_EAST_1;
+		AmazonS3 s3Client = AmazonS3Client.builder().withRegion(region).withCredentials(creds).build();
+		s3Client.getObject(new GetObjectRequest("sprint-database", csvName), new File("/tmp/" + csvName));
+
+		CSVReader csvReader = readFile("/tmp/" + csvName);
 		return StreamSupport.stream(csvReader.spliterator(), true)
 //				.filter(d -> Arrays.asList(athleteTestList).contains(Long.valueOf(d[ATHLETE_CODE].trim())))
 				.map(line -> {
@@ -243,6 +230,8 @@ public class DatabaseSportSchoolAthletesService extends DatabaseService {
 						}
 						athlete.setFamilyId(family.getId());
 
+						athlete.setUpdatedById(user.getId());
+
 						// Group
 						String groupName = line[GROUP_NAME].trim();
 						GroupDto group = groupService.findByNameAndSportSchool(groupName, sportSchoolId);
@@ -258,7 +247,6 @@ public class DatabaseSportSchoolAthletesService extends DatabaseService {
 							// TODO Auto-generated catch block
 							e1.printStackTrace();
 						}
-
 						// Historic
 						String registerDate = line[REGISTER_DATE];
 						if (registerDate != null && !registerDate.trim().isEmpty()
@@ -286,17 +274,23 @@ public class DatabaseSportSchoolAthletesService extends DatabaseService {
 						}
 
 						// Observations
-						observationService.save(getObservation(line, OBSERVATIONS_SEASON, null, athlete.getId()));
-						observationService
-								.save(getObservation(line, OBSERVATIONS_1_PAYMENT, "2021-10-19", athlete.getId()));
-						observationService.save(getObservation(line, OBSERVATIONS_1T_1, "2021-11-19", athlete.getId()));
-						observationService.save(getObservation(line, OBSERVATIONS_1T_2, "2022-01-11", athlete.getId()));
-						observationService
-								.save(getObservation(line, OBSERVATIONS_LICENCIA, "2022-02-03", athlete.getId()));
-						observationService.save(getObservation(line, OBSERVATIONS_2T_1, "2022-02-15", athlete.getId()));
-						observationService.save(getObservation(line, OBSERVATIONS_2T_2, "2022-03-30", athlete.getId()));
-						observationService.save(getObservation(line, OBSERVATIONS_3T_1, "2022-05-10", athlete.getId()));
-						observationService.save(getObservation(line, OBSERVATIONS_3T_2, "2022-06-15", athlete.getId()));
+						saveObservation(getObservation(line, OBSERVATIONS_SEASON, null, athlete.getId(), user.getId()));
+						saveObservation(getObservation(line, OBSERVATIONS_1_PAYMENT, "2021-10-19", athlete.getId(),
+								user.getId()));
+						saveObservation(
+								getObservation(line, OBSERVATIONS_1T_1, "2021-11-19", athlete.getId(), user.getId()));
+						saveObservation(
+								getObservation(line, OBSERVATIONS_1T_2, "2022-01-11", athlete.getId(), user.getId()));
+						saveObservation(getObservation(line, OBSERVATIONS_LICENCIA, "2022-02-03", athlete.getId(),
+								user.getId()));
+						saveObservation(
+								getObservation(line, OBSERVATIONS_2T_1, "2022-02-15", athlete.getId(), user.getId()));
+						saveObservation(
+								getObservation(line, OBSERVATIONS_2T_2, "2022-03-30", athlete.getId(), user.getId()));
+						saveObservation(
+								getObservation(line, OBSERVATIONS_3T_1, "2022-05-10", athlete.getId(), user.getId()));
+						saveObservation(
+								getObservation(line, OBSERVATIONS_3T_2, "2022-06-15", athlete.getId(), user.getId()));
 
 						return athlete;
 					} catch (Exception e) {

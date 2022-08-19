@@ -1,5 +1,6 @@
 package com.backend.sprint.service.database;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.Arrays;
@@ -11,22 +12,23 @@ import java.util.stream.StreamSupport;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.backend.sprint.model.dto.AthleteDto;
 import com.backend.sprint.model.dto.FamilyDto;
 import com.backend.sprint.model.dto.HistoricDto;
 import com.backend.sprint.model.dto.NameDataDto;
 import com.backend.sprint.model.dto.SportSchoolDto;
 import com.backend.sprint.model.dto.TrainerDto;
-import com.backend.sprint.service.AthleteService;
-import com.backend.sprint.service.FamilyService;
-import com.backend.sprint.service.HistoricService;
-import com.backend.sprint.service.ObservationService;
-import com.backend.sprint.service.SportSchoolService;
-import com.backend.sprint.service.TrainerService;
+import com.backend.sprint.model.dto.UserDto;
 import com.backend.sprint.utils.HistoricType;
 import com.backend.sprint.utils.LicenseType;
 import com.opencsv.CSVReader;
@@ -52,55 +54,44 @@ public class DatabaseExternalAthletesService extends DatabaseService {
 	private static final int ADDRESS = 15;
 	private static final int POSTCAL_CODE = 16;
 	private static final int MUNICIPALITY = 17;
-	private static final int FATHER_MAIL = 18;
-	private static final int MOTHER_MAIL = 19;
-	private static final int MAIL = 20;
-	private static final int FATHER_NAME = 21;
-	private static final int MOTHER_NAME = 22;
-	private static final int HOLDER_NAME = 23;
-	private static final int HOLDER_DNI = 24;
-	private static final int IBAN = 25;
+	private static final int MAIL = 18;
+	private static final int FATHER_MAIL = 19;
+	private static final int FATHER_NAME = 20;
+	private static final int MOTHER_NAME = 21;
+	private static final int HOLDER_NAME = 22;
+	private static final int HOLDER_DNI = 23;
+	private static final int IBAN = 24;
 	private static final int CATEGORY = 26;
 	private static final int LICENSE = 27;
 	private static final int LICENSE_TYPE = 28;
 	private static final int DORSAL_CATEGORY = 29;
 	private static final int DORSAL = 30;
-	private static final int PAYMENT_TYPE = 37;
-	private static final int FEE_TYPE = 38;
+	private static final int PAYMENT_TYPE = 31;
+	private static final int FEE_TYPE = 32;
 
-	private static final int OBSERVATIONS_SEASON = 46;
-	private static final int OBSERVATIONS_2021_PAYMENT = 48;
+	private static final int OBSERVATIONS_SEASON = 37;
 
-	private static final int REGISTER_DATE = 52;
+	private static final int REGISTER_DATE = 41;
 
 	private static final String DATE_SEPARATOR = "-";
 
 	private Logger logger = LoggerFactory.getLogger(DatabaseExternalAthletesService.class);
-
-	@Autowired
-	private FamilyService familyService;
-
-	@Autowired
-	private AthleteService athleteService;
-
-	@Autowired
-	private TrainerService trainerService;
-
-	@Autowired
-	private SportSchoolService sportSchoolService;
-
-	@Autowired
-	private HistoricService historicService;
-
-	@Autowired
-	private ObservationService observationService;
 
 	public List<AthleteDto> dbFillAtheltesData(String csvName) throws IOException, ParseException {
 
 		SportSchoolDto sportSchool = sportSchoolService.findById(3);
 		String fileName = System.getProperty("user.dir") + "/src/main/resources/" + csvName;
 
-		CSVReader csvReader = readFile(fileName);
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		UserDto user = (UserDto) auth.getPrincipal();
+
+//		ProfileCredentialsProvider creds = new ProfileCredentialsProvider("davher890");
+		DefaultAWSCredentialsProviderChain creds = new DefaultAWSCredentialsProviderChain();
+		Regions region = Regions.US_EAST_1;
+		AmazonS3 s3Client = AmazonS3Client.builder().withRegion(region).withCredentials(creds).build();
+		s3Client.getObject(new GetObjectRequest("sprint-database", csvName), new File("/tmp/" + csvName));
+
+		CSVReader csvReader = readFile("/tmp/" + csvName);
 		return StreamSupport.stream(csvReader.spliterator(), true).map(line -> {
 
 			try {
@@ -137,7 +128,6 @@ public class DatabaseExternalAthletesService extends DatabaseService {
 				String municipality = line[MUNICIPALITY].trim();
 
 				String fatherMail = line[FATHER_MAIL].trim();
-				String motherMail = line[MOTHER_MAIL].trim();
 				String mail = line[MAIL].trim();
 
 				NameDataDto father = getNameData(line, FATHER_NAME);
@@ -207,7 +197,6 @@ public class DatabaseExternalAthletesService extends DatabaseService {
 				athlete.setFamiliarTwoName(motherName);
 				athlete.setFamiliarTwoFirstSurname(motherFirstSurname);
 				athlete.setFamiliarTwoSecondSurname(motherSecondSurname);
-				athlete.setFamiliarTwoMail(motherMail);
 
 				// Sport School
 				athlete.setSportSchoolId(sportSchool.getId());
@@ -221,6 +210,7 @@ public class DatabaseExternalAthletesService extends DatabaseService {
 				}
 				athlete.setFamilyId(family.getId());
 
+				athlete.setUpdatedById(user.getId());
 				try {
 					athlete = athleteService.save(athlete);
 				} catch (DataIntegrityViolationException e1) {
@@ -255,8 +245,8 @@ public class DatabaseExternalAthletesService extends DatabaseService {
 				}
 
 				// Observations
-				observationService.save(getObservation(line, OBSERVATIONS_SEASON, null, athlete.getId()));
-				observationService.save(getObservation(line, OBSERVATIONS_2021_PAYMENT, "2021-07-01", athlete.getId()));
+				saveObservation(getObservation(line, OBSERVATIONS_SEASON, null, athlete.getId(), user.getId()));
+//				saveObservation(getObservation(line, OBSERVATIONS_2021_PAYMENT, "2021-07-01", athlete.getId(), user.getId()));
 
 				return athlete;
 			} catch (Exception e) {

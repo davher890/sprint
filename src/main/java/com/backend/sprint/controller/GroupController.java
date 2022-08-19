@@ -146,11 +146,6 @@ public class GroupController {
 
 	@PostMapping("")
 	public GroupDto save(@RequestBody GroupDto dto) {
-
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		UserDto user = (UserDto) auth.getPrincipal();
-		dto.setUpdatedById(user.getId());
-
 		return service.save(dto);
 	}
 

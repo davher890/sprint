@@ -1,8 +1,8 @@
 package com.backend.sprint.service.database;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -13,6 +13,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.backend.sprint.model.dto.AthleteDto;
 import com.backend.sprint.model.dto.FamilyDto;
 import com.backend.sprint.model.dto.HistoricDto;
@@ -29,35 +34,37 @@ public class DatabaseHistoricService extends DatabaseService {
 	private static final String EXT = "EXT";
 	private static final String PAR = "PAR";
 	private static final String STA = "STA";
+	private static final String PAD = "PAD";
 
 	private static final int FAMILY_CODE = 0;
 	private static final int ATHLETE_CODE = 1;
 	private static final int SPORT_SCHOOL = 2;
 	private static final int ATHLETE = 3;
-	private static final int ATHLETE_SURNAMES = 4;
-	private static final int ATHLETE_NAME = 5;
-	private static final int BIRTHDATE = 6;
-	private static final int YEAR = 7;
-	private static final int AGE = 8;
-	private static final int GENDER = 9;
-	private static final int DNI = 10;
-	private static final int PHONE_1 = 11;
-	private static final int PHONE_2 = 12;
-	private static final int PHONE_3 = 13;
-	private static final int ADDREES = 14;
-	private static final int POSTAL_CODE = 15;
-	private static final int MUNICIPALITY = 16;
-	private static final int FATHER_MAIL = 17;
-	private static final int MOTHER_MAIL = 18;
-	private static final int MAIL = 19;
-	private static final int FATHER_NAME = 20;
-	private static final int MOTHER_NAME = 21;
-	private static final int HOLDER_NAME = 22;
-	private static final int HOLDER_DNI = 23;
-	private static final int IBAN = 24;
-	private static final int OBSERVATIONS = 25;
-	private static final int REGISTER_DATE = 26;
-	private static final int UNREGISTER_DATE = 27;
+	private static final int ATHLETE_FIRSTSURNAME = 4;
+	private static final int ATHLETE_SECONDSURNAME = 5;
+	private static final int ATHLETE_NAME = 6;
+	private static final int BIRTHDATE = 7;
+	private static final int YEAR = 8;
+	private static final int AGE = 9;
+	private static final int GENDER = 10;
+	private static final int DNI = 11;
+	private static final int PHONE_1 = 12;
+	private static final int PHONE_2 = 13;
+	private static final int PHONE_3 = 14;
+	private static final int ADDREES = 15;
+	private static final int POSTAL_CODE = 16;
+	private static final int MUNICIPALITY = 17;
+	private static final int MAIL = 18;
+	private static final int FATHER_MAIL = 19;
+	private static final int MOTHER_MAIL = 20;
+	private static final int FATHER_NAME = 21;
+	private static final int MOTHER_NAME = 22;
+	private static final int HOLDER_NAME = 23;
+	private static final int HOLDER_DNI = 24;
+	private static final int IBAN = 25;
+	private static final int OBSERVATIONS = 26;
+	private static final int REGISTER_DATE = 27;
+	private static final int UNREGISTER_DATE = 28;
 
 	private static final String DATE_SEPARATOR = "-";
 
@@ -76,8 +83,14 @@ public class DatabaseHistoricService extends DatabaseService {
 
 		Long[] athleteTestList = { 17461L };
 
-		CSVReader csvReader = readFile(System.getProperty("user.dir") + "/src/main/resources/" + csvName);
-		return StreamSupport.stream(csvReader.spliterator(), true)
+//		ProfileCredentialsProvider creds = new ProfileCredentialsProvider("davher890");
+		DefaultAWSCredentialsProviderChain creds = new DefaultAWSCredentialsProviderChain();
+		Regions region = Regions.US_EAST_1;
+		AmazonS3 s3Client = AmazonS3Client.builder().withRegion(region).withCredentials(creds).build();
+		s3Client.getObject(new GetObjectRequest("sprint-database", csvName), new File("/tmp/" + csvName));
+
+		CSVReader csvReader = readFile("/tmp/" + csvName);
+		return StreamSupport.stream(csvReader.spliterator(), false)
 //				.filter(d -> Arrays.asList(athleteTestList).contains(Long.valueOf(d[ATHLETE_CODE].trim())))
 				.map(line -> {
 					try {
@@ -85,14 +98,8 @@ public class DatabaseHistoricService extends DatabaseService {
 						long familyCode = Long.valueOf(line[FAMILY_CODE].trim());
 
 						long athleteCode = Long.valueOf(line[ATHLETE_CODE].trim());
-						List<String> split = Arrays.asList(line[ATHLETE_SURNAMES].split(" "));
-						String firstSurname = split.get(0).trim();
-						String secondSurname = "";
-						if (split.size() > 1) {
-							secondSurname = split.subList(1, split.size()).stream().reduce((identity, accumulator) -> {
-								return identity.trim() + " " + accumulator.trim();
-							}).orElse(null);
-						}
+						String firstSurname = line[ATHLETE_FIRSTSURNAME].trim();
+						String secondSurname = line[ATHLETE_SECONDSURNAME].trim();
 						String name = line[ATHLETE_NAME].trim();
 
 						Date birthDate = null;
@@ -109,6 +116,9 @@ public class DatabaseHistoricService extends DatabaseService {
 						String address = line[ADDREES].trim();
 						String postalCode = line[POSTAL_CODE].trim();
 						String municipality = line[MUNICIPALITY].trim();
+
+						String fatherMail = line[FATHER_MAIL].trim();
+						String motherMail = line[MOTHER_MAIL].trim();
 						String mail = line[MAIL].trim();
 
 						NameDataDto father = getNameData(line, FATHER_NAME);
@@ -165,6 +175,7 @@ public class DatabaseHistoricService extends DatabaseService {
 						athlete.setHolderSecondSurname(athlete.getHolderSecondSurname() == null ? holderSecondSurname
 								: athlete.getHolderSecondSurname());
 						athlete.setHolderDni(athlete.getHolderDni() == null ? holderDni : athlete.getHolderDni());
+						athlete.setFamiliarOneMail(fatherMail);
 
 						// Familiar Info
 						athlete.setFamiliarOneName(
@@ -175,6 +186,8 @@ public class DatabaseHistoricService extends DatabaseService {
 						athlete.setFamiliarOneSecondSurname(
 								athlete.getFamiliarOneSecondSurname() == null ? fatherSecondSurname
 										: athlete.getFamiliarOneSecondSurname());
+						athlete.setFamiliarOneMail(fatherMail);
+
 						athlete.setFamiliarTwoName(
 								athlete.getFamiliarTwoName() == null ? motherName : athlete.getFamiliarTwoName());
 						athlete.setFamiliarTwoFirstSurname(
@@ -183,6 +196,7 @@ public class DatabaseHistoricService extends DatabaseService {
 						athlete.setFamiliarTwoSecondSurname(
 								athlete.getFamiliarTwoSecondSurname() == null ? motherSecondSurname
 										: athlete.getFamiliarTwoSecondSurname());
+						athlete.setFamiliarTwoMail(motherMail);
 
 						// Sport School
 						if (line[SPORT_SCHOOL] != null && !line[SPORT_SCHOOL].trim().isEmpty()) {
@@ -192,6 +206,8 @@ public class DatabaseHistoricService extends DatabaseService {
 								athlete.setSportSchoolId(2);
 							} else if (line[SPORT_SCHOOL].equals(EXT)) {
 								athlete.setSportSchoolId(3);
+							} else if (line[SPORT_SCHOOL].equals(PAD)) {
+								athlete.setSportSchoolId(5);
 							}
 						}
 						// New Family

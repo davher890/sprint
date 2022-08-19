@@ -1,6 +1,7 @@
 package com.backend.sprint.model.dto;
 
 import java.util.Date;
+import java.util.Map;
 import java.util.Set;
 
 import lombok.Getter;
@@ -18,9 +19,13 @@ public class UserDto {
 
 	private Set<String> sportSchoolNames;
 
+	private Map<Long, String> sportSchoolMap;
+
 	private Set<Long> groupIds;
 
 	private Set<String> groupNames;
+
+	private Map<Long, String> groupMap;
 
 	private String username;
 

@@ -10,11 +10,14 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.backend.sprint.model.dao.ObservationDao;
 import com.backend.sprint.model.dto.ObservationDto;
+import com.backend.sprint.model.dto.UserDto;
 import com.backend.sprint.repository.AthleteRepository;
 import com.backend.sprint.repository.ObservationRepository;
 import com.backend.sprint.repository.UserRepository;
@@ -52,6 +55,12 @@ public class ObservationService {
 
 	@Transactional
 	public ObservationDto save(ObservationDto dto) throws DataIntegrityViolationException {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		if (auth != null && auth.getPrincipal() != null) {
+			UserDto user = (UserDto) auth.getPrincipal();
+			dto.setUpdatedById(user.getId());
+		}
+
 		return convertToDto(repository.save(convertToDao(dto)));
 	}
 

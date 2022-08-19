@@ -15,12 +15,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.backend.sprint.model.dao.SportSchoolDao;
 import com.backend.sprint.model.dto.SelectOptionDto;
 import com.backend.sprint.model.dto.SportSchoolDto;
+import com.backend.sprint.model.dto.UserDto;
 import com.backend.sprint.repository.SportSchoolRepository;
 import com.backend.sprint.repository.UserRepository;
 
@@ -77,6 +80,7 @@ public class SportSchoolService {
 			options.add(new SelectOptionDto("LICENCIA", "Licencia"));
 			options.add(new SelectOptionDto("SOCIO", "Socio"));
 			options.add(new SelectOptionDto("ENTRENADOR", "Entrenadores"));
+			options.add(new SelectOptionDto("FED", "Federación"));
 		} else {
 			options.add(new SelectOptionDto("CLUB", "Club"));
 		}
@@ -93,6 +97,10 @@ public class SportSchoolService {
 	}
 
 	public SportSchoolDto save(SportSchoolDto dto) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		UserDto user = (UserDto) auth.getPrincipal();
+		dto.setUpdatedById(user.getId());
+
 		return convertToDto(repository.save(convertToDao(dto)));
 	}
 

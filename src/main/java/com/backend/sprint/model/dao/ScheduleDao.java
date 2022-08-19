@@ -60,7 +60,7 @@ public class ScheduleDao {
 	private Date updatedAt;
 
 	@ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	@JoinColumn(name = "user_id")
+	@JoinColumn(name = "updated_by")
 	private UserDao updatedBy;
 
 }
