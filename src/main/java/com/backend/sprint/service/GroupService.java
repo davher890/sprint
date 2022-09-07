@@ -111,6 +111,10 @@ public class GroupService {
 		return convertToDto(repository.findById(id).orElse(null));
 	}
 
+	public GroupDao findDaoById(long id) {
+		return repository.findById(id).get();
+	}
+
 	public Set<GroupDto> findByTrainerId(long trainerId) {
 		return repository.findByTrainerId(trainerId).stream().map(this::convertToDto).collect(Collectors.toSet());
 	}
@@ -194,6 +198,8 @@ public class GroupService {
 		}
 		if (dto.getUpdatedById() != 0) {
 			dao.setUpdatedBy(userRepository.findById(dto.getUpdatedById()).get());
+		} else {
+			dao.setUpdatedBy(null);
 		}
 
 		return dao;
@@ -229,9 +235,9 @@ public class GroupService {
 		}
 
 		ids.stream().forEach(id -> {
-			GroupDto group = this.findById(id);
-			List<String> scheduleDays = group.getScheduleIds().parallelStream()
-					.map(d -> scheduleRepository.findById(d).get().getDay()).collect(Collectors.toList());
+			GroupDao group = this.findDaoById(id);
+			List<String> scheduleDays = group.getSchedules().parallelStream().map(d -> d.getDay())
+					.collect(Collectors.toList());
 
 			List<ExcelDataDto> data = new ArrayList<>();
 
@@ -292,6 +298,8 @@ public class GroupService {
 			sheet.setMargin(Sheet.BottomMargin, 0);
 			sheet.setMargin(Sheet.LeftMargin, 0);
 			sheet.setMargin(Sheet.RightMargin, 0);
+
+			sheet.getPrintSetup().setLandscape(true);
 
 			IntStream.range(0, 4 + numDays).parallel().forEach(i -> {
 				sheet.autoSizeColumn(i);

@@ -16,6 +16,8 @@ public class TrainerDto {
 
 	private long sportSchoolId;
 
+	private String sportSchoolName;
+
 	private Set<Long> groupIds;
 
 	private String name;

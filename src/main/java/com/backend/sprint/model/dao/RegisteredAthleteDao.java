@@ -20,4 +20,6 @@ public class RegisteredAthleteDao extends GenericAthleteDao {
 
 	@Id
 	private long id;
+
+	private String scheduleIds;
 }

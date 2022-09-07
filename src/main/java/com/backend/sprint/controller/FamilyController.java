@@ -1,6 +1,7 @@
 package com.backend.sprint.controller;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -70,8 +71,8 @@ public class FamilyController {
 			return dataDto;
 		}).collect(Collectors.toList()));
 
-		ByteArrayInputStream bas = ExcelUtils.generateExcel("Familias", data);
-		IOUtils.copy(bas, response.getOutputStream());
+		ByteArrayOutputStream outputStream = ExcelUtils.generateExcel("Familias", data);
+		IOUtils.copy(new ByteArrayInputStream(outputStream.toByteArray()), response.getOutputStream());
 	}
 
 	@GetMapping("/{id}")

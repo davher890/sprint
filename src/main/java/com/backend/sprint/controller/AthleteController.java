@@ -98,7 +98,9 @@ public class AthleteController {
 
 	@PostMapping("/fee")
 	public FeeDto getFee(@RequestBody AthleteDto dto) {
-		return feeService.getAthleteFee(dto);
+		return feeService.getAthleteFee(dto.getId(), dto.getFamilyCode(), dto.getPaymentType(), dto.getSportSchoolId(),
+				dto.isSpecialization(), dto.getScheduleIds(), dto.getCategory(), dto.getLicenseType(),
+				dto.isEnrollmentFeePaid());
 	}
 
 	@PostMapping("")

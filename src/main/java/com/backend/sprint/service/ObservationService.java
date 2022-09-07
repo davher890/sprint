@@ -86,9 +86,17 @@ public class ObservationService {
 
 		if (dto.getUpdatedById() != 0) {
 			dao.setUpdatedBy(userRepository.findById(dto.getUpdatedById()).get());
+		} else {
+			dao.setUpdatedBy(null);
 		}
 
 		return dao;
+	}
+
+	public ObservationDto deleteById(long id) {
+		ObservationDto dto = this.findById(id);
+		dto.setActive(false);
+		return this.save(dto);
 	}
 
 }

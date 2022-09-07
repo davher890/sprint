@@ -57,15 +57,15 @@ public class ScheduleService {
 
 	public Page<ScheduleDto> findPagintation(Specification<ScheduleDao> specification, Pageable pageable, String sort,
 			Direction sortDirection) {
-		Page<ScheduleDao> daoPage = repository.findAll(specification,
-				PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(sortDirection, sort)));
+		Page<ScheduleDao> daoPage = repository.findAll(specification, PageRequest.of(pageable.getPageNumber(),
+				pageable.getPageSize(), Sort.by(sortDirection, sort, "startHour")));
 		return daoPage.map(dao -> convertToDto(dao));
 	}
 
 	public List<ScheduleDto> findAll() {
 		return StreamSupport.stream(repository
-				.findAll(Sort.by(Order.by("day"), Order.by("startHour"), Order.by("startMinute"))).spliterator(), false)
-				.map(this::convertToDto).collect(Collectors.toList());
+				.findAll(Sort.by(Order.by("dayNumber"), Order.by("startHour"), Order.by("startMinute"))).spliterator(),
+				false).map(this::convertToDto).collect(Collectors.toList());
 	}
 
 	public ScheduleDto findById(long id) {
@@ -122,6 +122,8 @@ public class ScheduleService {
 		long updatedById = dto.getUpdatedById();
 		if (updatedById != 0) {
 			dao.setUpdatedBy(userRepository.findById(updatedById).get());
+		} else {
+			dao.setUpdatedBy(null);
 		}
 
 		return dao;

@@ -1,6 +1,5 @@
 package com.backend.sprint.utils;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
@@ -42,7 +41,7 @@ public abstract class ExcelUtils {
 
 	}
 
-	public static ByteArrayInputStream generateExcel(String sheetName, List<ExcelDataDto> data) throws IOException {
+	public static ByteArrayOutputStream generateExcel(String sheetName, List<ExcelDataDto> data) throws IOException {
 
 		Workbook workbook = new XSSFWorkbook();
 
@@ -71,7 +70,7 @@ public abstract class ExcelUtils {
 		workbook.write(outputStream);
 		workbook.close();
 
-		return new ByteArrayInputStream(outputStream.toByteArray());
+		return outputStream;
 	}
 
 	public static CellType getCellType(ColumnDto d) {

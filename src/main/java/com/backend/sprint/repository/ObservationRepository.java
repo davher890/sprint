@@ -13,6 +13,6 @@ import com.backend.sprint.model.dao.ObservationDao;
 public interface ObservationRepository
 		extends PagingAndSortingRepository<ObservationDao, Long>, JpaSpecificationExecutor<ObservationDao> {
 
-	@Query(value = "SELECT * FROM observations WHERE athlete_id = ?1 ORDER BY created_at DESC ", nativeQuery = true)
+	@Query(value = "SELECT * FROM observations WHERE athlete_id = ?1 AND active = true ORDER BY created_at DESC ", nativeQuery = true)
 	public Set<ObservationDao> findAthleteObservations(long athleteId);
 }

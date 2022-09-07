@@ -17,6 +17,8 @@ public class ObservationDto {
 
 	private String text;
 
+	private boolean active = true;
+
 	private Date createdAt;
 
 	private Date updatedAt;

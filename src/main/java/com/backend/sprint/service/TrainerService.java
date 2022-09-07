@@ -17,6 +17,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.backend.sprint.model.dao.SportSchoolDao;
 import com.backend.sprint.model.dao.TrainerDao;
 import com.backend.sprint.model.dto.GroupDto;
 import com.backend.sprint.model.dto.TrainerDto;
@@ -95,7 +96,11 @@ public class TrainerService {
 				.collect(Collectors.toSet());
 		dto.setGroupIds(groupIds);
 
-		dto.setSportSchoolId(dao.getSportSchool().getId());
+		SportSchoolDao sportSchool = dao.getSportSchool();
+		if (sportSchool != null) {
+			dto.setSportSchoolId(sportSchool.getId());
+			dto.setSportSchoolName(sportSchool.getName());
+		}
 		if (dao.getUpdatedBy() != null) {
 			dto.setUpdatedById(dao.getUpdatedBy().getId());
 		}
@@ -111,6 +116,8 @@ public class TrainerService {
 		dao.setSportSchool(sportSchoolRepository.findById(dto.getSportSchoolId()).get());
 		if (dto.getUpdatedById() != 0) {
 			dao.setUpdatedBy(userRepository.findById(dto.getUpdatedById()).get());
+		} else {
+			dao.setUpdatedBy(null);
 		}
 
 		return dao;

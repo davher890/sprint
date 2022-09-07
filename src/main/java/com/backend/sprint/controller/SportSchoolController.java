@@ -1,6 +1,7 @@
 package com.backend.sprint.controller;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -185,7 +186,7 @@ public class SportSchoolController {
 			return dataDto;
 		}).filter(Objects::nonNull).collect(Collectors.toList()));
 
-		ByteArrayInputStream bas = ExcelUtils.generateExcel("Escuelas", data);
-		IOUtils.copy(bas, response.getOutputStream());
+		ByteArrayOutputStream outputStream = ExcelUtils.generateExcel("Escuelas", data);
+		IOUtils.copy(new ByteArrayInputStream(outputStream.toByteArray()), response.getOutputStream());
 	}
 }

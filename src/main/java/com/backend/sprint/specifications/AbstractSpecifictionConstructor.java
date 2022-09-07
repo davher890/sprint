@@ -1,6 +1,7 @@
 package com.backend.sprint.specifications;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -55,6 +56,24 @@ public abstract class AbstractSpecifictionConstructor<E> implements Specificatio
 			predicate = builder.isTrue(rootField);
 		} else {
 			predicate = builder.isFalse(rootField);
+		}
+		return predicate;
+	}
+
+	protected Predicate filterPredicateDate(Path<Date> rootField, CriteriaBuilder builder, String operator, Date value,
+			Date valueTo) {
+		Predicate predicate = null;
+
+		if (operator.equals("gt")) {
+			predicate = builder.greaterThan(rootField, value);
+		} else if (operator.equals("gte")) {
+			predicate = builder.greaterThanOrEqualTo(rootField, value);
+		} else if (operator.equals("lt")) {
+			predicate = builder.lessThan(rootField, value);
+		} else if (operator.equals("lte")) {
+			predicate = builder.lessThanOrEqualTo(rootField, value);
+		} else if (operator.equals("between")) {
+			predicate = builder.between(rootField, value, valueTo);
 		}
 		return predicate;
 	}

@@ -27,16 +27,16 @@ public interface AthleteRepository
 	@Query(value = "SELECT * FROM athletes WHERE code = ?1 ", nativeQuery = true)
 	public AthleteDao findByCode(long code);
 
-	@Query(value = "SELECT * FROM athletes WHERE LOWER(first_surname) = LOWER(?1) AND LOWER(second_surname) = LOWER(?2)", nativeQuery = true)
-	public List<AthleteDao> findBySurnames(String firstSurname, String secondSurname);
+	@Query(value = "SELECT * FROM athletes WHERE LOWER(first_surname) = LOWER(?1) AND LOWER(second_surname) = LOWER(?2) AND sport_school_id IN ?3", nativeQuery = true)
+	public List<AthleteDao> findBySurnames(String firstSurname, String secondSurname, Set<Long> sportSchoolIds);
 
 	@Query(value = "SELECT MAX(code) FROM athletes", nativeQuery = true)
 	public long findLastFamilyCode();
 
 	@Query(value = "SELECT * FROM athletes a1 INNER JOIN "
-			+ "(SELECT id FROM athletes WHERE phone1 IN (?1) OR phone2 IN (?1) OR phone3 IN (?1) GROUP by 1) a2 "
+			+ "(SELECT id FROM athletes WHERE phone1 IN (?1) OR phone2 IN (?1) OR phone3 IN (?1) AND sport_school_id IN ?2 GROUP by 1) a2 "
 			+ "ON a1.id = a2.id", nativeQuery = true)
-	public List<AthleteDao> findByPhoneList(List<String> phoneList);
+	public List<AthleteDao> findByPhoneList(List<String> phoneList, Set<Long> sportSchoolIds);
 
 	@Query(value = "SELECT * FROM athletes WHERE id != ?1 AND name = ?2 AND first_surname = ?3 AND second_surname = ?4 "
 			+ "AND EXTRACT(YEAR FROM birth_date) = ?5 AND EXTRACT(MONTH FROM birth_date) = ?6 AND EXTRACT(DAY FROM birth_date) = ?7 ", nativeQuery = true)

@@ -1,5 +1,6 @@
 package com.backend.sprint.service;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -142,11 +143,23 @@ public class AthleteService {
 	}
 
 	public List<AthleteDto> findByPhoneList(List<String> phoneList) {
-		return convertToDto(repository.findByPhoneList(phoneList));
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		UserDto user = (UserDto) auth.getPrincipal();
+		Set<Long> sportSchoolIds = user.getSportSchoolIds();
+		if (sportSchoolIds.size() == 0) {
+			return new ArrayList<AthleteDto>();
+		}
+		return convertToDto(repository.findByPhoneList(phoneList, sportSchoolIds));
 	}
 
 	public List<AthleteDto> findBySurnames(String firstSurname, String secondSurname) {
-		return convertToDto(repository.findBySurnames(firstSurname, secondSurname));
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		UserDto user = (UserDto) auth.getPrincipal();
+		Set<Long> sportSchoolIds = user.getSportSchoolIds();
+		if (sportSchoolIds.size() == 0) {
+			return new ArrayList<AthleteDto>();
+		}
+		return convertToDto(repository.findBySurnames(firstSurname, secondSurname, sportSchoolIds));
 	}
 
 	private FamilyDto newFamily() {
@@ -263,8 +276,9 @@ public class AthleteService {
 			dao.setSchedules(dto.getScheduleIds().stream().map(scheduleId -> {
 				return scheduleRepository.findById(scheduleId).get();
 			}).collect(Collectors.toSet()));
+		} else {
+			dao.setSchedules(null);
 		}
-
 		return dao;
 	}
 }

@@ -17,7 +17,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
+import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
@@ -27,6 +27,7 @@ import com.backend.sprint.model.dto.FamilyDto;
 import com.backend.sprint.model.dto.GroupDto;
 import com.backend.sprint.model.dto.HistoricDto;
 import com.backend.sprint.model.dto.NameDataDto;
+import com.backend.sprint.model.dto.ScheduleDto;
 import com.backend.sprint.model.dto.SportSchoolDto;
 import com.backend.sprint.model.dto.TrainerDto;
 import com.backend.sprint.model.dto.UserDto;
@@ -69,23 +70,31 @@ public class DatabaseSportSchoolAthletesService extends DatabaseService {
 	private static final int DORSAL_CATEGORY = 29;
 	private static final int DORSAL = 30;
 	private static final int GROUP_NAME = 31;
-	private static final int GROUP_TYPE = 32;
-	private static final int DAYS = 33;
-	private static final int NUM_DAYS = 34;
-	private static final int SCHEDULE = 35;
-	private static final int PAYMENT_TYPE = 36;
-	private static final int FEE_TYPE = 37;
-	private static final int OBSERVATIONS_SEASON = 44;
-	private static final int OBSERVATIONS_1_PAYMENT = 46;
-	private static final int OBSERVATIONS_1T_1 = 48;
-	private static final int OBSERVATIONS_1T_2 = 50;
-	private static final int OBSERVATIONS_LICENCIA = 52;
-	private static final int OBSERVATIONS_2T_1 = 54;
-	private static final int OBSERVATIONS_2T_2 = 56;
-	private static final int OBSERVATIONS_3T_1 = 58;
-	private static final int OBSERVATIONS_3T_2 = 60;
 
-	private static final int REGISTER_DATE = 62;
+	private static final int MONDAY = 32;
+	private static final int TUESDAY = 33;
+	private static final int WEDNESDAY = 34;
+	private static final int THURSDAY = 35;
+	private static final int FRIDAY = 36;
+	private static final int SATURDAY = 37;
+
+	private static final int DAYS = 38;
+	private static final int NUM_DAYS = 39;
+	private static final int SCHEDULE = 40;
+	private static final int PAYMENT_TYPE = 41;
+	private static final int FEE_TYPE = 42;
+
+	private static final int OBSERVATIONS_SEASON = 49;
+	private static final int OBSERVATIONS_1_PAYMENT = 51;
+	private static final int OBSERVATIONS_1T_1 = 53;
+	private static final int OBSERVATIONS_1T_2 = 55;
+	private static final int OBSERVATIONS_LICENCIA = 57;
+	private static final int OBSERVATIONS_2T_1 = 59;
+	private static final int OBSERVATIONS_2T_2 = 61;
+	private static final int OBSERVATIONS_3T_1 = 63;
+	private static final int OBSERVATIONS_3T_2 = 65;
+
+	private static final int REGISTER_DATE = 67;
 
 	private static final String DATE_SEPARATOR = "-";
 
@@ -95,20 +104,20 @@ public class DatabaseSportSchoolAthletesService extends DatabaseService {
 
 		SportSchoolDto sportSchool = sportSchoolService.findById(sportSchoolId);
 
-		Long[] athleteTestList = { 30781L, 30782L, 30971L, 30981L, 31111L, 31121L, 31251L, 31381L, 31411L };
+		Long[] athleteTestList = { 14472L, 15263L, 25981L, 27442L, 26372L, 26491L, 28681L, 29791L, 31361L };
 
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		UserDto user = (UserDto) auth.getPrincipal();
 
-//		ProfileCredentialsProvider creds = new ProfileCredentialsProvider("davher890");
-		DefaultAWSCredentialsProviderChain creds = new DefaultAWSCredentialsProviderChain();
+		ProfileCredentialsProvider creds = new ProfileCredentialsProvider("davher890");
+//		DefaultAWSCredentialsProviderChain creds = new DefaultAWSCredentialsProviderChain();
 		Regions region = Regions.US_EAST_1;
 		AmazonS3 s3Client = AmazonS3Client.builder().withRegion(region).withCredentials(creds).build();
 		s3Client.getObject(new GetObjectRequest("sprint-database", csvName), new File("/tmp/" + csvName));
 
 		CSVReader csvReader = readFile("/tmp/" + csvName);
 		return StreamSupport.stream(csvReader.spliterator(), true)
-//				.filter(d -> Arrays.asList(athleteTestList).contains(Long.valueOf(d[ATHLETE_CODE].trim())))
+				.filter(d -> Arrays.asList(athleteTestList).contains(Long.valueOf(d[ATHLETE_CODE].trim())))
 				.map(line -> {
 
 					try {
@@ -129,8 +138,8 @@ public class DatabaseSportSchoolAthletesService extends DatabaseService {
 						String dni = line[DNI].trim();
 						String category = line[CATEGORY].trim();
 						String license = line[LICENSE].trim();
-						String licenseType = line[LICENSE_TYPE].trim().equals("T") ? LicenseType.Territorial.name()
-								: LicenseType.National.name();
+						String licenseType = line[LICENSE_TYPE].trim().equals("T") ? LicenseType.Territorial.label
+								: LicenseType.National.label;
 						String dorsalCategory = line[DORSAL_CATEGORY].trim();
 						String dorsalStr = line[DORSAL].trim();
 						long dorsalNumber = 0L;
@@ -238,7 +247,8 @@ public class DatabaseSportSchoolAthletesService extends DatabaseService {
 
 						if (group != null) {
 							athlete.setGroupId(group.getId());
-							athlete.setScheduleIds(group.getScheduleIds());
+							Set<Long> groupSchedules = filterGroupSchedules(line, group.getSchedules());
+							athlete.setScheduleIds(groupSchedules);
 						}
 
 						try {
@@ -300,6 +310,23 @@ public class DatabaseSportSchoolAthletesService extends DatabaseService {
 						return null;
 					}
 				}).collect(Collectors.toList());
+	}
+
+	private Set<Long> filterGroupSchedules(String[] line, Set<ScheduleDto> schedules) {
+		return schedules.stream().filter(scheduleDto -> {
+			return line[MONDAY] != null && !line[MONDAY].isEmpty() && line[MONDAY].toUpperCase().equals("X")
+					&& scheduleDto.getDayNumber() == 1
+					|| line[TUESDAY] != null && !line[TUESDAY].isEmpty() && line[TUESDAY].toUpperCase().equals("X")
+							&& scheduleDto.getDayNumber() == 2
+					|| line[WEDNESDAY] != null && !line[WEDNESDAY].isEmpty()
+							&& line[WEDNESDAY].toUpperCase().equals("X") && scheduleDto.getDayNumber() == 3
+					|| line[THURSDAY] != null && !line[THURSDAY].isEmpty() && line[THURSDAY].toUpperCase().equals("X")
+							&& scheduleDto.getDayNumber() == 4
+					|| line[FRIDAY] != null && !line[FRIDAY].isEmpty() && line[FRIDAY].toUpperCase().equals("X")
+							&& scheduleDto.getDayNumber() == 5
+					|| line[SATURDAY] != null && !line[SATURDAY].isEmpty() && line[SATURDAY].toUpperCase().equals("X")
+							&& scheduleDto.getDayNumber() == 6;
+		}).map(ScheduleDto::getId).collect(Collectors.toSet());
 	}
 
 	public Set<SportSchoolDto> dbFillSportSchoolsData() {

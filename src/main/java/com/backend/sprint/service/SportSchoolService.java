@@ -74,7 +74,7 @@ public class SportSchoolService {
 			// Paracuellos
 			options.add(new SelectOptionDto("CLUB", "Club"));
 			options.add(new SelectOptionDto("CLUB_ANUAL", "Club Anual"));
-		} else if (sportSchoolId == 3) {
+		} else if (sportSchoolId == 3 || sportSchoolId == 5) {
 
 			// Externos
 			options.add(new SelectOptionDto("LICENCIA", "Licencia"));
@@ -119,6 +119,8 @@ public class SportSchoolService {
 
 		if (dao.getUpdatedBy() != null) {
 			dto.setUpdatedById(dao.getUpdatedBy().getId());
+		} else {
+			dao.setUpdatedBy(null);
 		}
 		return dto;
 	}

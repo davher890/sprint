@@ -45,6 +45,9 @@ public class ScheduleDao {
 	@NotNull
 	private String day;
 
+	@NotNull
+	private int dayNumber;
+
 	private int startHour;
 
 	private int startMinute;

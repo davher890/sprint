@@ -1,10 +1,11 @@
 package com.backend.sprint.service;
 
+import java.util.Set;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.backend.sprint.model.dao.LicenseTypeCategoryFeeDao;
-import com.backend.sprint.model.dto.AthleteDto;
 import com.backend.sprint.model.dto.FamilyDto;
 import com.backend.sprint.model.dto.FeeDto;
 import com.backend.sprint.repository.LicenseTypeCategoryFeeRepository;
@@ -19,39 +20,42 @@ public class FeeService {
 	@Autowired
 	private FamilyService familyService;
 
-	public FeeDto getAthleteFee(AthleteDto dto) {
+	public FeeDto getAthleteFee(long id, long familyCode, String paymentType, long sportSchoolId,
+			boolean specialization, Set<Long> scheduleIds, String category, String licenseType,
+			boolean isEnrollmentFeePaid) {
 
 		FeeDto fee = new FeeDto();
-		fee.setMonthlyFee(this.getMonthlyFee(dto));
+		fee.setMonthlyFee(
+				this.getMonthlyFee(paymentType, sportSchoolId, specialization, scheduleIds, category, licenseType));
 
-		fee.setEnrollmentFee(this.getEnrollmentFee(dto));
+		fee.setEnrollmentFee(this.getEnrollmentFee(id, sportSchoolId, familyCode, isEnrollmentFeePaid));
 
-		fee.setMembershipFee(this.getMembershipFee(dto));
+		fee.setMembershipFee(this.getMembershipFee(id, paymentType, familyCode));
 
 		return fee;
 
 	}
 
 	// Annually
-	public float getMembershipFee(AthleteDto dto) {
+	public float getMembershipFee(long id, String paymentType, long familyCode) {
 
 		float fee = 0;
 
-		if (!dto.getPaymentType().equals(PaymentType.Subvencionado.label)) {
+		if (!paymentType.equals(PaymentType.Subvencionado.label)) {
 			fee = 20;
-			FamilyDto family = familyService.findByCode(dto.getFamilyCode());
+			FamilyDto family = familyService.findByCode(familyCode);
 			if (family != null) {
 				int familyCount = family.getCount();
 				if (familyCount > 0) {
 
 					// Already registered athlete
-					if (dto.getId() > 0) {
+					if (id > 0) {
 						if (familyCount > 3) {
 							fee /= familyCount;
 						}
 					}
 					// New athlete
-					if (dto.getId() == 0) {
+					if (id == 0) {
 						if (familyCount > 2) {
 							fee /= (familyCount + 1);
 						}
@@ -64,56 +68,48 @@ public class FeeService {
 	}
 
 	// Once
-	public int getEnrollmentFee(AthleteDto dto) {
+	public int getEnrollmentFee(long id, long sportSchoolId, long familyCode, boolean isEnrollmentFeePaid) {
 
 		int fee = 0;
-		if (dto.getId() == 0) {
+		if (id == 0 || !isEnrollmentFeePaid) {
 			fee = 40;
-
-			if (dto.getSportSchoolId() == 3) {
+			if (sportSchoolId == 3) {
 				fee = 10;
 			} else {
-				if (dto.getFamilyCode() > 0) {
-					FamilyDto family = familyService.findByCode(dto.getFamilyCode());
+				if (familyCode > 0) {
+					FamilyDto family = familyService.findByCode(familyCode);
 					// if (dto.getLicenseType().equals("PISTAS") ||
 					// dto.getLicenseType().equals("LICENCIA")) {
-					if (dto.getId() == 0) {
-						if (family.getCount() > 0) {
-							fee = 20;
-						}
+					if (family.getCount() > 0) {
+						fee = 20;
 					}
-					if (dto.getId() > 0) {
-						if (family.getCount() > 1) {
-							fee = 20;
-						}
+					if (family.getCount() > 1) {
+						fee = 20;
 					}
-
-					// A partir del tercer miembro solo se paga una cuota de socio por
-					// familia
 				}
 
+				// A partir del tercer miembro solo se paga una cuota de socio por
+				// familia
 			}
+
 		}
 		return fee;
+
 	}
 
-	public int getMonthlyFee(AthleteDto dto) {
+	public float getMonthlyFee(String paymentType, long sportSchoolId, boolean specialization, Set<Long> scheduleIds,
+			String category, String licenseType) {
 
-		int fee = 0;
+		float fee = 0;
 
-		LicenseTypeCategoryFeeDao licenseTypeCategoryFee = repository.findByLicenseTypeAndCategory(dto.getLicenseType(),
-				dto.getCategory());
+		if (!paymentType.equals(PaymentType.Subvencionado.label)) {
 
-		if (!dto.getPaymentType().equals(PaymentType.Subvencionado.label)) {
-			if (dto.getSportSchoolId() == 1) {
-				if (dto.isSpecialization()) {
+			if (sportSchoolId == 1) {
+				if (specialization) {
 					fee = 115;
 				} else {
-					if (dto.getScheduleIds() != null) {
-						switch (dto.getScheduleIds().size()) {
-						case 0:
-							fee = 0;
-							break;
+					if (scheduleIds != null && !scheduleIds.isEmpty()) {
+						switch (scheduleIds.size()) {
 						case 1:
 							fee = 55;
 							break;
@@ -124,18 +120,21 @@ public class FeeService {
 							fee = 115;
 							break;
 						}
+					} else {
+						if (licenseType != null && !licenseType.isEmpty() && category != null && !category.isEmpty()) {
+							LicenseTypeCategoryFeeDao licenseTypeCategoryFee = repository
+									.findByLicenseTypeAndCategory(licenseType, category);
+							fee = licenseTypeCategoryFee.getFee();
+						}
 					}
 				}
 			}
-			if (dto.getSportSchoolId() == 2) {
-				if (dto.isSpecialization()) {
+			if (sportSchoolId == 2) {
+				if (specialization) {
 					fee = 100;
 				} else {
-					if (dto.getScheduleIds() != null) {
-						switch (dto.getScheduleIds().size()) {
-						case 0:
-							fee = 0;
-							break;
+					if (scheduleIds != null && !scheduleIds.isEmpty()) {
+						switch (scheduleIds.size()) {
 						case 1:
 							fee = 50;
 							break;
@@ -146,26 +145,24 @@ public class FeeService {
 							fee = 100;
 							break;
 						}
+					} else {
+						if (licenseType != null && !licenseType.isEmpty() && category != null && !category.isEmpty()) {
+							LicenseTypeCategoryFeeDao licenseTypeCategoryFee = repository
+									.findByLicenseTypeAndCategory(licenseType, category);
+							fee = licenseTypeCategoryFee.getFee();
+						}
 					}
 				}
 
 			}
 
-//			if (dto.getSportSchoolId() == 3) {
-//				Category catEnum = Category.valueOf(dto.getCategory());
-//				switch (catEnum) {
-//				case Category.SUB8:
-//					
-//				
-//				}
-//				if (dto.getLicenseType().equals(LicenseType.National.name())) {
-//					 
-//
-//				}
-//				if (dto.getCategory().equals("Territorial")) {
-//
-//				}
-//			}
+			if (sportSchoolId == 3 || sportSchoolId == 5) {
+				if (licenseType != null && !licenseType.isEmpty() && category != null && !category.isEmpty()) {
+					LicenseTypeCategoryFeeDao licenseTypeCategoryFee = repository
+							.findByLicenseTypeAndCategory(licenseType, category);
+					fee = licenseTypeCategoryFee.getFee();
+				}
+			}
 		}
 
 		return fee;

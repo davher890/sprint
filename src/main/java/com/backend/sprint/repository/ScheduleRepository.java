@@ -14,7 +14,7 @@ public interface ScheduleRepository
 	@Query(value = "SELECT * FROM schedules WHERE day = ?1 AND start_hour = ?2 AND start_minute = ?3 AND end_hour = ?4 AND end_minute = ?5 ", nativeQuery = true)
 	public ScheduleDao findByTime(String day, int startHour, int startMinute, int endHour, int endMinute);
 
-	@Query(value = "SELECT s.* FROM schedules s INNER JOIN groups_schedules gs ON gs.schedule_id = s.id WHERE gs.group_id = ?1 ORDER BY s.day", nativeQuery = true)
+	@Query(value = "SELECT s.* FROM schedules s INNER JOIN groups_schedules gs ON gs.schedule_id = s.id WHERE gs.group_id = ?1 ORDER BY s.day_number", nativeQuery = true)
 	public List<ScheduleDao> findByGroupId(long groupId);
 
 }

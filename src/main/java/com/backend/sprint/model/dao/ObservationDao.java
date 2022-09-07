@@ -38,6 +38,9 @@ public class ObservationDao {
 	@Column(columnDefinition = "text")
 	private String text;
 
+	@Column(columnDefinition = "boolean default true")
+	private boolean active;
+
 	@CreationTimestamp
 	private Date createdAt;
 
