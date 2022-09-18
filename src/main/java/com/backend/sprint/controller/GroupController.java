@@ -112,6 +112,7 @@ public class GroupController {
 		if (filters == null) {
 			filters = new ArrayList<String>();
 		}
+		filters.add("active__==__true");
 		filters.add("groupId__=__" + groupId);
 		filters.add("scheduleIds__=__" + scheduleIds);
 		return athleteService.findPagintation(new AthleteSpecificationConstructor<>(filters), pageable);
@@ -140,8 +141,8 @@ public class GroupController {
 		}).collect(Collectors.toList()));
 		data.add(header);
 
-		excelService.downloadAthletesDaoExcel(columns, response, athletes, "Atletes");
-
+		ByteArrayOutputStream outputStream = excelService.downloadAthletesDaoExcel(columns, athletes, "Atletes");
+		IOUtils.copy(new ByteArrayInputStream(outputStream.toByteArray()), response.getOutputStream());
 	}
 
 	@PostMapping("")

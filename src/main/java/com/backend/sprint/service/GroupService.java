@@ -10,6 +10,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -54,6 +55,7 @@ import com.backend.sprint.repository.ScheduleRepository;
 import com.backend.sprint.repository.SportSchoolRepository;
 import com.backend.sprint.repository.TrainerRepository;
 import com.backend.sprint.repository.UserRepository;
+import com.backend.sprint.utils.AthleteUtils;
 import com.backend.sprint.utils.ExcelUtils;
 
 @Service
@@ -279,9 +281,13 @@ public class GroupService {
 								CellType.STRING, style));
 				dataDto.getData()
 						.add(new ExcelValueDto(dateFormat.format(entity.getBirthDate()), CellType.STRING, style));
-				dataDto.getData().add(new ExcelValueDto(entity.getCategory(), CellType.STRING, style));
+				Calendar calendar = Calendar.getInstance();
+				calendar.setTime(entity.getBirthDate());
+				dataDto.getData().add(new ExcelValueDto(
+						AthleteUtils.calculateCategory(calendar.get(Calendar.YEAR)).name(), CellType.STRING, style));
 				dataDto.getData()
 						.add(new ExcelValueDto(entity.getSchedules().parallelStream()
+								.sorted(Comparator.comparingInt(ScheduleDao::getDayNumber))
 								.map(scheduleDao -> scheduleService.translateDay(scheduleDao.getDay()))
 								.collect(Collectors.joining(",")), CellType.STRING, style));
 

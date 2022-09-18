@@ -4,8 +4,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -18,57 +16,57 @@ import com.backend.sprint.model.dao.AthleteDao;
 public interface AthleteRepository
 		extends PagingAndSortingRepository<AthleteDao, Long>, JpaSpecificationExecutor<AthleteDao> {
 
-	@Query(value = "SELECT * FROM athletes WHERE family_id = ?1 ", nativeQuery = true)
+	@Query(value = "SELECT * FROM athletes WHERE family_id = ?1 AND active = true", nativeQuery = true)
 	public Set<AthleteDao> findByFamily(long familyId);
 
-	@Query(value = "SELECT * FROM athletes a INNER JOIN families f ON f.id = a.family_id WHERE f.code = ?1 ", nativeQuery = true)
+	@Query(value = "SELECT * FROM athletes a INNER JOIN families f ON f.id = a.family_id WHERE f.code = ?1 AND active = true", nativeQuery = true)
 	public List<AthleteDao> findByFamilyCode(long familyCode);
 
-	@Query(value = "SELECT * FROM athletes WHERE code = ?1 ", nativeQuery = true)
+	@Query(value = "SELECT * FROM athletes WHERE code = ?1 AND active = true", nativeQuery = true)
 	public AthleteDao findByCode(long code);
 
-	@Query(value = "SELECT * FROM athletes WHERE LOWER(first_surname) = LOWER(?1) AND LOWER(second_surname) = LOWER(?2) AND sport_school_id IN ?3", nativeQuery = true)
+	@Query(value = "SELECT * FROM athletes WHERE LOWER(first_surname) = LOWER(?1) AND LOWER(second_surname) = LOWER(?2) AND sport_school_id IN ?3 AND active = true", nativeQuery = true)
 	public List<AthleteDao> findBySurnames(String firstSurname, String secondSurname, Set<Long> sportSchoolIds);
 
 	@Query(value = "SELECT MAX(code) FROM athletes", nativeQuery = true)
 	public long findLastFamilyCode();
 
 	@Query(value = "SELECT * FROM athletes a1 INNER JOIN "
-			+ "(SELECT id FROM athletes WHERE phone1 IN (?1) OR phone2 IN (?1) OR phone3 IN (?1) AND sport_school_id IN ?2 GROUP by 1) a2 "
+			+ "(SELECT id FROM athletes WHERE (phone1 IN (?1) OR phone2 IN (?1) OR phone3 IN (?1) AND sport_school_id IN ?2) AND active = true GROUP by 1) a2 "
 			+ "ON a1.id = a2.id", nativeQuery = true)
 	public List<AthleteDao> findByPhoneList(List<String> phoneList, Set<Long> sportSchoolIds);
 
-	@Query(value = "SELECT * FROM athletes WHERE id != ?1 AND name = ?2 AND first_surname = ?3 AND second_surname = ?4 "
-			+ "AND EXTRACT(YEAR FROM birth_date) = ?5 AND EXTRACT(MONTH FROM birth_date) = ?6 AND EXTRACT(DAY FROM birth_date) = ?7 ", nativeQuery = true)
-	public List<AthleteDao> findByIdAndUniqueColumns(long id, String name, String firstSurname, String secondSurname,
-			int year, int month, int day);
+//	@Query(value = "SELECT * FROM athletes WHERE id != ?1 AND name = ?2 AND first_surname = ?3 AND second_surname = ?4 "
+//			+ "AND EXTRACT(YEAR FROM birth_date) = ?5 AND EXTRACT(MONTH FROM birth_date) = ?6 AND EXTRACT(DAY FROM birth_date) = ?7 AND active = true", nativeQuery = true)
+//	public List<AthleteDao> findByIdAndUniqueColumns(long id, String name, String firstSurname, String secondSurname,
+//			int year, int month, int day);
 
-	@Query(value = "SELECT * FROM athletes WHERE name = ?1 AND first_surname = ?2 AND second_surname = ?3 "
-			+ "AND EXTRACT(YEAR FROM birth_date) = ?4 AND EXTRACT(MONTH FROM birth_date) = ?5 AND EXTRACT(DAY FROM birth_date) = ?6 ", nativeQuery = true)
-	public List<AthleteDao> findByUniqueColumns(String name, String firstSurname, String secondSurname, int year,
-			int month, int day);
+//	@Query(value = "SELECT * FROM athletes WHERE name = ?1 AND first_surname = ?2 AND second_surname = ?3 "
+//			+ "AND EXTRACT(YEAR FROM birth_date) = ?4 AND EXTRACT(MONTH FROM birth_date) = ?5 AND EXTRACT(DAY FROM birth_date) = ?6 AND active = true", nativeQuery = true)
+//	public List<AthleteDao> findByUniqueColumns(String name, String firstSurname, String secondSurname, int year,
+//			int month, int day);
 
-	@Query(value = "SELECT * FROM athletes WHERE name = ?1 AND first_surname = ?2 AND second_surname = ?3 "
-			+ "AND EXTRACT(YEAR FROM birth_date) = ?4 AND EXTRACT(MONTH FROM birth_date) = ?5 AND EXTRACT(DAY FROM birth_date) = ?6 ", nativeQuery = true)
-	public List<AthleteDao> findByNameColumns(String name, String firstSurname, String secondSurname, int year,
-			int month, int day);
+//	@Query(value = "SELECT * FROM athletes WHERE name = ?1 AND first_surname = ?2 AND second_surname = ?3 "
+//			+ "AND EXTRACT(YEAR FROM birth_date) = ?4 AND EXTRACT(MONTH FROM birth_date) = ?5 AND EXTRACT(DAY FROM birth_date) = ?6 ", nativeQuery = true)
+//	public List<AthleteDao> findByNameColumns(String name, String firstSurname, String secondSurname, int year,
+//			int month, int day);
+
+//	@Query(value = "SELECT * FROM athletes WHERE id IN (SELECT DISTINCT(a.id) "
+//			+ "FROM athletes a INNER JOIN groups_schedules gs ON gs.group_id = a.group_id "
+//			+ "WHERE a.group_id = ?1 AND gs.schedule_id IN (?2)) AND active = true", nativeQuery = true)
+//	public Page<AthleteDao> findByGroupAndSchedulesPagination(long groupId, List<Long> scheduleIds, Pageable pageable);
 
 	@Query(value = "SELECT * FROM athletes WHERE id IN (SELECT DISTINCT(a.id) "
 			+ "FROM athletes a INNER JOIN groups_schedules gs ON gs.group_id = a.group_id "
-			+ "WHERE a.group_id = ?1 AND gs.schedule_id IN (?2))", nativeQuery = true)
-	public Page<AthleteDao> findByGroupAndSchedulesPagination(long groupId, List<Long> scheduleIds, Pageable pageable);
-
-	@Query(value = "SELECT * FROM athletes WHERE id IN (SELECT DISTINCT(a.id) "
-			+ "FROM athletes a INNER JOIN groups_schedules gs ON gs.group_id = a.group_id "
-			+ "WHERE a.group_id = ?1 AND gs.schedule_id IN (?2))", nativeQuery = true)
+			+ "WHERE a.group_id = ?1 AND gs.schedule_id IN (?2)) AND active = true", nativeQuery = true)
 	public List<AthleteDao> findByGroupAndSchedules(long groupId, List<Long> scheduleIds);
 
 	// Returns the athletes in the historic
-	@Query(value = "SELECT * FROM athletes WHERE NOT("
-			+ "(last_register_date IS NULL AND (last_unregister_date IS NULL OR last_unregister_date > NOW())) "
-			+ " OR "
-			+ "(last_register_date IS NOT NULL AND last_register_date <= NOW() AND (last_unregister_date IS NULL OR last_unregister_date < last_register_date)))", nativeQuery = true)
-	public List<AthleteDao> findAllHistoric();
+//	@Query(value = "SELECT * FROM athletes WHERE NOT("
+//			+ "(last_register_date IS NULL AND (last_unregister_date IS NULL OR last_unregister_date > NOW())) "
+//			+ " OR "
+//			+ "(last_register_date IS NOT NULL AND last_register_date <= NOW() AND (last_unregister_date IS NULL OR last_unregister_date < last_register_date)))", nativeQuery = true)
+//	public List<AthleteDao> findAllHistoric();
 
 	// Returns the registered athletes
 	@Query(value = "SELECT * FROM athletes WHERE "
@@ -82,7 +80,7 @@ public interface AthleteRepository
 			+ "WHERE rn = 1 AND h.type = 'REGISTER'", nativeQuery = true)
 	public List<AthleteDao> findByRegistrationDates(Date startDate, Date endDate);
 
-	@Query(value = "SELECT * FROM athletes WHERE group_id = ?1 ORDER BY first_surname, second_surname", nativeQuery = true)
+	@Query(value = "SELECT * FROM athletes WHERE group_id = ?1 AND active = true ORDER BY first_surname, second_surname", nativeQuery = true)
 	public List<AthleteDao> findByGroupId(long groupId);
 
 	@Modifying

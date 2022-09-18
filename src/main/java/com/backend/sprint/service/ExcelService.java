@@ -8,6 +8,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -38,6 +40,7 @@ import org.springframework.stereotype.Service;
 import com.backend.sprint.model.dao.AthleteDao;
 import com.backend.sprint.model.dao.GenericAthleteDao;
 import com.backend.sprint.model.dao.RegisteredAthleteDao;
+import com.backend.sprint.model.dao.ScheduleDao;
 import com.backend.sprint.model.dto.ColumnDto;
 import com.backend.sprint.model.dto.ExcelDataDto;
 import com.backend.sprint.model.dto.ExcelValueDto;
@@ -53,9 +56,6 @@ public class ExcelService {
 
 	@Autowired
 	private ScheduleService scheduleService;
-
-	@Autowired
-	private AthleteService athleteService;
 
 	@Autowired
 	private FeeService feeService;
@@ -94,6 +94,11 @@ public class ExcelService {
 						boolean h = entity.getLicense() == null || entity.getLicense().isEmpty()
 								|| entity.getLicense().trim().toUpperCase().equals("SIN LICENCIA");
 						return new ExcelValueDto(h ? null : entity.getLicenseType(), ExcelUtils.getCellType(d));
+					} else if (d.getDataField().equals("category")) {
+						Calendar calendar = Calendar.getInstance();
+						calendar.setTime(entity.getBirthDate());
+						return new ExcelValueDto(AthleteUtils.calculateCategory(calendar.get(Calendar.YEAR)).name(),
+								ExcelUtils.getCellType(d));
 					} else if (d.getDataField().equals("days")) {
 						String translatedDays = "";
 						String days = entity.getDays();
@@ -119,8 +124,8 @@ public class ExcelService {
 		return ExcelUtils.generateExcel(excelName, data);
 	}
 
-	public ByteArrayOutputStream downloadAthletesDaoExcel(List<ColumnDto> columns, HttpServletResponse response,
-			List<AthleteDao> athletes, String excelName) throws IOException {
+	public ByteArrayOutputStream downloadAthletesDaoExcel(List<ColumnDto> columns, List<AthleteDao> athletes,
+			String excelName) throws IOException {
 		List<ExcelDataDto> data = new ArrayList<>();
 
 		ExcelDataDto header = new ExcelDataDto();
@@ -129,7 +134,7 @@ public class ExcelService {
 		}).collect(Collectors.toList()));
 		data.add(header);
 
-		data.addAll(athletes.parallelStream().map(entity -> {
+		data.addAll(athletes.stream().map(entity -> {
 			ExcelDataDto dataDto = new ExcelDataDto();
 			dataDto.getData().addAll(columns.stream().filter(ColumnDto::isShow).map(d -> {
 				try {
@@ -154,6 +159,11 @@ public class ExcelService {
 						return new ExcelValueDto(
 								lastUnregisterDate != null ? dateFormat.format(lastUnregisterDate) : null,
 								ExcelUtils.getCellType(d));
+					} else if (d.getDataField().equals("category")) {
+						Calendar calendar = Calendar.getInstance();
+						calendar.setTime(entity.getBirthDate());
+						return new ExcelValueDto(AthleteUtils.calculateCategory(calendar.get(Calendar.YEAR)).name(),
+								ExcelUtils.getCellType(d));
 					} else if (d.getDataField().equals("numDays")) {
 						int numDays = 0;
 						if (entity.getSchedules() != null && entity.getSchedules().size() > 0) {
@@ -162,11 +172,16 @@ public class ExcelService {
 						return new ExcelValueDto(String.valueOf(numDays), ExcelUtils.getCellType(d));
 					} else if (d.getDataField().equals("days")) {
 						String translatedDays = "";
-						String days = entity.getSchedules().parallelStream().map(sch -> sch.getDay())
+						String days = entity.getSchedules().stream()
+								.sorted(Comparator.comparingInt(ScheduleDao::getDayNumber)).map(sch -> sch.getDay())
 								.collect(Collectors.joining(","));
-						if (days != null && !days.isEmpty()) {
-							translatedDays = Arrays.asList(days.split(",")).stream()
-									.map(day -> scheduleService.translateDay(day)).collect(Collectors.joining(","));
+						try {
+							if (days != null && !days.isEmpty()) {
+								translatedDays = Arrays.asList(days.split(",")).stream()
+										.map(day -> scheduleService.translateDay(day)).collect(Collectors.joining(","));
+							}
+						} catch (Exception e) {
+							System.out.print(entity.getId());
 						}
 						return new ExcelValueDto(translatedDays, ExcelUtils.getCellType(d));
 					} else if (d.getDataField().equals("gender")) {
@@ -213,7 +228,7 @@ public class ExcelService {
 			Set<Long> scheduleIds = new HashSet<Long>();
 			if (entity.getScheduleIds() != null && !entity.getScheduleIds().isEmpty()) {
 				String[] split = entity.getScheduleIds().split(",");
-				List<Long> asList = Arrays.asList(split).parallelStream().map(d -> Long.valueOf(d))
+				List<Long> asList = Arrays.asList(split).stream().map(d -> Long.valueOf(d))
 						.collect(Collectors.toList());
 				scheduleIds = new HashSet<Long>(asList);
 			}

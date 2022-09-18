@@ -2,6 +2,7 @@ package com.backend.sprint.service;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -221,7 +222,9 @@ public class AthleteService {
 		if (dao.getSchedules() != null) {
 			dto.setSchedules(
 					dao.getSchedules().parallelStream().map(scheduleService::convertToDto).collect(Collectors.toSet()));
-			dto.setScheduleIds(dao.getSchedules().parallelStream().map(ScheduleDao::getId).collect(Collectors.toSet()));
+			dto.setScheduleIds(
+					dao.getSchedules().parallelStream().sorted(Comparator.comparingInt(ScheduleDao::getDayNumber))
+							.map(ScheduleDao::getId).collect(Collectors.toSet()));
 			dto.setNumDays(dto.getScheduleIds().size());
 			dto.setDays(dao.getSchedules().parallelStream().map(ScheduleDao::getDay).collect(Collectors.joining(",")));
 		}

@@ -57,7 +57,7 @@ public class AthleteSpecificationConstructor<AthleteDao> extends AbstractSpecifi
 				} else if (field.equals("scheduleIds")) {
 					Predicate predicate = builder.conjunction();
 					for (String scheduleId : value.split("_")) {
-						predicate = builder.and(predicate,
+						predicate = builder.or(predicate,
 								builder.isMember(Long.valueOf(scheduleId), root.get("schedules")));
 					}
 					return predicate;

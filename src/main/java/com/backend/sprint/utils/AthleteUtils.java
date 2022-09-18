@@ -1,5 +1,6 @@
 package com.backend.sprint.utils;
 
+import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -58,5 +59,62 @@ public abstract class AthleteUtils {
 		} else {
 			return null;
 		}
+	}
+
+	public static Category calculateCategory(int year) {
+		int currentYear = Calendar.getInstance().get(Calendar.YEAR);
+		Category category = null;
+		switch (currentYear - year) {
+		case 2:
+		case 3:
+		case 4:
+		case 5:
+			category = Category.CHUPETIN;
+			break;
+		case 6:
+		case 7:
+			category = Category.SUB8;
+			break;
+		case 8:
+		case 9:
+			category = Category.SUB10;
+			break;
+		case 10:
+		case 11:
+			category = Category.SUB12;
+			break;
+		case 12:
+		case 13:
+			category = Category.SUB14;
+			break;
+		case 14:
+		case 15:
+			category = Category.SUB16;
+			break;
+		case 16:
+		case 17:
+			category = Category.SUB18;
+			break;
+		case 18:
+		case 19:
+			category = Category.SUB20;
+			break;
+		case 20:
+		case 21:
+		case 22:
+			category = Category.SUB23;
+			break;
+		default:
+			if (currentYear - year < 6) {
+				category = Category.SUB8;
+			}
+			if (currentYear - year <= 35) {
+				category = Category.SENIOR;
+			} else {
+				category = Category.MASTER;
+			}
+			break;
+		}
+		return category;
 	}
 }
