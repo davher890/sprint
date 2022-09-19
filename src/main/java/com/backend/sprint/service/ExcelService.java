@@ -104,7 +104,8 @@ public class ExcelService {
 						String days = entity.getDays();
 						if (days != null && !days.isEmpty()) {
 							translatedDays = Arrays.asList(days.split(",")).stream()
-									.map(day -> scheduleService.translateDay(day)).collect(Collectors.joining(","));
+									.sorted(new AthleteUtils.WeekDayComparator())
+									.map(day -> AthleteUtils.dayTranslate.get(day)).collect(Collectors.joining(","));
 						}
 						return new ExcelValueDto(translatedDays, ExcelUtils.getCellType(d));
 					} else if (d.getDataField().equals("gender")) {
@@ -122,6 +123,7 @@ public class ExcelService {
 		}).filter(Objects::nonNull).collect(Collectors.toList()));
 
 		return ExcelUtils.generateExcel(excelName, data);
+
 	}
 
 	public ByteArrayOutputStream downloadAthletesDaoExcel(List<ColumnDto> columns, List<AthleteDao> athletes,
@@ -178,7 +180,8 @@ public class ExcelService {
 						try {
 							if (days != null && !days.isEmpty()) {
 								translatedDays = Arrays.asList(days.split(",")).stream()
-										.map(day -> scheduleService.translateDay(day)).collect(Collectors.joining(","));
+										.map(day -> AthleteUtils.dayTranslate.get(day))
+										.collect(Collectors.joining(","));
 							}
 						} catch (Exception e) {
 							System.out.print(entity.getId());

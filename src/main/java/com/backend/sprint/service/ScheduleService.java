@@ -1,8 +1,6 @@
 package com.backend.sprint.service;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -27,27 +25,11 @@ import com.backend.sprint.model.dto.ScheduleDto;
 import com.backend.sprint.model.dto.UserDto;
 import com.backend.sprint.repository.ScheduleRepository;
 import com.backend.sprint.repository.UserRepository;
+import com.backend.sprint.utils.AthleteUtils;
 
 @Service
 @Transactional
 public class ScheduleService {
-
-	private final Map<String, String> dayTranslate = new HashMap<String, String>() {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-
-		{
-			put("MONDAY", "Lunes");
-			put("TUESDAY", "Martes");
-			put("WEDNESDAY", "Miercoles");
-			put("THURSDAY", "Jueves");
-			put("FRIDAY", "Viernes");
-			put("SATURDAY", "Sabado");
-			put("SUNDAY", "Domingo");
-		}
-	};
 
 	@Autowired
 	private ScheduleRepository repository;
@@ -95,7 +77,7 @@ public class ScheduleService {
 			return null;
 		}
 		ScheduleDto dto = new ModelMapper().map(dao, ScheduleDto.class);
-		dto.setDayTranslate(dayTranslate.get(dto.getDay()));
+		dto.setDayTranslate(AthleteUtils.dayTranslate.get(dto.getDay()));
 
 		UserDao updatedBy = dao.getUpdatedBy();
 		if (updatedBy != null) {
@@ -103,10 +85,6 @@ public class ScheduleService {
 		}
 
 		return dto;
-	}
-
-	public String translateDay(String day) {
-		return dayTranslate.get(day);
 	}
 
 	public Set<ScheduleDto> convertToDto(Set<ScheduleDao> dao) {

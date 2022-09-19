@@ -228,7 +228,6 @@ public class AthleteService {
 			dto.setNumDays(dto.getScheduleIds().size());
 			dto.setDays(dao.getSchedules().parallelStream().map(ScheduleDao::getDay).collect(Collectors.joining(",")));
 		}
-
 		return dto;
 	}
 

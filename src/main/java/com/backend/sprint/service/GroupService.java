@@ -288,7 +288,7 @@ public class GroupService {
 				dataDto.getData()
 						.add(new ExcelValueDto(entity.getSchedules().parallelStream()
 								.sorted(Comparator.comparingInt(ScheduleDao::getDayNumber))
-								.map(scheduleDao -> scheduleService.translateDay(scheduleDao.getDay()))
+								.map(scheduleDao -> AthleteUtils.dayTranslate.get(scheduleDao.getDay()))
 								.collect(Collectors.joining(",")), CellType.STRING, style));
 
 				dataDto.getData().addAll(IntStream.range(0, numDays).parallel().mapToObj(i -> {

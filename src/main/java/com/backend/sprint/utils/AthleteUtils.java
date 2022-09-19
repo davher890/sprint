@@ -3,9 +3,12 @@ package com.backend.sprint.utils;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.backend.sprint.model.dao.AthleteDao;
 import com.backend.sprint.model.dao.HistoricDao;
@@ -65,6 +68,7 @@ public abstract class AthleteUtils {
 		int currentYear = Calendar.getInstance().get(Calendar.YEAR);
 		Category category = null;
 		switch (currentYear - year) {
+		case 1:
 		case 2:
 		case 3:
 		case 4:
@@ -105,10 +109,7 @@ public abstract class AthleteUtils {
 			category = Category.SUB23;
 			break;
 		default:
-			if (currentYear - year < 6) {
-				category = Category.SUB8;
-			}
-			if (currentYear - year <= 35) {
+			if (currentYear - year > 22 && currentYear - year <= 35) {
 				category = Category.SENIOR;
 			} else {
 				category = Category.MASTER;
@@ -116,5 +117,34 @@ public abstract class AthleteUtils {
 			break;
 		}
 		return category;
+	}
+
+	public static final Map<String, String> dayTranslate = new HashMap<String, String>() {
+
+		private static final long serialVersionUID = 1L;
+
+		{
+			put("MONDAY", "Lunes");
+			put("TUESDAY", "Martes");
+			put("WEDNESDAY", "Miercoles");
+			put("THURSDAY", "Jueves");
+			put("FRIDAY", "Viernes");
+			put("SATURDAY", "Sabado");
+			put("SUNDAY", "Domingo");
+		}
+	};
+
+	static Map<String, Integer> dayNumberMap = Stream
+			.of(new Object[][] { { "monday", 1 }, { "tuesday", 2 }, { "wednesday", 3 }, { "thursday", 4 },
+					{ "friday", 5 }, { "saturday", 6 }, { "sunday", 7 }, })
+			.collect(Collectors.toMap(data -> (String) data[0], data -> (Integer) data[1]));
+
+	public static class WeekDayComparator implements Comparator<String> {
+		public int compare(String c1, String c2) {
+			if (c1 == null || c2 == null) {
+				return 0;
+			}
+			return dayNumberMap.get(c1.toLowerCase()).compareTo(dayNumberMap.get(c2.toLowerCase()));
+		}
 	}
 }
