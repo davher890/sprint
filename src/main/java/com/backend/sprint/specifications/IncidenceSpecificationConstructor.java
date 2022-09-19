@@ -17,7 +17,7 @@ public class IncidenceSpecificationConstructor<IncidenceDao> extends AbstractSpe
 	public Predicate toPredicate(Root<IncidenceDao> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
 
 		Predicate result = null;
-		if (filters != null) {
+		if (filters != null && !filters.isEmpty()) {
 			result = filters.stream().map(filter -> {
 				String field = filter.split("__")[0];
 				String operator = filter.split("__")[1];
