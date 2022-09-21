@@ -109,7 +109,7 @@ public abstract class AthleteUtils {
 			category = Category.SUB23;
 			break;
 		default:
-			if (currentYear - year > 22 && currentYear - year <= 35) {
+			if (currentYear - year > 22 && currentYear - year < 35) {
 				category = Category.SENIOR;
 			} else {
 				category = Category.MASTER;

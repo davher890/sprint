@@ -22,6 +22,7 @@ import com.backend.sprint.model.dto.IncidenceDto;
 import com.backend.sprint.model.dto.UserDto;
 import com.backend.sprint.service.IncidenceCommentService;
 import com.backend.sprint.service.IncidenceService;
+import com.backend.sprint.service.MailService;
 import com.backend.sprint.specifications.IncidenceSpecificationConstructor;
 
 @RestController
@@ -33,6 +34,9 @@ public class IncidenceController {
 
 	@Autowired
 	private IncidenceCommentService incidenceCommentService;
+
+	@Autowired
+	private MailService mailService;
 
 	@GetMapping("")
 	public Page<IncidenceDto> findPagintation(@RequestParam(value = "filters", required = false) List<String> filters,
@@ -56,7 +60,13 @@ public class IncidenceController {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		UserDto user = (UserDto) auth.getPrincipal();
 		dto.setCreatedById(user.getId());
-		return service.save(dto);
+		dto = service.save(dto);
+
+		mailService.sendMail("davher890@gmail.com", "Nueva incidencia: " + dto.getTitle(),
+				"Texto: " + dto.getDescription()
+						+ "\n http://sprint-react.s3-website-us-east-1.amazonaws.com/incidences/" + dto.getId());
+
+		return dto;
 	}
 
 	@GetMapping("/{id}")
