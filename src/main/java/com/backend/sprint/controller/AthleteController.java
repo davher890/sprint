@@ -2,6 +2,7 @@ package com.backend.sprint.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.postgresql.util.PSQLException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,11 +21,13 @@ import com.backend.sprint.model.dto.AthleteDto;
 import com.backend.sprint.model.dto.FeeDto;
 import com.backend.sprint.model.dto.HistoricDto;
 import com.backend.sprint.model.dto.ObservationDto;
+import com.backend.sprint.model.dto.ReceiptAthleteDto;
 import com.backend.sprint.model.dto.SportdataDto;
 import com.backend.sprint.service.AthleteService;
 import com.backend.sprint.service.FeeService;
 import com.backend.sprint.service.HistoricService;
 import com.backend.sprint.service.ObservationService;
+import com.backend.sprint.service.ReceiptAthleteService;
 import com.backend.sprint.service.SportdataService;
 import com.backend.sprint.specifications.SportdataSpecificationConstructor;
 
@@ -40,6 +43,9 @@ public class AthleteController {
 
 	@Autowired
 	private ObservationService observationService;
+
+	@Autowired
+	private ReceiptAthleteService receiptAthleteService;
 
 	@Autowired
 	private SportdataService sportdataService;
@@ -76,6 +82,11 @@ public class AthleteController {
 		return sportdataService.findPagintation(new SportdataSpecificationConstructor<>(filters), pageable);
 	}
 
+	@GetMapping("/{id}/receipts")
+	public Set<ReceiptAthleteDto> athleteReceipts(@PathVariable int id) {
+		return receiptAthleteService.findByAthleteId(id);
+	}
+
 	@PostMapping("/{id}/register")
 	public HistoricDto registerAthlete(@PathVariable int id, @RequestBody HistoricDto historic) throws PSQLException {
 		return historicService.register(id, historic);
@@ -100,7 +111,7 @@ public class AthleteController {
 	public FeeDto getFee(@RequestBody AthleteDto dto) {
 		return feeService.getAthleteFee(dto.getId(), dto.getFamilyCode(), dto.getPaymentType(), dto.getSportSchoolId(),
 				dto.isSpecialization(), dto.getScheduleIds(), dto.getCategory(), dto.getLicenseType(),
-				dto.isEnrollmentFeePaid());
+				dto.isEnrollmentFeePaid(), null);
 	}
 
 	@PostMapping("")

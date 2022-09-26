@@ -9,10 +9,8 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
@@ -24,12 +22,11 @@ import org.springframework.stereotype.Service;
 
 import com.backend.sprint.model.dao.AthleteDao;
 import com.backend.sprint.model.dao.GenericAthleteDao;
-import com.backend.sprint.model.dao.RegisteredAthleteDao;
+import com.backend.sprint.model.dao.ReceiptAthleteDao;
 import com.backend.sprint.model.dao.ScheduleDao;
 import com.backend.sprint.model.dto.ColumnDto;
 import com.backend.sprint.model.dto.ExcelDataDto;
 import com.backend.sprint.model.dto.ExcelValueDto;
-import com.backend.sprint.model.dto.FeeDto;
 import com.backend.sprint.utils.AthleteUtils;
 import com.backend.sprint.utils.ExcelUtils;
 
@@ -188,8 +185,8 @@ public class ExcelService {
 		return ExcelUtils.generateExcel(excelName, data);
 	}
 
-	public ByteArrayOutputStream downloadPaymentAthletesExcel(List<ColumnDto> columns,
-			List<? extends GenericAthleteDao> athletes, String concept, String excelName) throws IOException {
+	public ByteArrayOutputStream downloadReceiptAthletesExcel(List<ReceiptAthleteDao> receiptAthletes, String concept,
+			String excelName) throws IOException {
 		List<ExcelDataDto> data = new ArrayList<>();
 
 		ExcelDataDto header = new ExcelDataDto();
@@ -208,36 +205,28 @@ public class ExcelService {
 		header.getData().add(new ExcelValueDto("FECHACOBRO", CellType.STRING));
 		data.add(header);
 
-		data.addAll(((List<RegisteredAthleteDao>) athletes).parallelStream().map(entity -> {
+		data.addAll(receiptAthletes.parallelStream().map(entity -> {
 			SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT_MASK);
 			ExcelDataDto dataDto = new ExcelDataDto();
 
-			Set<Long> scheduleIds = new HashSet<Long>();
-			if (entity.getScheduleIds() != null && !entity.getScheduleIds().isEmpty()) {
-				String[] split = entity.getScheduleIds().split(",");
-				List<Long> asList = Arrays.asList(split).stream().map(d -> Long.valueOf(d))
-						.collect(Collectors.toList());
-				scheduleIds = new HashSet<Long>(asList);
-			}
-			FeeDto fee = feeService.getAthleteFee(entity.getId(), entity.getFamilyCode(), entity.getPaymentType(),
-					entity.getSportSchoolId(), entity.isSpecialization(), scheduleIds, entity.getCategory(),
-					entity.getLicenseType(), entity.isEnrollmentFeePaid());
+			AthleteDao athlete = entity.getAthlete();
 
-			dataDto.getData().add(new ExcelValueDto(String.valueOf(entity.getCode()), CellType.NUMERIC));
+			dataDto.getData().add(new ExcelValueDto(String.valueOf(athlete.getCode()), CellType.NUMERIC));
 			dataDto.getData()
 					.add(new ExcelValueDto(
-							entity.getFirstSurname() + " " + entity.getSecondSurname() + ", " + entity.getName(),
+							athlete.getFirstSurname() + " " + athlete.getSecondSurname() + ", " + athlete.getName(),
 							CellType.STRING));
-			dataDto.getData().add(new ExcelValueDto(entity.getIban(), CellType.NUMERIC));
+			dataDto.getData().add(new ExcelValueDto(athlete.getIban(), CellType.NUMERIC));
 			dataDto.getData().add(new ExcelValueDto("NOTPROVIDED", CellType.STRING));
 			dataDto.getData().add(new ExcelValueDto("ES", CellType.STRING));
 			dataDto.getData().add(new ExcelValueDto("S", CellType.STRING));
-			dataDto.getData().add(new ExcelValueDto(String.valueOf(entity.getCode()), CellType.NUMERIC));
+			dataDto.getData().add(new ExcelValueDto(String.valueOf(athlete.getCode()), CellType.NUMERIC));
 			dataDto.getData().add(new ExcelValueDto("31/10/2009", CellType.STRING));
 			dataDto.getData().add(new ExcelValueDto(concept, CellType.STRING));
 			dataDto.getData()
 					.add(new ExcelValueDto(
-							String.valueOf(fee.getMonthlyFee() + fee.getEnrollmentFee() + fee.getMembershipFee()),
+							String.valueOf(
+									entity.getMonthlyFee() + entity.getEnrollmentFee() + entity.getMembershipFee()),
 							CellType.NUMERIC));
 			dataDto.getData().add(new ExcelValueDto(concept, CellType.STRING));
 			dataDto.getData().add(new ExcelValueDto("RCUR", CellType.STRING));
