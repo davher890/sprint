@@ -7,8 +7,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.backend.sprint.model.dto.IncidenceCommentDto;
+import com.backend.sprint.model.dto.IncidenceDto;
+import com.backend.sprint.model.dto.UserDto;
 import com.backend.sprint.service.IncidenceCommentService;
+import com.backend.sprint.service.IncidenceService;
 import com.backend.sprint.service.MailService;
+import com.backend.sprint.service.UserService;
 
 @RestController
 @RequestMapping("incidence_comments")
@@ -18,15 +22,30 @@ public class IncidenceCommentController {
 	private IncidenceCommentService service;
 
 	@Autowired
+	private IncidenceService incidenceService;
+
+	@Autowired
+	private UserService userService;
+
+	@Autowired
 	private MailService mailService;
 
 	@PostMapping("")
 	public IncidenceCommentDto save(@RequestBody IncidenceCommentDto dto) {
 		dto = service.save(dto);
 
+		IncidenceDto incidence = incidenceService.findById(dto.getIncidenceId());
+
 		mailService.sendMail("davher890@gmail.com", "Nuevo mensaje en incidencia " + dto.getIncidenceId(),
 				"Texto: " + dto.getMessage() + "\n http://sprint-react.s3-website-us-east-1.amazonaws.com/incidences/"
 						+ dto.getId());
+
+		UserDto user = userService.findById(incidence.getCreatedById());
+		if (user != null) {
+			mailService.sendMail(user.getEmail(), "Nuevo mensaje en incidencia " + dto.getIncidenceId(),
+					"Texto: " + dto.getMessage()
+							+ "\n http://sprint-react.s3-website-us-east-1.amazonaws.com/incidences/" + dto.getId());
+		}
 		return dto;
 	}
 }
