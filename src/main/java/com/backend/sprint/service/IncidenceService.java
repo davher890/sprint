@@ -43,12 +43,14 @@ public class IncidenceService {
 
 	@Transactional
 	public IncidenceDto save(IncidenceDto dto) throws DataIntegrityViolationException {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		if (auth != null && auth.getPrincipal() != null) {
-			UserDto user = (UserDto) auth.getPrincipal();
-			dto.setCreatedById(user.getId());
-		}
 
+		if (dto.getId() == 0) {
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			if (auth != null && auth.getPrincipal() != null) {
+				UserDto user = (UserDto) auth.getPrincipal();
+				dto.setCreatedById(user.getId());
+			}
+		}
 		return convertToDto(repository.save(convertToDao(dto)));
 	}
 
