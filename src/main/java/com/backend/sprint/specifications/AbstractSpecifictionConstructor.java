@@ -20,7 +20,6 @@ public abstract class AbstractSpecifictionConstructor<E> implements Specificatio
 	 */
 	private static final long serialVersionUID = 1L;
 	protected List<String> filters;
-	private List<String> booleanOps = Arrays.asList(new String[] { "==" });
 
 	public AbstractSpecifictionConstructor(List<String> filters) {
 		this.filters = filters;
@@ -100,6 +99,9 @@ public abstract class AbstractSpecifictionConstructor<E> implements Specificatio
 			List<Integer> idList = Arrays.asList(value.split(",")).parallelStream().map(d -> Integer.parseInt(d))
 					.collect(Collectors.toList());
 			predicate = rootField.in(idList);
+		} else if (operator.toLowerCase().equals("ins")) {
+			List<String> idList = Arrays.asList(value.split(",")).parallelStream().collect(Collectors.toList());
+			predicate = builder.lower(rootField).in(idList);
 		}
 		return predicate;
 	}

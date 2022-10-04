@@ -10,7 +10,6 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -38,7 +37,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.backend.sprint.model.dao.AthleteDao;
 import com.backend.sprint.model.dao.GroupDao;
 import com.backend.sprint.model.dao.ScheduleDao;
 import com.backend.sprint.model.dao.SportSchoolDao;
@@ -79,6 +77,9 @@ public class GroupService {
 
 	@Autowired
 	private AthleteService athleteService;
+
+	@Autowired
+	private RegisteredAthleteService registeredAthleteService;
 
 	@Autowired
 	private SportSchoolRepository sportSchoolRepository;
@@ -272,7 +273,7 @@ public class GroupService {
 			data.add(header);
 			final int numDays = nd;
 
-			List<AthleteDao> athletes = athleteService.findDaoByGroupId(id);
+			List<AthleteDto> athletes = registeredAthleteService.findByGroupId(id);
 			List<ExcelDataDto> excelData = athletes.parallelStream().map(entity -> {
 				ExcelDataDto dataDto = new ExcelDataDto();
 				dataDto.getData()
@@ -285,11 +286,8 @@ public class GroupService {
 				calendar.setTime(entity.getBirthDate());
 				dataDto.getData().add(new ExcelValueDto(
 						AthleteUtils.calculateCategory(calendar.get(Calendar.YEAR)).name(), CellType.STRING, style));
-				dataDto.getData()
-						.add(new ExcelValueDto(entity.getSchedules().parallelStream()
-								.sorted(Comparator.comparingInt(ScheduleDao::getDayNumber))
-								.map(scheduleDao -> AthleteUtils.dayTranslate.get(scheduleDao.getDay()))
-								.collect(Collectors.joining(",")), CellType.STRING, style));
+
+				dataDto.getData().add(new ExcelValueDto(entity.getDays(), CellType.STRING, style));
 
 				dataDto.getData().addAll(IntStream.range(0, numDays).parallel().mapToObj(i -> {
 					return new ExcelValueDto("", CellType.STRING, style);
