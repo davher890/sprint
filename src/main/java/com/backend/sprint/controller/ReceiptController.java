@@ -83,7 +83,8 @@ public class ReceiptController {
 		try {
 			filters = utils.getFilters(filters);
 			filters.add("sportSchoolId__=__" + sportSchoolId);
-//			filters.add("collection__=__" + collection);
+			filters.add("paymentType__ins__DOM,TRANSF");
+			// filters.add("collection__=__" + collection);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
