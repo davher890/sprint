@@ -1,6 +1,7 @@
 package com.backend.sprint.service;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -36,6 +37,10 @@ public class RegisteredAthleteService {
 	public Page<RegisteredAthleteDao> findDaoPagintation(Specification<RegisteredAthleteDao> specification,
 			Pageable pageable) {
 		return repository.findAll(specification, pageable);
+	}
+
+	public List<AthleteDto> findByGroupId(long id) {
+		return repository.findByGroupId(id).stream().map(this::convertToDto).collect(Collectors.toList());
 	}
 
 	private AthleteDto convertToDto(RegisteredAthleteDao dao) {

@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.backend.sprint.controller.utils.Utils;
-import com.backend.sprint.model.dao.GenericAthleteDao;
+import com.backend.sprint.model.dao.UnregisteredAthleteDao;
 import com.backend.sprint.model.dto.AthleteDto;
 import com.backend.sprint.model.dto.ColumnDto;
 import com.backend.sprint.service.ExcelService;
@@ -68,9 +68,9 @@ public class UnregisteredAthleteController {
 			return;
 		}
 		Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE);
-		List<? extends GenericAthleteDao> athletes = service
+		List<UnregisteredAthleteDao> athletes = service
 				.findDaoPagintation(new UnregisteredAthleteSpecificationConstructor<>(filters), pageable).getContent();
-		ByteArrayOutputStream outputStream = excelService.downloadAthletesExcel(columns, response, athletes, "Atletas");
+		ByteArrayOutputStream outputStream = excelService.downloadAthletesExcel(columns, athletes, "Atletas");
 		IOUtils.copy(new ByteArrayInputStream(outputStream.toByteArray()), response.getOutputStream());
 	}
 

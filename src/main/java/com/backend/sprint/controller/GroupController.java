@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.backend.sprint.model.dao.AthleteDao;
+import com.backend.sprint.model.dao.RegisteredAthleteDao;
 import com.backend.sprint.model.dto.AthleteDto;
 import com.backend.sprint.model.dto.ColumnDto;
 import com.backend.sprint.model.dto.ExcelDataDto;
@@ -41,9 +41,10 @@ import com.backend.sprint.model.dto.UserDto;
 import com.backend.sprint.service.AthleteService;
 import com.backend.sprint.service.ExcelService;
 import com.backend.sprint.service.GroupService;
+import com.backend.sprint.service.RegisteredAthleteService;
 import com.backend.sprint.service.ScheduleService;
-import com.backend.sprint.specifications.AthleteSpecificationConstructor;
 import com.backend.sprint.specifications.GroupSpecificationConstructor;
+import com.backend.sprint.specifications.RegisteredAthleteSpecificationConstructor;
 
 @RestController
 @RequestMapping("groups")
@@ -54,6 +55,9 @@ public class GroupController {
 
 	@Autowired
 	private AthleteService athleteService;
+
+	@Autowired
+	private RegisteredAthleteService registeredAthleteService;
 
 	@Autowired
 	private ScheduleService scheduleService;
@@ -108,14 +112,17 @@ public class GroupController {
 	@GetMapping("/{group_id}/schedules/{schedule_ids}/athletes")
 	public Page<AthleteDto> findGroupScheduleAthletes(
 			@RequestParam(value = "filters", required = false) List<String> filters, Pageable pageable,
-			@PathVariable("group_id") int groupId, @PathVariable("schedule_ids") String scheduleIds) {
+			@RequestParam(defaultValue = "id") String sort,
+			@RequestParam(defaultValue = "DESC") Direction sortDirection, @PathVariable("group_id") int groupId,
+			@PathVariable("schedule_ids") String scheduleIds) {
 		if (filters == null) {
 			filters = new ArrayList<String>();
 		}
 		filters.add("active__==__true");
 		filters.add("groupId__=__" + groupId);
-		filters.add("scheduleIds__=__" + scheduleIds);
-		return athleteService.findPagintation(new AthleteSpecificationConstructor<>(filters), pageable);
+		filters.add("scheduleIds__=__" + scheduleIds.replaceAll("_", ","));
+		return registeredAthleteService.findPagintation(new RegisteredAthleteSpecificationConstructor<>(filters),
+				pageable, sort, sortDirection);
 	}
 
 	@PostMapping("/{group_id}/schedules/{schedule_ids}/athletes/excel")
@@ -128,10 +135,10 @@ public class GroupController {
 			filters = new ArrayList<String>();
 		}
 		filters.add("groupId__=__" + groupId);
-		filters.add("scheduleIds__=__" + scheduleIds);
+		filters.add("scheduleIds__=__" + scheduleIds.replaceAll("_", ","));
 		Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE);
-		List<AthleteDao> athletes = athleteService
-				.findDaoPagintation(new AthleteSpecificationConstructor<>(filters), pageable).getContent();
+		List<RegisteredAthleteDao> athletes = registeredAthleteService
+				.findDaoPagintation(new RegisteredAthleteSpecificationConstructor<>(filters), pageable).getContent();
 
 		List<ExcelDataDto> data = new ArrayList<>();
 
@@ -141,7 +148,7 @@ public class GroupController {
 		}).collect(Collectors.toList()));
 		data.add(header);
 
-		ByteArrayOutputStream outputStream = excelService.downloadAthletesDaoExcel(columns, athletes, "Atletes");
+		ByteArrayOutputStream outputStream = excelService.downloadAthletesExcel(columns, athletes, "Atletes");
 		IOUtils.copy(new ByteArrayInputStream(outputStream.toByteArray()), response.getOutputStream());
 	}
 
