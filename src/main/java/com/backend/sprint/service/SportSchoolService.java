@@ -45,13 +45,15 @@ public class SportSchoolService {
 	}
 
 	public List<SportSchoolDto> findAll() {
-		return StreamSupport.stream(repository.findAll().spliterator(), false).map(this::convertToDto)
-				.sorted(Comparator.comparing(SportSchoolDto::getName)).collect(Collectors.toList());
+		return StreamSupport.stream(repository.findAll().spliterator(), false).filter(d -> d.getName() != null)
+				.map(this::convertToDto).sorted(Comparator.comparing(SportSchoolDto::getName))
+				.collect(Collectors.toList());
 	}
 
 	public List<SportSchoolDto> findAllById(Set<Long> ids) {
-		return StreamSupport.stream(repository.findAllById(ids).spliterator(), false).map(this::convertToDto)
-				.sorted(Comparator.comparing(SportSchoolDto::getName)).collect(Collectors.toList());
+		return StreamSupport.stream(repository.findAllById(ids).spliterator(), false).filter(d -> d.getName() != null)
+				.map(this::convertToDto).sorted(Comparator.comparing(SportSchoolDto::getName))
+				.collect(Collectors.toList());
 	}
 
 	public List<SportSchoolDao> findAllByIdDao(Set<Long> ids) {
