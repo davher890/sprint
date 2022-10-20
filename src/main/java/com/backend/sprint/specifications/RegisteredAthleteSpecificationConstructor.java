@@ -42,7 +42,7 @@ public class RegisteredAthleteSpecificationConstructor<RegisteredAthleteDao>
 					List<Long> scheduleIds = Arrays.asList(value.split(",")).stream().map(d -> Long.parseLong(d))
 							.collect(Collectors.toList());
 
-					return builder.and(scheduleIds.stream().map(d -> builder.like(root.get(field), "%" + d + "%"))
+					return builder.or(scheduleIds.stream().map(d -> builder.like(root.get(field), "%" + d + "%"))
 							.collect(Collectors.toList()).toArray(new Predicate[0]));
 				} else if (field.equals("lastRegisterDate")) {
 					try {

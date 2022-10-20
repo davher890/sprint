@@ -36,15 +36,16 @@ public class IncidenceCommentController {
 
 		IncidenceDto incidence = incidenceService.findById(dto.getIncidenceId());
 
-		mailService.sendMail("davher890@gmail.com", "Nuevo mensaje en incidencia " + dto.getIncidenceId(),
-				"Texto: " + dto.getMessage() + "\n http://sprint-react.s3-website-us-east-1.amazonaws.com/incidences/"
-						+ dto.getId());
+		String subject = "Nuevo mensaje en incidencia " + dto.getIncidenceId();
+
+		String body = "Incidencia: " + incidence.getTitle() + "\n\nTexto: " + dto.getMessage()
+				+ "\n\nhttp://sprint-react.s3-website-us-east-1.amazonaws.com/incidences/" + dto.getId();
+
+		mailService.sendMail("davher890@gmail.com", subject, body);
 
 		UserDto user = userService.findById(incidence.getCreatedById());
 		if (user != null) {
-			mailService.sendMail(user.getEmail(), "Nuevo mensaje en incidencia " + dto.getIncidenceId(),
-					"Texto: " + dto.getMessage()
-							+ "\n http://sprint-react.s3-website-us-east-1.amazonaws.com/incidences/" + dto.getId());
+			mailService.sendMail(user.getEmail(), subject, body);
 		}
 		return dto;
 	}
