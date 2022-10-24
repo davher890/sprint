@@ -1,6 +1,7 @@
 package com.backend.sprint.service;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,6 +38,11 @@ public class RegisteredAthleteService {
 	public Page<RegisteredAthleteDao> findDaoPagintation(Specification<RegisteredAthleteDao> specification,
 			Pageable pageable) {
 		return repository.findAll(specification, pageable);
+	}
+
+	public List<AthleteDto> findBySportSchoolIdAndLastRegisterDate(long sportSchoolId, Date lastRegisterDate) {
+		return repository.findBySportSchoolIdAndLastRegisterDate(sportSchoolId, lastRegisterDate).stream()
+				.map(this::convertToDto).collect(Collectors.toList());
 	}
 
 	public List<AthleteDto> findByGroupId(long id) {

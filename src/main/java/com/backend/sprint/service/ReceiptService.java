@@ -1,9 +1,9 @@
 package com.backend.sprint.service;
 
-import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,15 +17,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.backend.sprint.model.dao.ReceiptDao;
-import com.backend.sprint.model.dao.RegisteredAthleteDao;
-import com.backend.sprint.model.dto.FeeDto;
-import com.backend.sprint.model.dto.ReceiptAthleteDto;
 import com.backend.sprint.model.dto.ReceiptDto;
 import com.backend.sprint.repository.ReceiptAthleteRepository;
 import com.backend.sprint.repository.ReceiptRepository;
-import com.backend.sprint.repository.RegisteredAthleteRepository;
 import com.backend.sprint.repository.SportSchoolRepository;
-import com.backend.sprint.utils.AthleteUtils;
 
 @Service
 @Transactional
@@ -37,14 +32,14 @@ public class ReceiptService {
 	@Autowired
 	private ReceiptAthleteRepository receiptAthleteRepository;
 
-	@Autowired
-	private RegisteredAthleteRepository registeredAthleteRepository;
+//	@Autowired
+//	private RegisteredAthleteRepository registeredAthleteRepository;
 
 	@Autowired
 	private SportSchoolRepository sportSchoolRepository;
 
-	@Autowired
-	private FeeService feeService;
+//	@Autowired
+//	private FeeService feeService;
 
 	public Page<ReceiptDto> findPagintation(Specification<ReceiptDao> specification, Pageable pageable, String sort,
 			Direction sortDirection) {
@@ -53,35 +48,44 @@ public class ReceiptService {
 		return daoPage.map(dao -> convertToDto(dao));
 	}
 
-	public Page<ReceiptAthleteDto> findReceiptAthletes(Specification<RegisteredAthleteDao> specification,
-			Pageable pageable, String sort, Direction sortDirection, String collection) {
-
-		Page<RegisteredAthleteDao> daoPage = registeredAthleteRepository.findAll(specification,
-				PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(sortDirection, sort)));
-		return daoPage.map(dao -> convertToDto(dao, collection));
+	public List<ReceiptDto> findAll() {
+		return StreamSupport.stream(repository.findAll().spliterator(), false).filter(d -> d.getName() != null)
+				.map(this::convertToDto).sorted(Comparator.comparing(ReceiptDto::getName)).collect(Collectors.toList());
 	}
 
-	public List<ReceiptAthleteDto> findReceiptAthletesList(Specification<RegisteredAthleteDao> specification,
-			String collection) {
-
-		List<RegisteredAthleteDao> daoPage = registeredAthleteRepository.findAll(specification);
-		return daoPage.stream().map(dao -> convertToDto(dao, collection)).collect(Collectors.toList());
-	}
+//	public Page<ReceiptAthleteDto> findReceiptAthletes(Specification<RegisteredAthleteDao> specification,
+//			Pageable pageable, String sort, Direction sortDirection, String collection) {
+//
+//		Page<RegisteredAthleteDao> daoPage = registeredAthleteRepository.findAll(specification,
+//				PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(sortDirection, sort)));
+//		return daoPage.map(dao -> convertToDto(dao, collection));
+//	}
+//
+//	public List<ReceiptAthleteDto> findReceiptAthletesList(Specification<RegisteredAthleteDao> specification,
+//			String collection) {
+//
+//		List<RegisteredAthleteDao> daoPage = registeredAthleteRepository.findAll(specification);
+//		return daoPage.stream().map(dao -> convertToDto(dao, collection)).collect(Collectors.toList());
+//	}
 
 	public ReceiptDto findById(long id) {
 		return convertToDto(repository.findById(id).orElse(null));
 	}
 
-	public ReceiptDto deleteById(long id) {
-		ReceiptDto receipt = this.findById(id);
-		receipt.setActive(false);
-
-		receipt = this.save(receipt);
-
-		receiptAthleteRepository.deleteByReceiptId(receipt.getId());
-
-		return receipt;
+	public void deleteByAthleteIds(long id, List<Long> athleteIds) {
+		receiptAthleteRepository.deleteByAthleteIds(id, athleteIds);
 	}
+
+//	public ReceiptDto deleteById(long id) {
+//		ReceiptDto receipt = this.findById(id);
+//		receipt.setActive(false);
+//
+//		receipt = this.save(receipt);
+//
+//		receiptAthleteRepository.deleteByReceiptId(receipt.getId());
+//
+//		return receipt;
+//	}
 
 	public ReceiptDto save(ReceiptDto dto) {
 		return convertToDto(repository.save(convertToDao(dto)));
@@ -111,33 +115,41 @@ public class ReceiptService {
 		return dao;
 	}
 
-	private ReceiptAthleteDto convertToDto(RegisteredAthleteDao dao, String collection) {
-		if (dao == null) {
-			return null;
-		}
-//		AthleteDto athlete = new ModelMapper().map(dao, AthleteDto.class);
+//	private ReceiptAthleteDto convertToDto(ReceiptAthleteDao dao, String collection) {
+//		if (dao == null) {
+//			return null;
+//		}
+//		ReceiptAthleteDto dto = new ModelMapper().map(dao, ReceiptAthleteDto.class);
+//		return dto;
+//	}
 
-		ReceiptAthleteDto receiptAthlete = new ModelMapper().map(dao, ReceiptAthleteDto.class);
-
-		Set<Long> scheduleIds = dao.getScheduleIds() != null && !dao.getScheduleIds().isEmpty() ? Arrays
-				.asList(dao.getScheduleIds().split(",")).stream().map(Long::parseLong).collect(Collectors.toSet())
-				: null;
-		FeeDto fee = feeService.getAthleteFee(dao.getId(), dao.getFamilyCode(), dao.getPaymentType(),
-				dao.getSportSchoolId(), dao.isSpecialization(), scheduleIds, receiptAthlete.getCategory(),
-				dao.getLicenseType(), dao.isEnrollmentFeePaid(), collection);
-
-		receiptAthlete.setEnrollmentFee(fee.getEnrollmentFee());
-		receiptAthlete.setMonthlyFee(fee.getMonthlyFee());
-		receiptAthlete.setMembershipFee(fee.getMembershipFee());
-
-		String translatedDays = "";
-		String days = receiptAthlete.getDays();
-		if (days != null && !days.isEmpty()) {
-			translatedDays = Arrays.asList(days.split(",")).stream().sorted(new AthleteUtils.WeekDayComparator())
-					.map(day -> AthleteUtils.dayTranslate.get(day)).collect(Collectors.joining(","));
-		}
-		receiptAthlete.setDays(translatedDays);
-		return receiptAthlete;
-	}
+//	private ReceiptAthleteDto convertToDto(RegisteredAthleteDao dao, String collection) {
+//		if (dao == null) {
+//			return null;
+//		}
+////		AthleteDto athlete = new ModelMapper().map(dao, AthleteDto.class);
+//
+//		ReceiptAthleteDto receiptAthlete = new ModelMapper().map(dao, ReceiptAthleteDto.class);
+//
+//		Set<Long> scheduleIds = dao.getScheduleIds() != null && !dao.getScheduleIds().isEmpty() ? Arrays
+//				.asList(dao.getScheduleIds().split(",")).stream().map(Long::parseLong).collect(Collectors.toSet())
+//				: null;
+//		FeeDto fee = feeService.getAthleteFee(dao.getId(), dao.getFamilyCode(), dao.getPaymentType(),
+//				dao.getSportSchoolId(), dao.isSpecialization(), scheduleIds, receiptAthlete.getCategory(),
+//				dao.getLicenseType(), dao.isEnrollmentFeePaid(), collection);
+//
+//		receiptAthlete.setEnrollmentFee(fee.getEnrollmentFee());
+//		receiptAthlete.setMonthlyFee(fee.getMonthlyFee());
+//		receiptAthlete.setMembershipFee(fee.getMembershipFee());
+//
+//		String translatedDays = "";
+//		String days = receiptAthlete.getDays();
+//		if (days != null && !days.isEmpty()) {
+//			translatedDays = Arrays.asList(days.split(",")).stream().sorted(new AthleteUtils.WeekDayComparator())
+//					.map(day -> AthleteUtils.dayTranslate.get(day)).collect(Collectors.joining(","));
+//		}
+//		receiptAthlete.setDays(translatedDays);
+//		return receiptAthlete;
+//	}
 
 }

@@ -35,43 +35,15 @@ public class ReceiptDao {
 	@JoinColumn(name = "sport_school_id")
 	private SportSchoolDao sportSchool;
 
+	private String name;
+
 	private String collection;
 
-	@Column(columnDefinition = "boolean default false")
-	private boolean january;
+	private Date lastRegisterDate;
 
-	@Column(columnDefinition = "boolean default false")
-	private boolean february;
+	private int year;
 
-	@Column(columnDefinition = "boolean default false")
-	private boolean march;
-
-	@Column(columnDefinition = "boolean default false")
-	private boolean april;
-
-	@Column(columnDefinition = "boolean default false")
-	private boolean may;
-
-	@Column(columnDefinition = "boolean default false")
-	private boolean june;
-
-	@Column(columnDefinition = "boolean default false")
-	private boolean july;
-
-	@Column(columnDefinition = "boolean default false")
-	private boolean august;
-
-	@Column(columnDefinition = "boolean default false")
-	private boolean september;
-
-	@Column(columnDefinition = "boolean default false")
-	private boolean october;
-
-	@Column(columnDefinition = "boolean default false")
-	private boolean november;
-
-	@Column(columnDefinition = "boolean default false")
-	private boolean december;
+	private String status;
 
 	@Column(columnDefinition = "boolean default true")
 	private boolean active;

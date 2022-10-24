@@ -2,6 +2,8 @@ package com.backend.sprint.model.dto;
 
 import java.util.Date;
 
+import com.backend.sprint.utils.ReceiptStatus;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -16,31 +18,15 @@ public class ReceiptDto {
 	private long sportSchoolId;
 	private String sportSchoolName;
 
+	private String name;
+
 	private String collection;
 
-	private boolean january = false;
+	private Date lastRegisterDate;
 
-	private boolean february = false;
+	private int year;
 
-	private boolean march = false;
-
-	private boolean april = false;
-
-	private boolean may = false;
-
-	private boolean june = false;
-
-	private boolean july = false;
-
-	private boolean august = false;
-
-	private boolean september = false;
-
-	private boolean october = false;
-
-	private boolean november = false;
-
-	private boolean december = false;
+	private String status = ReceiptStatus.OPEN.name();
 
 	private boolean active = true;
 

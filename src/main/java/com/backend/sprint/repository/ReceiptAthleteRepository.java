@@ -21,8 +21,11 @@ public interface ReceiptAthleteRepository
 	@Query(value = "SELECT * FROM receipt_athletes WHERE athlete_id = ?1", nativeQuery = true)
 	public Set<ReceiptAthleteDao> findByAthleteId(long athleteId);
 
-	@Modifying
-	@Query(value = "DELETE FROM receipt_athletes WHERE receipt_id = ?1", nativeQuery = true)
-	void deleteByReceiptId(long receiptId);
+//	@Modifying
+//	@Query(value = "DELETE FROM receipt_athletes WHERE receipt_id = ?1", nativeQuery = true)
+//	void deleteByReceiptId(long receiptId);
 
+	@Modifying
+	@Query(value = "DELETE FROM receipt_athletes WHERE receipt_id = ?1 AND athlete_id IN ?2", nativeQuery = true)
+	void deleteByAthleteIds(long receiptId, List<Long> athleteIds);
 }
