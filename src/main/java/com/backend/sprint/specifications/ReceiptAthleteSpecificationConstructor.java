@@ -38,9 +38,14 @@ public class ReceiptAthleteSpecificationConstructor<ReceiptAthleteDao>
 				else if (field.equals("active")) {
 					return null;
 				} else if (field.equals("sportSchoolId")) {
-					return null;
+					return filterPredicateString(root.get("athlete").get("sportSchool").get("id"), builder, operator,
+							value);
 				} else if (field.equals("groupId")) {
-					return null;
+					return filterPredicateString(root.get("athlete").get("group").get("name"), builder, operator,
+							value);
+				} else if (field.equals("groupName")) {
+					return filterPredicateString(root.get("athlete").get("group").get("name"), builder, operator,
+							value);
 				} else {
 					return filterPredicateString(root.get(field), builder, operator, value);
 				}

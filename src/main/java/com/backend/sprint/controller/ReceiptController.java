@@ -28,12 +28,12 @@ import com.backend.sprint.model.dto.AthleteDto;
 import com.backend.sprint.model.dto.FeeDto;
 import com.backend.sprint.model.dto.ReceiptAthleteDto;
 import com.backend.sprint.model.dto.ReceiptDto;
+import com.backend.sprint.service.AthleteService;
 import com.backend.sprint.service.ExcelService;
 import com.backend.sprint.service.FeeService;
 import com.backend.sprint.service.ReceiptAthleteService;
 import com.backend.sprint.service.ReceiptService;
 import com.backend.sprint.service.RegisteredAthleteService;
-import com.backend.sprint.service.UnregisteredAthleteService;
 import com.backend.sprint.specifications.ReceiptAthleteSpecificationConstructor;
 import com.backend.sprint.specifications.ReceiptSpecificationConstructor;
 import com.backend.sprint.utils.PaymentStatus;
@@ -52,18 +52,16 @@ public class ReceiptController {
 	private ReceiptAthleteService receiptAthleteService;
 
 	@Autowired
-	private RegisteredAthleteService registeredAthleteService;
+	private AthleteService athleteService;
 
 	@Autowired
-	private UnregisteredAthleteService unRegisteredAthleteService;
+	private RegisteredAthleteService registeredAthleteService;
 
 	@Autowired
 	private FeeService feeService;
 
 	@Autowired
 	private Utils utils;
-
-//	private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
 	@GetMapping("")
 	public Page<ReceiptDto> findPagintation(@RequestParam(value = "filters", required = false) List<String> filters,
@@ -99,33 +97,30 @@ public class ReceiptController {
 		service.deleteByAthleteIds(id, athleteIds);
 	}
 
-//	@GetMapping("/athletes")
-//	public Page<ReceiptAthleteDto> findReceiptAthletes(
-//			@RequestParam(value = "filters", required = false) List<String> filters, Pageable pageable,
-//			@RequestParam(defaultValue = "id") String sort,
-//			@RequestParam(defaultValue = "DESC") Direction sortDirection,
-//			@RequestParam(defaultValue = "collection") String collection,
-//			@RequestParam(defaultValue = "sportSchoolId") long sportSchoolId) {
-//
-//		try {
-//			filters = utils.getFilters(filters);
-//			filters.add("sportSchoolId__=__" + sportSchoolId);
-//			filters.add("paymentType__ins__DOM,TRANSF,MET");
-//			// Registered athletes: last_register_date < now() - 15 days
-//			Calendar calendar = Calendar.getInstance();
-//			calendar.add(Calendar.DATE, -15);
-//
-////			filters.add("lastRegisterDate__lte__" + dateFormat.format(calendar.getTime()));
-//			// Unregistered athletes:
-//		} catch (Exception e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//			return Page.empty();
-//		}
-//
-//		return service.findReceiptAthletes(new RegisteredAthleteSpecificationConstructor<>(filters), pageable, sort,
-//				sortDirection, collection);
-//	}
+	@DeleteMapping("/{id}/athletes/add")
+	public void addAthletesToReceipt(@PathVariable long id,
+			@RequestParam(value = "athlete_ids", required = true) List<Long> athleteIds) {
+
+		ReceiptDto receipt = service.findById(id);
+		athleteIds.stream().map(athleteId -> {
+
+			AthleteDto athlete = athleteService.findById(athleteId);
+
+			FeeDto fee = feeService.getAthleteFee(athlete.getId(), athlete.getFamilyCode(), athlete.getPaymentType(),
+					athlete.getSportSchoolId(), athlete.isSpecialization(), athlete.getScheduleIds(),
+					athlete.getCategory(), athlete.getLicenseType(), athlete.isEnrollmentFeePaid(),
+					receipt.getCollection());
+
+			ReceiptAthleteDto raDto = new ReceiptAthleteDto();
+			raDto.setAthleteId(athlete.getId());
+			raDto.setReceiptId(receipt.getId());
+			raDto.setMonthlyFee(fee.getMonthlyFee());
+			raDto.setEnrollmentFee(fee.getEnrollmentFee());
+			raDto.setMembershipFee(fee.getMembershipFee());
+			raDto.setStatus(PaymentStatus.PENDING.name().toLowerCase());
+			return receiptAthleteService.save(raDto);
+		}).collect(Collectors.toList());
+	}
 
 	@GetMapping("/{id}/athletes")
 	public Page<ReceiptAthleteDto> findReceiptIdAthletes(@PathVariable int id,

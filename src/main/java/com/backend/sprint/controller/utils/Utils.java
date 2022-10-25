@@ -27,11 +27,22 @@ public class Utils {
 			throw new Exception();
 		}
 		Set<Long> groupIds = user.getGroupIds();
-		if (groupIds != null && groupIds.size() > 0) {
+		if (!filtersContainColumn(filters, "groupId") && groupIds != null && groupIds.size() > 0) {
 			filters.add("groupId__in__" + groupIds.stream().map(String::valueOf).collect(Collectors.joining(",")));
 		}
-		filters.add(
-				"sportSchoolId__in__" + sportSchoolIds.stream().map(String::valueOf).collect(Collectors.joining(",")));
+		if (!filtersContainColumn(filters, "sportSchoolId")) {
+			filters.add("sportSchoolId__in__"
+					+ sportSchoolIds.stream().map(String::valueOf).collect(Collectors.joining(",")));
+		}
 		return filters;
+	}
+
+	private boolean filtersContainColumn(List<String> filters, String column) {
+
+		return filters.stream().map(filter -> {
+			String col = filter.split("__")[0];
+			return col.equals(column);
+		}).anyMatch(e -> e);
+
 	}
 }

@@ -115,41 +115,4 @@ public class ReceiptService {
 		return dao;
 	}
 
-//	private ReceiptAthleteDto convertToDto(ReceiptAthleteDao dao, String collection) {
-//		if (dao == null) {
-//			return null;
-//		}
-//		ReceiptAthleteDto dto = new ModelMapper().map(dao, ReceiptAthleteDto.class);
-//		return dto;
-//	}
-
-//	private ReceiptAthleteDto convertToDto(RegisteredAthleteDao dao, String collection) {
-//		if (dao == null) {
-//			return null;
-//		}
-////		AthleteDto athlete = new ModelMapper().map(dao, AthleteDto.class);
-//
-//		ReceiptAthleteDto receiptAthlete = new ModelMapper().map(dao, ReceiptAthleteDto.class);
-//
-//		Set<Long> scheduleIds = dao.getScheduleIds() != null && !dao.getScheduleIds().isEmpty() ? Arrays
-//				.asList(dao.getScheduleIds().split(",")).stream().map(Long::parseLong).collect(Collectors.toSet())
-//				: null;
-//		FeeDto fee = feeService.getAthleteFee(dao.getId(), dao.getFamilyCode(), dao.getPaymentType(),
-//				dao.getSportSchoolId(), dao.isSpecialization(), scheduleIds, receiptAthlete.getCategory(),
-//				dao.getLicenseType(), dao.isEnrollmentFeePaid(), collection);
-//
-//		receiptAthlete.setEnrollmentFee(fee.getEnrollmentFee());
-//		receiptAthlete.setMonthlyFee(fee.getMonthlyFee());
-//		receiptAthlete.setMembershipFee(fee.getMembershipFee());
-//
-//		String translatedDays = "";
-//		String days = receiptAthlete.getDays();
-//		if (days != null && !days.isEmpty()) {
-//			translatedDays = Arrays.asList(days.split(",")).stream().sorted(new AthleteUtils.WeekDayComparator())
-//					.map(day -> AthleteUtils.dayTranslate.get(day)).collect(Collectors.joining(","));
-//		}
-//		receiptAthlete.setDays(translatedDays);
-//		return receiptAthlete;
-//	}
-
 }
