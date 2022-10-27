@@ -24,6 +24,8 @@ public class ReceiptDto {
 
 	private Date lastRegisterDate;
 
+	private Date lastUnregisterDate;
+
 	private int year;
 
 	private String status = ReceiptStatus.OPEN.name();

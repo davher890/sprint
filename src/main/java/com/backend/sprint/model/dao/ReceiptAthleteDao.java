@@ -43,6 +43,12 @@ public class ReceiptAthleteDao {
 	private float enrollmentFee;
 	private float membershipFee;
 
+	private String days;
+	private Integer numDays;
+
+	private Date lastRegisterDate;
+	private Date lastUnregisterDate;
+
 	private String status;
 
 	@CreationTimestamp

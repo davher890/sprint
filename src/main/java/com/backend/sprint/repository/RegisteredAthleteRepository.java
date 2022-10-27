@@ -15,7 +15,7 @@ public interface RegisteredAthleteRepository
 	@Query(value = "SELECT * FROM registered_athletes WHERE group_id = ?1 AND active = true ORDER BY first_surname, second_surname", nativeQuery = true)
 	public List<RegisteredAthleteDao> findByGroupId(long groupId);
 
-	@Query(value = "SELECT * FROM registered_athletes WHERE sport_school_id = ?1 AND last_register_date < ?2 AND active = true", nativeQuery = true)
+	@Query(value = "SELECT * FROM registered_athletes WHERE sport_school_id = ?1 AND last_register_date < ?2 AND payment_type != 'SUBV' AND active = true", nativeQuery = true)
 	public List<RegisteredAthleteDao> findBySportSchoolIdAndLastRegisterDate(long sportSchoolId, Date lastRegisterDate);
 
 }

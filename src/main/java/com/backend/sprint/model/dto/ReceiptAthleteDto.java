@@ -55,13 +55,15 @@ public class ReceiptAthleteDto {
 	private float enrollmentFee;
 	private float membershipFee;
 
+	private Date lastRegisterDate;
+	private Date lastUnregisterDate;
+
 	private String receiptCollection;
 	private Date receiptCreatedAt;
 
 	private String status;
 
 	private Date createdAt;
-
 	private Date updatedAt;
 
 }

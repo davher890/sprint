@@ -33,6 +33,11 @@ public class UnregisteredAthleteService {
 		return daoPage.map(dao -> convertToDto(dao));
 	}
 
+	public List<AthleteDto> findBySportSchoolIdAndLastUnregisterDate(long sportSchoolId, Date lastUnregisterDate) {
+		return repository.findBySportSchoolIdAndLastUnregisterDate(sportSchoolId, lastUnregisterDate).stream()
+				.map(this::convertToDto).collect(Collectors.toList());
+	}
+
 	public List<AthleteDto> findByLastUnregisterDate(Date lastUnregisterDate) {
 		return repository.findByLastUnregisterDate(lastUnregisterDate).stream().map(this::convertToDto)
 				.collect(Collectors.toList());

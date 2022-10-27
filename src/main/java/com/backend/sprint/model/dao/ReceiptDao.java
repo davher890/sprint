@@ -41,6 +41,8 @@ public class ReceiptDao {
 
 	private Date lastRegisterDate;
 
+	private Date lastUnregisterDate;
+
 	private int year;
 
 	private String status;

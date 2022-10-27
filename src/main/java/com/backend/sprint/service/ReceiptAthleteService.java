@@ -46,8 +46,8 @@ public class ReceiptAthleteService {
 
 	public Page<ReceiptAthleteDto> findPagintation(Specification<ReceiptAthleteDao> specification, Pageable pageable,
 			String sort, Direction sortDirection) {
-		Page<ReceiptAthleteDao> daoPage = repository.findAll(specification,
-				PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(sortDirection, sort)));
+		Page<ReceiptAthleteDao> daoPage = repository.findAll(specification, PageRequest.of(pageable.getPageNumber(),
+				pageable.getPageSize(), Sort.by(sortDirection, "athlete." + sort)));
 		return daoPage.map(dao -> convertToDto(dao));
 	}
 
@@ -101,6 +101,7 @@ public class ReceiptAthleteService {
 		dto.setPaymentType(athlete.getPaymentType());
 		dto.setFeeType(athlete.getFeeType());
 
+		dto.setPaymentType(athlete.getPaymentType());
 		ReceiptDao receipt = dao.getReceipt();
 		if (receipt != null) {
 			dto.setReceiptCollection(receipt.getCollection());

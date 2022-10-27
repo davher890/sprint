@@ -34,6 +34,7 @@ import com.backend.sprint.service.FeeService;
 import com.backend.sprint.service.ReceiptAthleteService;
 import com.backend.sprint.service.ReceiptService;
 import com.backend.sprint.service.RegisteredAthleteService;
+import com.backend.sprint.service.UnregisteredAthleteService;
 import com.backend.sprint.specifications.ReceiptAthleteSpecificationConstructor;
 import com.backend.sprint.specifications.ReceiptSpecificationConstructor;
 import com.backend.sprint.utils.PaymentStatus;
@@ -56,6 +57,9 @@ public class ReceiptController {
 
 	@Autowired
 	private RegisteredAthleteService registeredAthleteService;
+
+	@Autowired
+	private UnregisteredAthleteService unregisteredAthleteService;
 
 	@Autowired
 	private FeeService feeService;
@@ -149,28 +153,47 @@ public class ReceiptController {
 	@PostMapping("")
 	public ReceiptDto save(@RequestBody ReceiptDto receiptData) throws Exception {
 
+		receiptData.setStatus("processing");
 		final ReceiptDto dto = service.save(receiptData);
 
 		// Save athletes to the receipt
 		List<AthleteDto> registeredAthletes = registeredAthleteService
 				.findBySportSchoolIdAndLastRegisterDate(dto.getSportSchoolId(), dto.getLastRegisterDate());
 
-		registeredAthletes.stream().map(athlete -> {
+		List<AthleteDto> unregisteredAthletes = unregisteredAthleteService
+				.findBySportSchoolIdAndLastUnregisterDate(dto.getSportSchoolId(), dto.getLastUnregisterDate());
 
-			FeeDto fee = feeService.getAthleteFee(athlete.getId(), athlete.getFamilyCode(), athlete.getPaymentType(),
-					athlete.getSportSchoolId(), athlete.isSpecialization(), athlete.getScheduleIds(),
-					athlete.getCategory(), athlete.getLicenseType(), athlete.isEnrollmentFeePaid(),
-					dto.getCollection());
+		if (receiptData.getId() == 0) {
+			new Thread(new Runnable() {
 
-			ReceiptAthleteDto raDto = new ReceiptAthleteDto();
-			raDto.setAthleteId(athlete.getId());
-			raDto.setReceiptId(dto.getId());
-			raDto.setMonthlyFee(fee.getMonthlyFee());
-			raDto.setEnrollmentFee(fee.getEnrollmentFee());
-			raDto.setMembershipFee(fee.getMembershipFee());
-			raDto.setStatus(PaymentStatus.PENDING.name().toLowerCase());
-			return receiptAthleteService.save(raDto);
-		}).collect(Collectors.toList());
+				@Override
+				public void run() {
+					registeredAthletes.addAll(unregisteredAthletes);
+					registeredAthletes.parallelStream().map(athlete -> {
+
+						FeeDto fee = feeService.getAthleteFee(athlete.getId(), athlete.getFamilyCode(),
+								athlete.getPaymentType(), athlete.getSportSchoolId(), athlete.isSpecialization(),
+								athlete.getScheduleIds(), athlete.getCategory(), athlete.getLicenseType(),
+								athlete.isEnrollmentFeePaid(), dto.getCollection());
+
+						ReceiptAthleteDto raDto = new ReceiptAthleteDto();
+						raDto.setDays(athlete.getDays());
+						raDto.setNumDays(athlete.getNumDays());
+						raDto.setLastRegisterDate(athlete.getLastRegisterDate());
+						raDto.setLastUnregisterDate(athlete.getLastUnregisterDate());
+						raDto.setAthleteId(athlete.getId());
+						raDto.setReceiptId(dto.getId());
+						raDto.setMonthlyFee(fee.getMonthlyFee());
+						raDto.setEnrollmentFee(fee.getEnrollmentFee());
+						raDto.setMembershipFee(fee.getMembershipFee());
+						raDto.setStatus(PaymentStatus.PENDING.name().toLowerCase());
+						return receiptAthleteService.save(raDto);
+					}).collect(Collectors.toList());
+					dto.setStatus("pending");
+					service.save(dto);
+				}
+			}).start();
+		}
 		return dto;
 	}
 
