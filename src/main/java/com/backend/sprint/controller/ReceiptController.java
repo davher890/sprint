@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
@@ -38,6 +39,7 @@ import com.backend.sprint.service.UnregisteredAthleteService;
 import com.backend.sprint.specifications.ReceiptAthleteSpecificationConstructor;
 import com.backend.sprint.specifications.ReceiptSpecificationConstructor;
 import com.backend.sprint.utils.PaymentStatus;
+import com.backend.sprint.utils.ReceiptStatus;
 
 @RestController
 @RequestMapping("receipts")
@@ -72,6 +74,7 @@ public class ReceiptController {
 			Pageable pageable, String sort, Direction sortDirection) {
 		try {
 			filters = utils.getFilters(filters);
+			filters.add("active__==__true");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -90,10 +93,10 @@ public class ReceiptController {
 		return service.findById(id);
 	}
 
-//	@DeleteMapping("/{id}")
-//	public ReceiptDto deleteById(@PathVariable long id) {
-//		return service.deleteById(id);
-//	}
+	@DeleteMapping("/{id}")
+	public ReceiptDto deleteById(@PathVariable long id) {
+		return service.deleteById(id);
+	}
 
 	@DeleteMapping("/{id}/athletes")
 	public void deleteReceiptAthletes(@PathVariable long id,
@@ -153,17 +156,18 @@ public class ReceiptController {
 	@PostMapping("")
 	public ReceiptDto save(@RequestBody ReceiptDto receiptData) throws Exception {
 
-		receiptData.setStatus("processing");
-		final ReceiptDto dto = service.save(receiptData);
-
-		// Save athletes to the receipt
-		List<AthleteDto> registeredAthletes = registeredAthleteService
-				.findBySportSchoolIdAndLastRegisterDate(dto.getSportSchoolId(), dto.getLastRegisterDate());
-
-		List<AthleteDto> unregisteredAthletes = unregisteredAthleteService
-				.findBySportSchoolIdAndLastUnregisterDate(dto.getSportSchoolId(), dto.getLastUnregisterDate());
+		ReceiptDto dto = service.save(receiptData);
 
 		if (receiptData.getId() == 0) {
+			// Save athletes to the receipt
+			List<AthleteDto> registeredAthletes = registeredAthleteService
+					.findBySportSchoolIdAndLastRegisterDate(dto.getSportSchoolId(), dto.getLastRegisterDate());
+
+			List<AthleteDto> unregisteredAthletes = unregisteredAthleteService
+					.findBySportSchoolIdAndLastUnregisterDate(dto.getSportSchoolId(), dto.getLastUnregisterDate());
+
+			dto.setStatus("processing");
+			final ReceiptDto receiptDto = service.save(dto);
 			new Thread(new Runnable() {
 
 				@Override
@@ -174,7 +178,7 @@ public class ReceiptController {
 						FeeDto fee = feeService.getAthleteFee(athlete.getId(), athlete.getFamilyCode(),
 								athlete.getPaymentType(), athlete.getSportSchoolId(), athlete.isSpecialization(),
 								athlete.getScheduleIds(), athlete.getCategory(), athlete.getLicenseType(),
-								athlete.isEnrollmentFeePaid(), dto.getCollection());
+								athlete.isEnrollmentFeePaid(), receiptDto.getCollection());
 
 						ReceiptAthleteDto raDto = new ReceiptAthleteDto();
 						raDto.setDays(athlete.getDays());
@@ -182,15 +186,24 @@ public class ReceiptController {
 						raDto.setLastRegisterDate(athlete.getLastRegisterDate());
 						raDto.setLastUnregisterDate(athlete.getLastUnregisterDate());
 						raDto.setAthleteId(athlete.getId());
-						raDto.setReceiptId(dto.getId());
+						raDto.setReceiptId(receiptDto.getId());
 						raDto.setMonthlyFee(fee.getMonthlyFee());
 						raDto.setEnrollmentFee(fee.getEnrollmentFee());
 						raDto.setMembershipFee(fee.getMembershipFee());
 						raDto.setStatus(PaymentStatus.PENDING.name().toLowerCase());
+
+						Set<ReceiptAthleteDto> receipts = receiptAthleteService
+								.findByAthleteIdAndStatus(athlete.getId(), ReceiptStatus.VALIDATED.label);
+						if (receipts != null && !receipts.isEmpty()) {
+							float sum = receipts.stream().map(ReceiptAthleteDto::getMonthlyFee).reduce(Float::sum)
+									.get();
+							raDto.setMonthlyFee(raDto.getMonthlyFee() + sum);
+						}
+
 						return receiptAthleteService.save(raDto);
 					}).collect(Collectors.toList());
-					dto.setStatus("pending");
-					service.save(dto);
+					receiptDto.setStatus("pending");
+					service.save(receiptDto);
 				}
 			}).start();
 		}

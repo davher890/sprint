@@ -2,5 +2,11 @@ package com.backend.sprint.utils;
 
 public enum ReceiptStatus {
 
-	OPEN, VALIDATED;
+	OPEN("open"), VALIDATED("validated");
+
+	public final String label;
+
+	private ReceiptStatus(String label) {
+		this.label = label;
+	}
 }

@@ -76,16 +76,16 @@ public class ReceiptService {
 		receiptAthleteRepository.deleteByAthleteIds(id, athleteIds);
 	}
 
-//	public ReceiptDto deleteById(long id) {
-//		ReceiptDto receipt = this.findById(id);
-//		receipt.setActive(false);
-//
-//		receipt = this.save(receipt);
-//
-//		receiptAthleteRepository.deleteByReceiptId(receipt.getId());
-//
-//		return receipt;
-//	}
+	public ReceiptDto deleteById(long id) {
+		ReceiptDto receipt = this.findById(id);
+		receipt.setActive(false);
+
+		receipt = this.save(receipt);
+
+		receiptAthleteRepository.deleteByReceiptId(receipt.getId());
+
+		return receipt;
+	}
 
 	public ReceiptDto save(ReceiptDto dto) {
 		return convertToDto(repository.save(convertToDao(dto)));

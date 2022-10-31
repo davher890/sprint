@@ -59,6 +59,7 @@ public class ReceiptAthleteDto {
 	private Date lastUnregisterDate;
 
 	private String receiptCollection;
+	private String receiptName;
 	private Date receiptCreatedAt;
 
 	private String status;
