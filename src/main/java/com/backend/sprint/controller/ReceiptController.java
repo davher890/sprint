@@ -39,6 +39,7 @@ import com.backend.sprint.service.UnregisteredAthleteService;
 import com.backend.sprint.specifications.ReceiptAthleteSpecificationConstructor;
 import com.backend.sprint.specifications.ReceiptSpecificationConstructor;
 import com.backend.sprint.utils.PaymentStatus;
+import com.backend.sprint.utils.PaymentType;
 import com.backend.sprint.utils.ReceiptStatus;
 
 @RestController
@@ -215,7 +216,9 @@ public class ReceiptController {
 			@RequestParam(value = "concept", required = false, defaultValue = "") String concept,
 			HttpServletResponse response) throws IOException {
 
-		List<ReceiptAthleteDao> daoList = receiptAthleteService.findDaoByReceiptId(id);
+		List<ReceiptAthleteDao> daoList = receiptAthleteService.findDaoByReceiptId(id).stream()
+				.filter(r -> r.getAthlete().getPaymentType().equals(PaymentType.DomiciliaciónBancaria.label))
+				.collect(Collectors.toList());
 		ByteArrayOutputStream outputStream = excelService.downloadReceiptAthletesExcel(daoList, concept, "Recibo");
 		IOUtils.copy(new ByteArrayInputStream(outputStream.toByteArray()), response.getOutputStream());
 	}
