@@ -54,6 +54,8 @@ public class AthleteSpecificationConstructor<AthleteDao> extends AbstractSpecifi
 
 				if (field.equals("groupId")) {
 					return filterPredicateString(root.get("group").get("id"), builder, operator, value);
+				} else if (field.equals("receiptId")) {
+					return filterPredicateString(root.get("receipt").get("id"), builder, operator, value);
 				} else if (field.equals("scheduleIds")) {
 					Predicate predicate = builder.conjunction();
 					for (String scheduleId : value.split("_")) {

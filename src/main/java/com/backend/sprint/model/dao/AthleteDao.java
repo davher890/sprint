@@ -67,6 +67,9 @@ public class AthleteDao {
 	@JoinTable(joinColumns = @JoinColumn(name = "athlete_id"), inverseJoinColumns = @JoinColumn(name = "schedule_id"))
 	private Set<ScheduleDao> schedules;
 
+	@OneToMany(mappedBy = "athlete", fetch = FetchType.LAZY)
+	private Set<ReceiptAthleteDao> receipts;
+
 	private String familiarOneName;
 	private String familiarOneFirstSurname;
 	private String familiarOneSecondSurname;

@@ -1,5 +1,9 @@
 package com.backend.sprint.service;
 
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -27,6 +31,16 @@ public class UnregisteredAthleteService {
 		Page<UnregisteredAthleteDao> daoPage = repository.findAll(specification,
 				PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(sortDirection, sort)));
 		return daoPage.map(dao -> convertToDto(dao));
+	}
+
+	public List<AthleteDto> findBySportSchoolIdAndLastUnregisterDate(long sportSchoolId, Date lastUnregisterDate) {
+		return repository.findBySportSchoolIdAndLastUnregisterDate(sportSchoolId, lastUnregisterDate).stream()
+				.map(this::convertToDto).collect(Collectors.toList());
+	}
+
+	public List<AthleteDto> findByLastUnregisterDate(Date lastUnregisterDate) {
+		return repository.findByLastUnregisterDate(lastUnregisterDate).stream().map(this::convertToDto)
+				.collect(Collectors.toList());
 	}
 
 	public Page<UnregisteredAthleteDao> findDaoPagintation(Specification<UnregisteredAthleteDao> specification,

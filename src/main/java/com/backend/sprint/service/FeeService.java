@@ -22,11 +22,14 @@ public class FeeService {
 
 	public FeeDto getAthleteFee(long id, long familyCode, String paymentType, long sportSchoolId,
 			boolean specialization, Set<Long> scheduleIds, String category, String licenseType,
-			boolean isEnrollmentFeePaid) {
+			boolean isEnrollmentFeePaid, String collection) {
 
 		FeeDto fee = new FeeDto();
+		float monthlyFee = this.getMonthlyFee(paymentType, sportSchoolId, specialization, scheduleIds, category,
+				licenseType);
 		fee.setMonthlyFee(
-				this.getMonthlyFee(paymentType, sportSchoolId, specialization, scheduleIds, category, licenseType));
+				collection != null && (collection.equals("september") || collection.equals("july")) ? monthlyFee / 3
+						: monthlyFee);
 
 		fee.setEnrollmentFee(this.getEnrollmentFee(id, sportSchoolId, familyCode, isEnrollmentFeePaid));
 

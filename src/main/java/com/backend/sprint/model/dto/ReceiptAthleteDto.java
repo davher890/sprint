@@ -10,7 +10,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class PaymentAthleteDto {
+public class ReceiptAthleteDto {
 
 	private long id;
 
@@ -46,11 +46,25 @@ public class PaymentAthleteDto {
 	private String paymentType;
 	private String feeType;
 
-//	Fee
+	private long receiptId;
+
+	private long athleteId;
+
+	// Fee
 	private float monthlyFee;
 	private float enrollmentFee;
 	private float membershipFee;
 
 	private Date lastRegisterDate;
+	private Date lastUnregisterDate;
+
+	private String receiptCollection;
+	private String receiptName;
+	private Date receiptCreatedAt;
+
+	private String status;
+
+	private Date createdAt;
+	private Date updatedAt;
 
 }
