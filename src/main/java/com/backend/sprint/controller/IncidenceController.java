@@ -57,15 +57,9 @@ public class IncidenceController {
 	@PostMapping("")
 	public IncidenceDto save(@RequestBody IncidenceDto dto) {
 
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		UserDto user = (UserDto) auth.getPrincipal();
-		dto.setCreatedById(user.getId());
 		dto = service.save(dto);
-
 		mailService.sendMail("davher890@gmail.com", "Nueva incidencia: " + dto.getTitle(),
-				"Texto: " + dto.getDescription()
-						+ "\n http://sprint-react.s3-website-us-east-1.amazonaws.com/incidences/" + dto.getId());
-
+				"Texto: " + dto.getDescription() + "\n http://sportclubsmanager.com/incidences/" + dto.getId());
 		return dto;
 	}
 
