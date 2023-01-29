@@ -36,37 +36,10 @@ public interface AthleteRepository
 			+ "ON a1.id = a2.id", nativeQuery = true)
 	public List<AthleteDao> findByPhoneList(List<String> phoneList, Set<Long> sportSchoolIds);
 
-//	@Query(value = "SELECT * FROM athletes WHERE id != ?1 AND name = ?2 AND first_surname = ?3 AND second_surname = ?4 "
-//			+ "AND EXTRACT(YEAR FROM birth_date) = ?5 AND EXTRACT(MONTH FROM birth_date) = ?6 AND EXTRACT(DAY FROM birth_date) = ?7 AND active = true", nativeQuery = true)
-//	public List<AthleteDao> findByIdAndUniqueColumns(long id, String name, String firstSurname, String secondSurname,
-//			int year, int month, int day);
-
-//	@Query(value = "SELECT * FROM athletes WHERE name = ?1 AND first_surname = ?2 AND second_surname = ?3 "
-//			+ "AND EXTRACT(YEAR FROM birth_date) = ?4 AND EXTRACT(MONTH FROM birth_date) = ?5 AND EXTRACT(DAY FROM birth_date) = ?6 AND active = true", nativeQuery = true)
-//	public List<AthleteDao> findByUniqueColumns(String name, String firstSurname, String secondSurname, int year,
-//			int month, int day);
-
-//	@Query(value = "SELECT * FROM athletes WHERE name = ?1 AND first_surname = ?2 AND second_surname = ?3 "
-//			+ "AND EXTRACT(YEAR FROM birth_date) = ?4 AND EXTRACT(MONTH FROM birth_date) = ?5 AND EXTRACT(DAY FROM birth_date) = ?6 ", nativeQuery = true)
-//	public List<AthleteDao> findByNameColumns(String name, String firstSurname, String secondSurname, int year,
-//			int month, int day);
-
-//	@Query(value = "SELECT * FROM athletes WHERE id IN (SELECT DISTINCT(a.id) "
-//			+ "FROM athletes a INNER JOIN groups_schedules gs ON gs.group_id = a.group_id "
-//			+ "WHERE a.group_id = ?1 AND gs.schedule_id IN (?2)) AND active = true", nativeQuery = true)
-//	public Page<AthleteDao> findByGroupAndSchedulesPagination(long groupId, List<Long> scheduleIds, Pageable pageable);
-
 	@Query(value = "SELECT * FROM athletes WHERE id IN (SELECT DISTINCT(a.id) "
 			+ "FROM athletes a INNER JOIN groups_schedules gs ON gs.group_id = a.group_id "
 			+ "WHERE a.group_id = ?1 AND gs.schedule_id IN (?2)) AND active = true", nativeQuery = true)
 	public List<AthleteDao> findByGroupAndSchedules(long groupId, List<Long> scheduleIds);
-
-	// Returns the athletes in the historic
-//	@Query(value = "SELECT * FROM athletes WHERE NOT("
-//			+ "(last_register_date IS NULL AND (last_unregister_date IS NULL OR last_unregister_date > NOW())) "
-//			+ " OR "
-//			+ "(last_register_date IS NOT NULL AND last_register_date <= NOW() AND (last_unregister_date IS NULL OR last_unregister_date < last_register_date)))", nativeQuery = true)
-//	public List<AthleteDao> findAllHistoric();
 
 	// Returns the registered athletes
 	@Query(value = "SELECT * FROM athletes WHERE "
@@ -86,5 +59,4 @@ public interface AthleteRepository
 	@Modifying
 	@Query(value = "UPDATE athletes SET group_id = NULL WHERE group_id = ?1", nativeQuery = true)
 	public void deleteGroupAthletes(long groupId);
-
 }

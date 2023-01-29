@@ -125,6 +125,9 @@ public class AthleteDao {
 	@Column(columnDefinition = "boolean default false")
 	private boolean enrollmentFeePaid;
 
+	@Column(columnDefinition = "boolean default false")
+	private boolean membershipFeePaid;
+
 	@Column(columnDefinition = "boolean default true")
 	private boolean active;
 

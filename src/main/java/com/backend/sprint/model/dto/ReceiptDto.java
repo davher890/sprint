@@ -21,6 +21,7 @@ public class ReceiptDto {
 	private String name;
 
 	private String collection;
+	private String collectionName;
 
 	private Date lastRegisterDate;
 

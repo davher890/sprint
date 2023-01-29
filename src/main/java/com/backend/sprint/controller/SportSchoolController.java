@@ -34,11 +34,13 @@ import com.backend.sprint.model.dao.SportSchoolDao;
 import com.backend.sprint.model.dto.ColumnDto;
 import com.backend.sprint.model.dto.ExcelDataDto;
 import com.backend.sprint.model.dto.ExcelValueDto;
+import com.backend.sprint.model.dto.FeeDto;
 import com.backend.sprint.model.dto.GroupDto;
 import com.backend.sprint.model.dto.SelectOptionDto;
 import com.backend.sprint.model.dto.SportSchoolDto;
 import com.backend.sprint.model.dto.TrainerDto;
 import com.backend.sprint.model.dto.UserDto;
+import com.backend.sprint.service.FeeService;
 import com.backend.sprint.service.GroupService;
 import com.backend.sprint.service.SportSchoolService;
 import com.backend.sprint.service.TrainerService;
@@ -61,6 +63,9 @@ public class SportSchoolController {
 
 	@Autowired
 	private UserService userService;
+
+	@Autowired
+	private FeeService feeService;
 
 	@GetMapping("")
 	public Page<SportSchoolDto> findPagintation(@RequestParam(value = "filters", required = false) List<String> filters,
@@ -102,6 +107,16 @@ public class SportSchoolController {
 	@GetMapping("/{id}/fee_types")
 	public List<SelectOptionDto> findFeeTypesById(@PathVariable int id) {
 		return service.findFeeTypesById(id);
+	}
+
+	@GetMapping("/{id}/fee")
+	public FeeDto findFeeById(@PathVariable int id) {
+		return feeService.findBySportSchoolId(id);
+	}
+
+	@GetMapping("/{id}/collections")
+	public List<SelectOptionDto> findCollectionsById(@PathVariable int id) {
+		return service.findCollectionsById(id);
 	}
 
 	@GetMapping("/{id}/groups")
@@ -177,8 +192,7 @@ public class SportSchoolController {
 			ExcelDataDto dataDto = new ExcelDataDto();
 			dataDto.getData().addAll(columns.parallelStream().filter(ColumnDto::isShow).map(d -> {
 				try {
-					return new ExcelValueDto(BeanUtils.getProperty(entity, d.getDataField()),
-							ExcelUtils.getCellType(d));
+					return new ExcelValueDto(BeanUtils.getProperty(entity, d.getDataField()), d);
 				} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
 					return null;
 				}

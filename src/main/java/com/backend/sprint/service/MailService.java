@@ -114,6 +114,7 @@ public class MailService {
 			try {
 				File f = new File("/tmp/excel.xlsx");
 				FileOutputStream fout = new FileOutputStream(f);
+				outputStream.writeTo(fout);
 
 				attachmentPart.attachFile(f);
 				textPart.setText("Adjunto se encuentra el excel con la información solicitada");

@@ -61,7 +61,7 @@ public class SportSchoolService {
 		return StreamSupport.stream(findAll.spliterator(), false).collect(Collectors.toList());
 	}
 
-	public List<SelectOptionDto> findFeeTypesById(int sportSchoolId) {
+	public List<SelectOptionDto> findFeeTypesById(long sportSchoolId) {
 
 		List<SelectOptionDto> options = new ArrayList<SelectOptionDto>();
 		if (sportSchoolId == 1) {
@@ -85,6 +85,24 @@ public class SportSchoolService {
 			options.add(new SelectOptionDto("FED", "Federación"));
 		} else {
 			options.add(new SelectOptionDto("CLUB", "Club"));
+		}
+
+		return options;
+	}
+
+	public List<SelectOptionDto> findCollectionsById(long sportSchoolId) {
+
+		List<SelectOptionDto> options = new ArrayList<SelectOptionDto>();
+		if (sportSchoolId == 1 || sportSchoolId == 2) {
+			// Santa Ana y Paracuellos
+			options.add(new SelectOptionDto("initial_fee", "Cuota inicial"));
+			options.add(new SelectOptionDto("quarterly_fee", "Cuota trimestral"));
+		} else if (sportSchoolId == 3) {
+			// Externos
+			options.add(new SelectOptionDto("external_fee", "Cuota externos"));
+		} else if (sportSchoolId == 3 || sportSchoolId == 5) {
+			// Padres
+			options.add(new SelectOptionDto("parents_fee", "Cuota padres"));
 		}
 
 		return options;

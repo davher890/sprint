@@ -52,6 +52,10 @@ public class ReceiptAthleteService {
 		return daoPage.map(dao -> convertToDto(dao));
 	}
 
+	public ReceiptAthleteDto findById(long id) {
+		return convertToDto(repository.findById(id).orElse(null));
+	}
+
 	public Set<ReceiptAthleteDto> findByReceiptId(long receiptId) {
 		return repository.findByReceiptId(receiptId).stream().map(this::convertToDto).collect(Collectors.toSet());
 	}
@@ -61,6 +65,10 @@ public class ReceiptAthleteService {
 				.collect(Collectors.toSet());
 	}
 
+	public ReceiptAthleteDto findByAthleteIdAndReceiptId(long athleteId, long receiptId) {
+		return convertToDto(repository.findByAthleteIdAndReceiptId(athleteId, receiptId));
+	}
+
 	public List<ReceiptAthleteDao> findDaoByReceiptId(long receiptId) {
 		return repository.findByReceiptId(receiptId);
 	}
@@ -68,6 +76,16 @@ public class ReceiptAthleteService {
 	public Set<ReceiptAthleteDto> findByAthleteId(long receiptId) {
 		return repository.findByAthleteIdAndStatus(receiptId, ReceiptStatus.VALIDATED.label).stream()
 				.map(this::convertToDto).collect(Collectors.toSet());
+	}
+
+	public void validateReceiptId(long receiptId) {
+		repository.validateReceiptId(receiptId);
+		repository.athleteMembershipFeePaid(receiptId);
+		repository.ahtleteEnrollmentFeePaid(receiptId);
+	}
+
+	public void deleteByReceiptId(long receiptId) {
+		repository.deleteByReceiptId(receiptId);
 	}
 
 	private ReceiptAthleteDto convertToDto(ReceiptAthleteDao dao) {

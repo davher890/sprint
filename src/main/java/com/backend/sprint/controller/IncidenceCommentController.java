@@ -39,7 +39,7 @@ public class IncidenceCommentController {
 		String subject = "Nuevo mensaje en incidencia " + dto.getIncidenceId();
 
 		String body = "Incidencia: " + incidence.getTitle() + "\n\nTexto: " + dto.getMessage()
-				+ "\n\nhttp://sportclubsmanager.com/incidences/" + dto.getIncidenceId();
+				+ "\n\nhttp://sportclubsmanager.com/incidences/" + incidence.getId();
 
 		mailService.sendMail("davher890@gmail.com", subject, body);
 

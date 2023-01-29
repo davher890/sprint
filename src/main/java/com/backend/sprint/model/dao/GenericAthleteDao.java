@@ -85,6 +85,7 @@ public class GenericAthleteDao {
 
 	private boolean active;
 	private boolean enrollmentFeePaid;
+	private boolean membershipFeePaid;
 
 	private Date createdAt;
 

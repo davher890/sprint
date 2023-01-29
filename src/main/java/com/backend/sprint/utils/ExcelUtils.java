@@ -6,13 +6,11 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import com.backend.sprint.model.dto.ColumnDto;
 import com.backend.sprint.model.dto.ExcelDataDto;
 import com.backend.sprint.model.dto.ExcelValueDto;
 
@@ -23,20 +21,7 @@ public abstract class ExcelUtils {
 		Sheet sheet = workbook.createSheet(sheetName.replaceAll("[\\\\:?\\/*\\[\\]]", "_"));
 
 		// Creating data rows for each customer
-		int dataSize = data.size();
-		IntStream.range(0, dataSize).forEach(i -> {
-
-			Row dataRow = sheet.createRow(i);
-			IntStream.range(0, data.get(i).getData().size()).forEach(j -> {
-				List<ExcelValueDto> data2 = data.get(i).getData();
-				CellType cellType = data2.get(j).getType();
-				Cell cell = dataRow.createCell(j, cellType);
-				cell.setCellValue(data2.get(j).getValue());
-				if (data2.get(j).getStyle() != null) {
-					cell.setCellStyle(data2.get(j).getStyle());
-				}
-			});
-		});
+		writeRows(data, workbook, sheet);
 		return sheet;
 
 	}
@@ -49,18 +34,7 @@ public abstract class ExcelUtils {
 		Sheet sheet = workbook.createSheet(sheetName);
 
 		// Creating data rows for each customer
-		IntStream.range(0, data.size()).forEach(i -> {
-
-			Row dataRow = sheet.createRow(i);
-			IntStream.range(0, data.get(i).getData().size()).forEach(j -> {
-				List<ExcelValueDto> data2 = data.get(i).getData();
-				Cell cell = dataRow.createCell(j, data2.get(j).getType());
-				cell.setCellValue(data2.get(j).getValue());
-				if (data2.get(j).getStyle() != null) {
-					cell.setCellStyle(data2.get(j).getStyle());
-				}
-			});
-		});
+		writeRows(data, workbook, sheet);
 
 		IntStream.range(0, data.size()).parallel().forEach(i -> {
 			sheet.autoSizeColumn(i);
@@ -73,17 +47,23 @@ public abstract class ExcelUtils {
 		return outputStream;
 	}
 
-	public static CellType getCellType(ColumnDto d) {
-		if (d.getType() == null) {
-			return CellType.STRING;
-		}
-		switch (d.getType()) {
-		case "number":
-			return CellType.NUMERIC;
-		case "bool":
-			return CellType.BOOLEAN;
-		default:
-			return CellType.STRING;
-		}
+	private static void writeRows(List<ExcelDataDto> data, Workbook wb, Sheet sheet) {
+		IntStream.range(0, data.size()).forEach(i -> {
+
+			Row dataRow = sheet.createRow(i);
+			ExcelDataDto excelDataDto = data.get(i);
+			IntStream.range(0, excelDataDto.getData().size()).forEach(j -> {
+				List<ExcelValueDto> data2 = excelDataDto.getData();
+				ExcelValueDto excelValueDto = data2.get(j);
+				Cell cell = dataRow.createCell(j, excelValueDto.getType());
+				if (excelValueDto.getColumnDto() != null && excelValueDto.getColumnDto().getType() != null
+						&& excelValueDto.getColumnDto().getType().equals("date")) {
+					cell.setCellValue(excelValueDto.getDateValue());
+					cell.setCellStyle(excelValueDto.getStyle(wb));
+				} else {
+					cell.setCellValue(excelValueDto.getValue());
+				}
+			});
+		});
 	}
 }

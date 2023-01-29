@@ -51,9 +51,9 @@ public class ReceiptAthleteDto {
 	private long athleteId;
 
 	// Fee
-	private float monthlyFee;
-	private float enrollmentFee;
-	private float membershipFee;
+	private int monthlyFee;
+	private int enrollmentFee;
+	private int membershipFee;
 
 	private Date lastRegisterDate;
 	private Date lastUnregisterDate;

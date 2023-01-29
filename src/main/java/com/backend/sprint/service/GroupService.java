@@ -340,10 +340,14 @@ public class GroupService {
 	public List<GroupDto> swapGropupsAthletes(long groupAId, long groupBId, List<Long> groupAAthletes,
 			List<Long> groupBAthletes) {
 
+		GroupDto groupA = this.findById(groupAId);
+		GroupDto groupB = this.findById(groupBId);
+
 		for (Long athleteId : groupAAthletes) {
 			AthleteDto athlete = athleteService.findById(athleteId);
 			if (athlete.getGroupId() != groupAId) {
 				athlete.setGroupId(groupAId);
+				athlete.setScheduleIds(groupA.getScheduleIds());
 				athleteService.save(athlete);
 			}
 		}
@@ -352,19 +356,23 @@ public class GroupService {
 			AthleteDto athlete = athleteService.findById(athleteId);
 			if (athlete.getGroupId() != groupBId) {
 				athlete.setGroupId(groupBId);
+				athlete.setScheduleIds(groupB.getScheduleIds());
 				athleteService.save(athlete);
 			}
 		}
 
-		return Arrays.asList(new GroupDto[] { this.findById(groupAId), this.findById(groupBId) });
+		return Arrays.asList(new GroupDto[] { groupA, groupB });
 	}
 
 	public GroupDto swapGropupsAthletes(long groupId, List<Long> athletesIds) {
+
+		GroupDto group = this.findById(groupId);
 
 		for (Long athleteId : athletesIds) {
 			AthleteDto athlete = athleteService.findById(athleteId);
 			if (athlete.getGroupId() != groupId) {
 				athlete.setGroupId(groupId);
+				athlete.setScheduleIds(group.getScheduleIds());
 				athleteService.save(athlete);
 			}
 		}

@@ -87,6 +87,14 @@ public class AthleteController {
 		return receiptAthleteService.findByAthleteId(id);
 	}
 
+	@GetMapping("/{athleteId}/receipts/{receiptId}/status")
+	public ReceiptAthleteDto athleteReceipt(@PathVariable int athleteId, @PathVariable int receiptId,
+			@RequestParam(value = "status", required = true) String status) {
+		ReceiptAthleteDto receipt = receiptAthleteService.findByAthleteIdAndReceiptId(athleteId, receiptId);
+		receipt.setStatus(status);
+		return receiptAthleteService.save(receipt);
+	}
+
 	@PostMapping("/{id}/register")
 	public HistoricDto registerAthlete(@PathVariable int id, @RequestBody HistoricDto historic) throws PSQLException {
 		return historicService.register(id, historic);
@@ -109,14 +117,15 @@ public class AthleteController {
 
 	@PostMapping("/fee")
 	public FeeDto getFee(@RequestBody AthleteDto dto) {
-		return feeService.getAthleteFee(dto.getId(), dto.getFamilyCode(), dto.getPaymentType(), dto.getSportSchoolId(),
-				dto.isSpecialization(), dto.getScheduleIds(), dto.getCategory(), dto.getLicenseType(),
-				dto.isEnrollmentFeePaid(), null);
+		int numDays = dto.getScheduleIds() == null ? 0 : dto.getScheduleIds().size();
+		FeeDto fee = feeService.findBySportSchoolId(dto.getSportSchoolId());
+		return feeService.getAthleteFee(dto.getId(), dto.getFamilyCode(), dto.getPaymentType(), dto.isSpecialization(),
+				numDays, dto.getCategory(), dto.getLicenseType(), dto.isEnrollmentFeePaid(), dto.isMembershipFeePaid(),
+				null, fee);
 	}
 
 	@PostMapping("")
 	public AthleteDto save(@RequestBody AthleteDto dto) {
-
 		return service.save(dto);
 	}
 

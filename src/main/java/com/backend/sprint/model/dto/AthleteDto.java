@@ -89,6 +89,7 @@ public class AthleteDto {
 	private float paymentAmount;
 
 	private boolean enrollmentFeePaid = false;
+	private boolean membershipFeePaid = false;
 
 	// Code
 	private long code;

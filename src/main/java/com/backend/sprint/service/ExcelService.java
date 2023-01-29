@@ -34,37 +34,27 @@ public class ExcelService {
 	private String DATE_FORMAT_MASK = "dd/MM/yyyy";
 
 	@Autowired
-	private FeeService feeService;
-
-	@Autowired
 	private MailService mailService;
 
 	private ExcelValueDto getExcelValueFromEntity(String dataField, GenericAthleteDao entity, ColumnDto d)
 			throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
-		SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT_MASK);
 
 		if (dataField.equals("sportSchoolId")) {
-			return new ExcelValueDto(entity.getSportSchoolName(), ExcelUtils.getCellType(d));
+			return new ExcelValueDto(entity.getSportSchoolName(), d);
 		} else if (dataField.equals("birthDate")) {
-			return new ExcelValueDto(entity.getBirthDate() != null ? dateFormat.format(entity.getBirthDate()) : null,
-					ExcelUtils.getCellType(d));
+			return new ExcelValueDto(entity.getBirthDate(), d);
 		} else if (dataField.equals("lastRegisterDate")) {
-			return new ExcelValueDto(
-					entity.getLastRegisterDate() != null ? dateFormat.format(entity.getLastRegisterDate()) : null,
-					ExcelUtils.getCellType(d));
+			return new ExcelValueDto(entity.getLastRegisterDate(), d);
 		} else if (dataField.equals("lastUnregisterDate")) {
-			return new ExcelValueDto(
-					entity.getLastUnregisterDate() != null ? dateFormat.format(entity.getLastUnregisterDate()) : null,
-					ExcelUtils.getCellType(d));
+			return new ExcelValueDto(entity.getLastUnregisterDate(), d);
 		} else if (dataField.equals("licenseType")) {
 			boolean h = entity.getLicense() == null || entity.getLicense().isEmpty()
 					|| entity.getLicense().trim().toUpperCase().equals("SIN LICENCIA");
-			return new ExcelValueDto(h ? null : entity.getLicenseType(), ExcelUtils.getCellType(d));
+			return new ExcelValueDto(h ? null : entity.getLicenseType(), d);
 		} else if (dataField.equals("category")) {
 			Calendar calendar = Calendar.getInstance();
 			calendar.setTime(entity.getBirthDate());
-			return new ExcelValueDto(AthleteUtils.calculateCategory(calendar.get(Calendar.YEAR)).name(),
-					ExcelUtils.getCellType(d));
+			return new ExcelValueDto(AthleteUtils.calculateCategory(calendar.get(Calendar.YEAR)).name(), d);
 		} else if (dataField.equals("days")) {
 			String translatedDays = "";
 			String days = entity.getDays();
@@ -72,46 +62,41 @@ public class ExcelService {
 				translatedDays = Arrays.asList(days.split(",")).stream().sorted(new AthleteUtils.WeekDayComparator())
 						.map(day -> AthleteUtils.dayTranslate.get(day)).collect(Collectors.joining(","));
 			}
-			return new ExcelValueDto(translatedDays, ExcelUtils.getCellType(d));
+			return new ExcelValueDto(translatedDays, d);
 		} else if (dataField.equals("gender")) {
-			return new ExcelValueDto(entity.getGender().equals("male") ? "Hombre" : "Mujer", ExcelUtils.getCellType(d));
+			return new ExcelValueDto(entity.getGender().equals("male") ? "Hombre" : "Mujer", d);
 		} else {
-			return new ExcelValueDto(BeanUtils.getProperty(entity, dataField), ExcelUtils.getCellType(d));
+			return new ExcelValueDto(BeanUtils.getProperty(entity, dataField), d);
 		}
 	}
 
 	private ExcelValueDto getExcelValueFromEntity(String dataField, AthleteDao entity, ColumnDto d)
 			throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
-		SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT_MASK);
 
 		if (dataField.equals("familyCode")) {
-			return new ExcelValueDto(String.valueOf(entity.getFamily().getCode()), ExcelUtils.getCellType(d));
+			return new ExcelValueDto(String.valueOf(entity.getFamily().getCode()), d);
 		} else if (dataField.equals("sportSchoolId")) {
-			return new ExcelValueDto(entity.getSportSchool().getName(), ExcelUtils.getCellType(d));
+			return new ExcelValueDto(entity.getSportSchool().getName(), d);
 		} else if (dataField.equals("groupName")) {
-			return new ExcelValueDto(entity.getGroup().getName(), ExcelUtils.getCellType(d));
+			return new ExcelValueDto(entity.getGroup().getName(), d);
 		} else if (dataField.equals("birthDate")) {
-			return new ExcelValueDto(entity.getBirthDate() != null ? dateFormat.format(entity.getBirthDate()) : null,
-					ExcelUtils.getCellType(d));
+			return new ExcelValueDto(entity.getBirthDate(), d);
 		} else if (dataField.equals("lastRegisterDate")) {
 			Date lastRegisterDate = AthleteUtils.getLastRegisterDate(entity);
-			return new ExcelValueDto(dateFormat.format(lastRegisterDate != null ? lastRegisterDate : null),
-					ExcelUtils.getCellType(d));
+			return new ExcelValueDto(lastRegisterDate, d);
 		} else if (dataField.equals("lastUnregisterDate")) {
 			Date lastUnregisterDate = AthleteUtils.getLastUnregisterDate(entity);
-			return new ExcelValueDto(lastUnregisterDate != null ? dateFormat.format(lastUnregisterDate) : null,
-					ExcelUtils.getCellType(d));
+			return new ExcelValueDto(lastUnregisterDate, d);
 		} else if (dataField.equals("category")) {
 			Calendar calendar = Calendar.getInstance();
 			calendar.setTime(entity.getBirthDate());
-			return new ExcelValueDto(AthleteUtils.calculateCategory(calendar.get(Calendar.YEAR)).name(),
-					ExcelUtils.getCellType(d));
+			return new ExcelValueDto(AthleteUtils.calculateCategory(calendar.get(Calendar.YEAR)).name(), d);
 		} else if (dataField.equals("numDays")) {
 			int numDays = 0;
 			if (entity.getSchedules() != null && entity.getSchedules().size() > 0) {
 				numDays = entity.getSchedules().size();
 			}
-			return new ExcelValueDto(String.valueOf(numDays), ExcelUtils.getCellType(d));
+			return new ExcelValueDto(String.valueOf(numDays), d);
 		} else if (dataField.equals("days")) {
 			String translatedDays = "";
 			String days = entity.getSchedules().stream().sorted(Comparator.comparingInt(ScheduleDao::getDayNumber))
@@ -124,11 +109,11 @@ public class ExcelService {
 			} catch (Exception e) {
 				System.out.print(entity.getId());
 			}
-			return new ExcelValueDto(translatedDays, ExcelUtils.getCellType(d));
+			return new ExcelValueDto(translatedDays, d);
 		} else if (dataField.equals("gender")) {
-			return new ExcelValueDto(entity.getGender().equals("male") ? "Hombre" : "Mujer", ExcelUtils.getCellType(d));
+			return new ExcelValueDto(entity.getGender().equals("male") ? "Hombre" : "Mujer", d);
 		} else {
-			return new ExcelValueDto(BeanUtils.getProperty(entity, dataField), ExcelUtils.getCellType(d));
+			return new ExcelValueDto(BeanUtils.getProperty(entity, dataField), d);
 		}
 
 	}
