@@ -1,7 +1,8 @@
 DROP VIEW IF EXISTS registered_athletes;
 CREATE OR REPLACE VIEW registered_athletes AS
 	SELECT a.*, ss.name as sport_school_name, gs.name as group_name, fs.code as family_code, h.date as last_register_date, last_unregister_date,
-		athlete_schedules.num_days as num_days, athlete_schedules.days as days, athlete_schedules.schedule_ids as schedule_ids
+		athlete_schedules.num_days as num_days, athlete_schedules.days as days, athlete_schedules.schedule_ids as schedule_ids,
+	    row_number() over (partition by fs.id order by h.date asc) as familiar_number
 	FROM athletes a
 	inner join sport_schools ss on ss.id = a.sport_school_id
 	inner join families fs on fs.id = a.family_id
