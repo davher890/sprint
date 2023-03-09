@@ -30,6 +30,7 @@ import com.backend.sprint.service.ObservationService;
 import com.backend.sprint.service.ReceiptAthleteService;
 import com.backend.sprint.service.SportdataService;
 import com.backend.sprint.specifications.SportdataSpecificationConstructor;
+import com.backend.sprint.utils.ReceiptStatus;
 
 @RestController
 @RequestMapping("athletes")
@@ -84,7 +85,7 @@ public class AthleteController {
 
 	@GetMapping("/{id}/receipts")
 	public Set<ReceiptAthleteDto> athleteReceipts(@PathVariable int id) {
-		return receiptAthleteService.findByAthleteId(id);
+		return receiptAthleteService.findByAthleteIdAndReceiptStatus(id, ReceiptStatus.VALIDATED.label);
 	}
 
 	@GetMapping("/{athleteId}/receipts/{receiptId}/status")
@@ -119,9 +120,9 @@ public class AthleteController {
 	public FeeDto getFee(@RequestBody AthleteDto dto) {
 		int numDays = dto.getScheduleIds() == null ? 0 : dto.getScheduleIds().size();
 		FeeDto fee = feeService.findBySportSchoolId(dto.getSportSchoolId());
-		return feeService.getAthleteFee(dto.getId(), dto.getFamilyCode(), dto.getPaymentType(), dto.isSpecialization(),
-				numDays, dto.getCategory(), dto.getLicenseType(), dto.isEnrollmentFeePaid(), dto.isMembershipFeePaid(),
-				null, fee);
+		return feeService.getAthleteFee(dto.getId(), dto.getFamilyCode(), dto.getFamiliarNumber(), dto.getPaymentType(),
+				dto.getFeeType(), dto.isSpecialization(), numDays, dto.getCategory(), dto.getLicenseType(),
+				dto.isEnrollmentFeePaid(), dto.isMembershipFeePaid(), null, fee);
 	}
 
 	@PostMapping("")

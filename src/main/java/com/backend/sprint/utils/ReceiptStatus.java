@@ -2,7 +2,7 @@ package com.backend.sprint.utils;
 
 public enum ReceiptStatus {
 
-	OPEN("open"), VALIDATED("validated"), RETURN("return");
+	OPEN("open"), VALIDATED("validated"), RETURN("return"), PAID("paid");
 
 	public final String label;
 

@@ -43,16 +43,16 @@ public class FeeService {
 		return convertToDto(repository.findBySportSchoolId(sportSchoolId));
 	}
 
-	public FeeDto getAthleteFee(long id, long familyCode, String paymentType, boolean specialization, int numDays,
-			String category, String licenseType, boolean isEnrollmentFeePaid, boolean isMembershipFeePaid,
-			String collection, FeeDto sportSchoolFee) {
+	public FeeDto getAthleteFee(long id, long familyCode, long familiarNumber, String paymentType, String feeType,
+			boolean specialization, int numDays, String category, String licenseType, boolean isEnrollmentFeePaid,
+			boolean isMembershipFeePaid, String collection, FeeDto sportSchoolFee) {
 
 		FeeDto fee = new FeeDto();
 		float monthlyFee = this.getMonthlyFee(paymentType, specialization, numDays, category, licenseType,
-				sportSchoolFee);
-		fee.setMonthlyFee(collection != null && (collection.equals("initial_fee")) ? monthlyFee / 3 : monthlyFee);
+				sportSchoolFee) / 3;
+		fee.setMonthlyFee(monthlyFee);
 
-		float enrollmentFee = this.getEnrollmentFee(id, familyCode, isEnrollmentFeePaid, sportSchoolFee);
+		float enrollmentFee = this.getEnrollmentFee(id, familiarNumber, isEnrollmentFeePaid, sportSchoolFee);
 		fee.setEnrollmentFee(enrollmentFee);
 
 		float membershipFee = this.getMembershipFee(id, paymentType, familyCode, isMembershipFeePaid, sportSchoolFee);
@@ -120,7 +120,7 @@ public class FeeService {
 	}
 
 	// Once
-	public float getEnrollmentFee(long id, long familyCode, boolean isEnrollmentFeePaid, FeeDto sportSchoolFee) {
+	public float getEnrollmentFee(long id, long familiarNumber, boolean isEnrollmentFeePaid, FeeDto sportSchoolFee) {
 
 		float fee = 0;
 		if (id == 0 || !isEnrollmentFeePaid) {
@@ -128,15 +128,9 @@ public class FeeService {
 			if (sportSchoolFee.getSportSchoolId() == 3) {
 				fee = 10;
 			} else {
-				if (familyCode > 0) {
-					FamilyDto family = familyService.findByCode(familyCode);
-					if (family.getCount() > 1) {
-						fee = 20;
-					}
+				if (familiarNumber > 1) {
+					fee *= 0.5;
 				}
-
-				// A partir del tercer miembro solo se paga una cuota de socio por
-				// familia
 			}
 
 		}

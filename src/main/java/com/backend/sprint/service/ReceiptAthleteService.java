@@ -25,7 +25,6 @@ import com.backend.sprint.model.dto.ReceiptAthleteDto;
 import com.backend.sprint.repository.AthleteRepository;
 import com.backend.sprint.repository.ReceiptAthleteRepository;
 import com.backend.sprint.repository.ReceiptRepository;
-import com.backend.sprint.utils.ReceiptStatus;
 
 @Service
 @Transactional
@@ -60,8 +59,8 @@ public class ReceiptAthleteService {
 		return repository.findByReceiptId(receiptId).stream().map(this::convertToDto).collect(Collectors.toSet());
 	}
 
-	public Set<ReceiptAthleteDto> findByAthleteIdAndStatus(long receiptId, String status) {
-		return repository.findByAthleteIdAndStatus(receiptId, status).stream().map(this::convertToDto)
+	public Set<ReceiptAthleteDto> findByAthleteIdAndReceiptStatus(long athleteId, String status) {
+		return repository.findByAthleteIdAndReceiptStatus(athleteId, status).stream().map(this::convertToDto)
 				.collect(Collectors.toSet());
 	}
 
@@ -71,11 +70,6 @@ public class ReceiptAthleteService {
 
 	public List<ReceiptAthleteDao> findDaoByReceiptId(long receiptId) {
 		return repository.findByReceiptId(receiptId);
-	}
-
-	public Set<ReceiptAthleteDto> findByAthleteId(long receiptId) {
-		return repository.findByAthleteIdAndStatus(receiptId, ReceiptStatus.VALIDATED.label).stream()
-				.map(this::convertToDto).collect(Collectors.toSet());
 	}
 
 	public void validateReceiptId(long receiptId) {

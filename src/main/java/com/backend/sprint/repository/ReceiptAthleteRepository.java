@@ -16,8 +16,11 @@ public interface ReceiptAthleteRepository
 
 	public List<ReceiptAthleteDao> findByReceiptId(long receiptId);
 
+	@Query(value = "SELECT ras.* FROM receipt_athletes ras INNER JOIN receipts rs ON rs.id = ras.receipt_id AND rs.active = true WHERE ras.athlete_id = ?1 ", nativeQuery = true)
+	public List<ReceiptAthleteDao> findByAthleteId(long receiptId);
+
 	@Query(value = "SELECT ras.* FROM receipt_athletes ras INNER JOIN receipts rs ON rs.id = ras.receipt_id AND rs.active = true AND rs.status = ?2 WHERE ras.athlete_id = ?1 ", nativeQuery = true)
-	public List<ReceiptAthleteDao> findByAthleteIdAndStatus(long receiptId, String status);
+	public List<ReceiptAthleteDao> findByAthleteIdAndReceiptStatus(long receiptId, String status);
 
 	@Query(value = "SELECT * FROM receipt_athletes WHERE athlete_id = ?1 AND receipt_id = ?2", nativeQuery = true)
 	public ReceiptAthleteDao findByAthleteIdAndReceiptId(long athleteId, long receiptId);

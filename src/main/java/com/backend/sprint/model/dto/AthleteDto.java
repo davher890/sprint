@@ -93,6 +93,7 @@ public class AthleteDto {
 
 	// Code
 	private long code;
+	private long familiarNumber;
 
 	private Date lastRegisterDate;
 

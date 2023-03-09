@@ -3,7 +3,12 @@ package com.backend.sprint.controller;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -119,9 +124,10 @@ public class ReceiptController {
 			FeeDto feeDto = feeService.findBySportSchoolId(athlete.getSportSchoolId());
 
 			int numDays = athlete.getScheduleIds() == null ? 0 : athlete.getScheduleIds().size();
-			FeeDto fee = feeService.getAthleteFee(athlete.getId(), athlete.getFamilyCode(), athlete.getPaymentType(),
-					athlete.isSpecialization(), numDays, athlete.getCategory(), athlete.getLicenseType(),
-					athlete.isEnrollmentFeePaid(), athlete.isMembershipFeePaid(), receipt.getCollection(), feeDto);
+			FeeDto fee = feeService.getAthleteFee(athlete.getId(), athlete.getFamilyCode(), athlete.getFamiliarNumber(),
+					athlete.getPaymentType(), athlete.getFeeType(), athlete.isSpecialization(), numDays,
+					athlete.getCategory(), athlete.getLicenseType(), athlete.isEnrollmentFeePaid(),
+					athlete.isMembershipFeePaid(), receipt.getCollection(), feeDto);
 
 			ReceiptAthleteDto raDto = new ReceiptAthleteDto();
 			raDto.setAthleteId(athlete.getId());
@@ -207,14 +213,16 @@ public class ReceiptController {
 					registeredAthletes.parallelStream().map(athlete -> {
 
 						FeeDto fee = feeService.getAthleteFee(athlete.getId(), athlete.getFamilyCode(),
-								athlete.getPaymentType(), athlete.isSpecialization(), athlete.getNumDays(),
-								athlete.getCategory(), athlete.getLicenseType(), athlete.isEnrollmentFeePaid(),
-								athlete.isMembershipFeePaid(), receiptDto.getCollection(), feeDto);
+								athlete.getFamiliarNumber(), athlete.getPaymentType(), athlete.getFeeType(),
+								athlete.isSpecialization(), athlete.getNumDays(), athlete.getCategory(),
+								athlete.getLicenseType(), athlete.isEnrollmentFeePaid(), athlete.isMembershipFeePaid(),
+								receiptDto.getCollection(), feeDto);
 
 						ReceiptAthleteDto raDto = new ReceiptAthleteDto();
 						raDto.setDays(athlete.getDays());
 						raDto.setNumDays(athlete.getNumDays());
-						raDto.setLastRegisterDate(athlete.getLastRegisterDate());
+						Date lastRegisterDate = athlete.getLastRegisterDate();
+						raDto.setLastRegisterDate(lastRegisterDate);
 						raDto.setLastUnregisterDate(athlete.getLastUnregisterDate());
 						raDto.setAthleteId(athlete.getId());
 						raDto.setReceiptId(receiptDto.getId());
@@ -223,22 +231,75 @@ public class ReceiptController {
 						raDto.setMembershipFee((int) fee.getMembershipFee());
 						raDto.setStatus(PaymentStatus.PENDING.name().toLowerCase());
 
+						// Look for season receipts.
+						// TODO set the date from to loook for receipts ( September-202X )
 						Set<ReceiptAthleteDto> receipts = receiptAthleteService
-								.findByAthleteIdAndStatus(athlete.getId(), ReceiptStatus.RETURN.label);
-						if (receipts != null && !receipts.isEmpty()) {
-							float sum = receipts.stream().map(ReceiptAthleteDto::getMonthlyFee).reduce(Integer::sum)
-									.get();
-							raDto.setMonthlyFee((int) (raDto.getMonthlyFee() + sum));
+								.findByAthleteIdAndReceiptStatus(athlete.getId(), ReceiptStatus.VALIDATED.label);
+						if (receipts == null || receipts.isEmpty()) {
+							// This is the first receipt -> Calculate the number of months with
+							// MAX(registration date, 01-09-202X)
+							if (athlete.getFeeType().equals("CLUB_ANUAL")) {
+								raDto.setMonthlyFee(10 * raDto.getMonthlyFee());
+							} else {
+								try {
+									String seasonStartDateStr = "01/09/2022";
+									Date seasonStartDate = new SimpleDateFormat("dd/MM/yyyy").parse(seasonStartDateStr);
+									int diffMonths = getPaymentMonths(
+											seasonStartDate.before(lastRegisterDate) ? lastRegisterDate
+													: seasonStartDate,
+											receiptDto.getLastRegisterDate()) - 1;
+									raDto.setMonthlyFee((diffMonths + 3) * raDto.getMonthlyFee());
+								} catch (ParseException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+							}
+						} else {
+							// There are more previous receipts.
+							if (athlete.getFeeType().equals("CLUB_ANUAL")) {
+								if (receipts == null || !receipts.isEmpty()) {
+									raDto.setMonthlyFee(0);
+								} else {
+									raDto.setMonthlyFee(10 * raDto.getMonthlyFee());
+								}
+							} else {
+								int sum = receipts.stream()
+										.filter((ReceiptAthleteDto d) -> d.getStatus()
+												.equals(ReceiptStatus.RETURN.label))
+										.map(ReceiptAthleteDto::getMonthlyFee).reduce(Integer::sum).orElse(0);
+								// If there is any return receipt -> sum the quantities
+								raDto.setMonthlyFee((int) (3 * raDto.getMonthlyFee() + sum));
+							}
 						}
 
-						return receiptAthleteService.save(raDto);
-					}).collect(Collectors.toList());
+						if (raDto.getMonthlyFee() == 0 && raDto.getEnrollmentFee() == 0
+								&& raDto.getMembershipFee() == 0) {
+							return null;
+						} else {
+							return receiptAthleteService.save(raDto);
+						}
+
+					}).filter(Objects::nonNull).collect(Collectors.toList());
 					receiptDto.setStatus("pending");
 					service.save(receiptDto);
 				}
 			}).start();
 		}
 		return dto;
+	}
+
+	private int getPaymentMonths(Date startDate, Date endDate) {
+		Calendar startDateCalendar = Calendar.getInstance();
+		startDateCalendar.setTime(startDate);
+
+		if (startDateCalendar.get(Calendar.DAY_OF_MONTH) > 24) {
+			startDateCalendar.set(Calendar.MONTH, startDateCalendar.get(Calendar.MONTH) + 1);
+		}
+
+		Calendar endDateCalendar = Calendar.getInstance();
+		endDateCalendar.setTime(endDate);
+
+		return (((endDateCalendar.get(Calendar.MONTH) + 1 - startDateCalendar.get(Calendar.MONTH) + 1) % 11) + 11) % 11;
 	}
 
 	@PostMapping("/{id}/excel")
