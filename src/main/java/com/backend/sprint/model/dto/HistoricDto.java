@@ -19,6 +19,8 @@ public class HistoricDto {
 
 	private Date date;
 
+	private Date activationDate;
+
 	private String observations;
 
 	private Date createdAt;

@@ -39,6 +39,8 @@ public class HistoricDao {
 
 	private Date date;
 
+	private Date activationDate;
+
 	@Column(columnDefinition = "text")
 	private String observations;
 

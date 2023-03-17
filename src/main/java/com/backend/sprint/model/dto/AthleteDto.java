@@ -101,6 +101,8 @@ public class AthleteDto {
 
 	private boolean active = true;
 
+	private Date activeDate;
+
 	private Date createdAt;
 
 	private Date updatedAt;
