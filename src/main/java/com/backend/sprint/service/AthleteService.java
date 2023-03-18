@@ -129,6 +129,7 @@ public class AthleteService {
 			HistoricDto register = new HistoricDto();
 			register.setAthleteId(dao.getId());
 			register.setDate(dto.getLastRegisterDate());
+			register.setActivationDate(dto.getLastActivationDate());
 			register.setType(HistoricType.REGISTER.name());
 			historicService.save(register);
 		}

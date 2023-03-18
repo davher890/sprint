@@ -96,12 +96,11 @@ public class AthleteDto {
 	private long familiarNumber;
 
 	private Date lastRegisterDate;
+	private Date lastActivationDate;
 
 	private Date lastUnregisterDate;
 
 	private boolean active = true;
-
-	private Date activeDate;
 
 	private Date createdAt;
 
