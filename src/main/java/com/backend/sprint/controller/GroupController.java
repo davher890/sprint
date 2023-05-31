@@ -38,7 +38,6 @@ import com.backend.sprint.model.dto.ExcelValueDto;
 import com.backend.sprint.model.dto.GroupDto;
 import com.backend.sprint.model.dto.ScheduleDto;
 import com.backend.sprint.model.dto.UserDto;
-import com.backend.sprint.service.AthleteService;
 import com.backend.sprint.service.ExcelService;
 import com.backend.sprint.service.GroupService;
 import com.backend.sprint.service.RegisteredAthleteService;
@@ -52,9 +51,6 @@ public class GroupController {
 
 	@Autowired
 	private GroupService service;
-
-	@Autowired
-	private AthleteService athleteService;
 
 	@Autowired
 	private RegisteredAthleteService registeredAthleteService;

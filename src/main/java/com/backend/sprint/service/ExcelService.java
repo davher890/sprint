@@ -51,7 +51,7 @@ public class ExcelService {
 			boolean h = entity.getLicense() == null || entity.getLicense().isEmpty()
 					|| entity.getLicense().trim().toUpperCase().equals("SIN LICENCIA");
 			return new ExcelValueDto(h ? null : entity.getLicenseType(), d);
-		} else if (dataField.equals("category")) {
+		} else if (dataField.equals("category") && entity.getBirthDate() != null) {
 			Calendar calendar = Calendar.getInstance();
 			calendar.setTime(entity.getBirthDate());
 			return new ExcelValueDto(AthleteUtils.calculateCategory(calendar.get(Calendar.YEAR)).name(), d);

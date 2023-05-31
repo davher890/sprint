@@ -343,11 +343,23 @@ public class GroupService {
 		GroupDto groupA = this.findById(groupAId);
 		GroupDto groupB = this.findById(groupBId);
 
+		List<ScheduleDto> groupASchedules = scheduleService.findByGroupId(groupAId);
+		List<ScheduleDto> groupBSchedules = scheduleService.findByGroupId(groupBId);
+
 		for (Long athleteId : groupAAthletes) {
 			AthleteDto athlete = athleteService.findById(athleteId);
 			if (athlete.getGroupId() != groupAId) {
 				athlete.setGroupId(groupAId);
-				athlete.setScheduleIds(groupA.getScheduleIds());
+
+				if (groupA.isSpecialization()) {
+					athlete.setScheduleIds(groupA.getScheduleIds());
+				} else {
+					athlete.setScheduleIds(groupASchedules.stream().map(schedule -> {
+						boolean matchDay = athlete.getSchedules().stream().map(ScheduleDto::getDayNumber)
+								.anyMatch(sch -> sch == schedule.getDayNumber());
+						return matchDay ? schedule.getId() : 0L;
+					}).filter(d -> d > 0).collect(Collectors.toSet()));
+				}
 				athleteService.save(athlete);
 			}
 		}
@@ -356,7 +368,15 @@ public class GroupService {
 			AthleteDto athlete = athleteService.findById(athleteId);
 			if (athlete.getGroupId() != groupBId) {
 				athlete.setGroupId(groupBId);
-				athlete.setScheduleIds(groupB.getScheduleIds());
+				if (groupB.isSpecialization()) {
+					athlete.setScheduleIds(groupB.getScheduleIds());
+				} else {
+					athlete.setScheduleIds(groupBSchedules.stream().map(schedule -> {
+						boolean matchDay = athlete.getSchedules().stream().map(ScheduleDto::getDayNumber)
+								.anyMatch(sch -> sch == schedule.getDayNumber());
+						return matchDay ? schedule.getId() : 0L;
+					}).filter(d -> d > 0).collect(Collectors.toSet()));
+				}
 				athleteService.save(athlete);
 			}
 		}
