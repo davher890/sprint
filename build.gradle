@@ -39,7 +39,7 @@ dependencies {
     
     
     // OpenCSV
-    implementation 'com.opencsv:opencsv:4.1'
+    implementation 'com.opencsv:opencsv:5.7.1'
     
     implementation 'org.apache.poi:poi:3.17'
 	implementation 'org.apache.poi:poi-ooxml:3.17'
