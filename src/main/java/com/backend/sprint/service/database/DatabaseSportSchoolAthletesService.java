@@ -2,16 +2,22 @@ package com.backend.sprint.service.database;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.apache.commons.beanutils.PropertyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -31,6 +37,7 @@ import com.backend.sprint.model.dto.ScheduleDto;
 import com.backend.sprint.model.dto.SportSchoolDto;
 import com.backend.sprint.model.dto.TrainerDto;
 import com.backend.sprint.model.dto.UserDto;
+import com.backend.sprint.service.RegisteredAthleteService;
 import com.backend.sprint.utils.HistoricType;
 import com.backend.sprint.utils.LicenseType;
 import com.opencsv.CSVReader;
@@ -97,6 +104,21 @@ public class DatabaseSportSchoolAthletesService extends DatabaseService {
 	private static final int REGISTER_DATE = 67;
 
 	private static final String DATE_SEPARATOR = "-";
+
+	private static final String[] string_fields_to_check = { "familyCode", "code", "dni",
+//			"gender", 
+			"nationality", "birthPlace", "familiarOneName", "familiarOneFirstSurname", "familiarOneSecondSurname",
+			"familiarOneDni", "familiarOneMail", "familiarTwoName", "familiarTwoFirstSurname",
+			"familiarTwoSecondSurname", "familiarTwoDni", "familiarTwoMail",
+//			"category", 
+			"dorsalCategory", "license", "licenseType", "mail", "phone1", "phone2", "phone3", "municipality",
+			"postalCode", "address", "iban", "paymentType", "feeType", "holderName", "holderFirstSurname",
+			"holderSecondSurname", "holderDni",
+//			"groupId",
+			"dorsalNumber" }; //
+
+	@Autowired
+	private RegisteredAthleteService registeredAthleteService;
 
 	private Logger logger = LoggerFactory.getLogger(DatabaseSportSchoolAthletesService.class);
 
@@ -357,5 +379,106 @@ public class DatabaseSportSchoolAthletesService extends DatabaseService {
 			dto.setName(name);
 			return trainerService.save(dto);
 		}).collect(Collectors.toSet());
+	}
+
+	public void checkSportSchoolIdAthletes(long sportSchoolId, List<AthleteDto> fileAthletes) {
+		List<AthleteDto> findBySportSchoolId = registeredAthleteService.findBySportSchoolId(sportSchoolId);
+		Supplier<Stream<AthleteDto>> sportSchoolAthletes = () -> {
+			return findBySportSchoolId.parallelStream();
+		};
+		fileAthletes.parallelStream().forEach(fileAthlete -> {
+
+			NameDataDto holderNameData = getNameDataFromString(fileAthlete.getHolderName());
+			NameDataDto familiar1NameData = getNameDataFromString(fileAthlete.getFamiliarOneName());
+			NameDataDto familiar2NameData = getNameDataFromString(fileAthlete.getFamiliarTwoName());
+
+			fileAthlete.setHolderName(holderNameData.getName());
+			fileAthlete.setHolderFirstSurname(holderNameData.getFirstSurname());
+			fileAthlete.setHolderSecondSurname(holderNameData.getSecondSurname());
+
+			fileAthlete.setFamiliarOneName(familiar1NameData.getName());
+			fileAthlete.setFamiliarOneFirstSurname(familiar1NameData.getFirstSurname());
+			fileAthlete.setFamiliarOneSecondSurname(familiar1NameData.getSecondSurname());
+
+			fileAthlete.setFamiliarTwoName(familiar2NameData.getName());
+			fileAthlete.setFamiliarTwoFirstSurname(familiar2NameData.getFirstSurname());
+			fileAthlete.setFamiliarTwoSecondSurname(familiar2NameData.getSecondSurname());
+
+			Optional<AthleteDto> anyAthlete = sportSchoolAthletes.get()
+					.filter(athlete -> athlete.getName().equals(fileAthlete.getName().trim())
+							&& athlete.getFirstSurname().equals(fileAthlete.getFirstSurname().trim())
+							&& athlete.getSecondSurname().equals(fileAthlete.getSecondSurname().trim()))
+					.findFirst();
+			if (!anyAthlete.isPresent()) {
+				System.out.println(fileAthlete.getFamilyCode() + ";" + fileAthlete.getCode() + ";"
+						+ fileAthlete.getName() + ";" + fileAthlete.getFirstSurname() + ";"
+						+ fileAthlete.getSecondSurname() + "; El atleta no se encontro en la plataforma");
+			} else {
+				AthleteDto athlete = anyAthlete.get();
+
+				try {
+					for (String field : string_fields_to_check) {
+						checkAthleteField(athlete, fileAthlete, field);
+					}
+				} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+			}
+		});
+	}
+
+	private void checkAthleteField(AthleteDto dbAthlete, AthleteDto fileAthlete, String field)
+			throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+
+		Object dbValue = PropertyUtils.getProperty(dbAthlete, field);
+		Object fileValue = PropertyUtils.getProperty(fileAthlete, field);
+
+		try {
+
+			if (dbValue instanceof String) {
+				String dbValueStr = (String) dbValue;
+				String fileValueStr = (String) fileValue;
+				if (dbValueStr == null || dbValueStr.isEmpty()) {
+					if (fileValueStr != null && !fileValueStr.isEmpty()) {
+
+						printErrorMessage(dbAthlete, fileAthlete, field, fileValueStr, dbValueStr);
+					}
+				} else {
+					if (fileValueStr != null && !fileValueStr.isEmpty()) {
+						if (!dbValueStr.toLowerCase().trim().replace(",", "")
+								.equals(fileValueStr.toLowerCase().trim().replace(",", ""))) {
+							printErrorMessage(dbAthlete, fileAthlete, field, fileValueStr, dbValueStr);
+						}
+					}
+				}
+			}
+			if (dbValue instanceof Long) {
+				Long dbValueLong = (Long) PropertyUtils.getProperty(fileAthlete, field);
+				Long fileValueLong = (Long) PropertyUtils.getProperty(fileAthlete, field);
+
+				if (dbValueLong == null) {
+					if (fileValueLong != null) {
+						printErrorMessage(dbAthlete, fileAthlete, field, fileValueLong, dbValueLong);
+					}
+				} else {
+					if (fileValueLong != null) {
+						if (dbValueLong.longValue() != fileValueLong.longValue()) {
+							printErrorMessage(dbAthlete, fileAthlete, field, fileValueLong, dbValueLong);
+						}
+					}
+				}
+			}
+		} catch (NullPointerException e) {
+			System.out.println("Checking -" + dbValue + "- -" + fileValue + "-");
+		}
+	}
+
+	private void printErrorMessage(AthleteDto dbAthlete, AthleteDto fileAthlete, String field, Object fileValueStr,
+			Object dbValueStr) {
+		System.out.println(dbAthlete.getFamilyCode() + ";" + dbAthlete.getCode() + ";" + fileAthlete.getName() + ";"
+				+ fileAthlete.getFirstSurname() + ";" + fileAthlete.getSecondSurname() + ";" + field + ";" + field
+				+ " del excel: " + fileValueStr + ", no coincide con el de la plataforma: " + dbValueStr);
 	}
 }

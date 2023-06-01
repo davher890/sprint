@@ -104,10 +104,9 @@ public class DatabaseService {
 		return null;
 	}
 
-	public NameDataDto getNameData(String[] line, int position) {
+	public NameDataDto getNameDataFromString(String nameCell) {
 		NameDataDto name = new NameDataDto();
-		if (line[position] != null && !line[position].trim().isEmpty()) {
-			String nameCell = line[position];
+		if (nameCell != null) {
 			if (nameCell.contains(",")) {
 				List<String> splitNameCell = Arrays.asList(nameCell.split(","));
 				name.setName(splitNameCell.get(1).trim());
@@ -132,6 +131,15 @@ public class DatabaseService {
 					}
 				}
 			}
+		}
+		return name;
+	}
+
+	public NameDataDto getNameData(String[] line, int position) {
+		NameDataDto name = new NameDataDto();
+		if (line[position] != null && !line[position].trim().isEmpty()) {
+			String nameCell = line[position];
+			return getNameDataFromString(nameCell);
 		}
 		return name;
 	}

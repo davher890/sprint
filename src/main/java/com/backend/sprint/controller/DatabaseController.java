@@ -1,6 +1,8 @@
 package com.backend.sprint.controller;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.util.List;
 
@@ -8,13 +10,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.backend.sprint.model.dto.AthleteDto;
 import com.backend.sprint.service.database.DatabaseExternalAthletesService;
 import com.backend.sprint.service.database.DatabaseHistoricService;
 import com.backend.sprint.service.database.DatabaseParentsAthletesService;
 import com.backend.sprint.service.database.DatabaseSportSchoolAthletesService;
+import com.opencsv.bean.CsvToBean;
+import com.opencsv.bean.CsvToBeanBuilder;
 
 @RestController
 @RequestMapping("database")
@@ -71,6 +77,21 @@ public class DatabaseController {
 	public List<AthleteDto> dbFillAtheltesHistoric() throws IOException, ParseException {
 		String csvName = "BD_HISTORICO.csv";
 		return historicService.dbFillAtheltesData(csvName);
+	}
+
+	@GetMapping("/{id}/check")
+	public List<AthleteDto> checkSportSchoolDb(@PathVariable(name = "id") int sportSchoolId,
+			@RequestParam("file") MultipartFile file) throws IOException, ParseException {
+
+		BufferedReader fileReader = new BufferedReader(new InputStreamReader(file.getInputStream(), "UTF-8"));
+
+		CsvToBean<AthleteDto> csvToAthlete = new CsvToBeanBuilder<AthleteDto>(fileReader).withSeparator(';')
+				.withIgnoreLeadingWhiteSpace(true).withIgnoreEmptyLine(true).withType(AthleteDto.class).build();
+		List<AthleteDto> athletes = (List<AthleteDto>) csvToAthlete.parse();
+
+		service.checkSportSchoolIdAthletes(sportSchoolId, athletes);
+
+		return athletes;
 	}
 
 }

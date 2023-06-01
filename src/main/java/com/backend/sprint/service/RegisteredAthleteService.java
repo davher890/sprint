@@ -49,6 +49,10 @@ public class RegisteredAthleteService {
 		return repository.findByGroupId(id).stream().map(this::convertToDto).collect(Collectors.toList());
 	}
 
+	public List<AthleteDto> findBySportSchoolId(long id) {
+		return repository.findBySportSchoolId(id).stream().map(this::convertToDto).collect(Collectors.toList());
+	}
+
 	private AthleteDto convertToDto(RegisteredAthleteDao dao) {
 		if (dao == null) {
 			return null;
