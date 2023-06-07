@@ -19,6 +19,7 @@ import com.backend.sprint.service.database.DatabaseExternalAthletesService;
 import com.backend.sprint.service.database.DatabaseHistoricService;
 import com.backend.sprint.service.database.DatabaseParentsAthletesService;
 import com.backend.sprint.service.database.DatabaseSportSchoolAthletesService;
+import com.backend.sprint.service.database.DatabaseUpdateLicensesService;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
 
@@ -28,6 +29,9 @@ public class DatabaseController {
 
 	@Autowired
 	private DatabaseSportSchoolAthletesService service;
+
+	@Autowired
+	private DatabaseUpdateLicensesService updateLicensesService;
 
 	@Autowired
 	private DatabaseExternalAthletesService externalService;
@@ -90,6 +94,26 @@ public class DatabaseController {
 		List<AthleteDto> athletes = (List<AthleteDto>) csvToAthlete.parse();
 
 		service.checkSportSchoolIdAthletes(sportSchoolId, athletes);
+
+		return athletes;
+	}
+
+	@GetMapping("/update_licenses")
+	public List<AthleteDto> updateAthleteLicenses(@RequestParam("file") MultipartFile file)
+			throws IOException, ParseException {
+
+		BufferedReader fileReader = new BufferedReader(new InputStreamReader(file.getInputStream(), "UTF-8"));
+
+		CsvToBean<AthleteDto> csvToAthlete = new CsvToBeanBuilder<AthleteDto>(fileReader).withProfile("update_licenses")
+				.withSeparator(';').withIgnoreLeadingWhiteSpace(true).withIgnoreEmptyLine(true)
+				.withType(AthleteDto.class).build();
+		List<AthleteDto> athletes = (List<AthleteDto>) csvToAthlete.parse();
+
+		updateLicensesService.updateAthleteLicenses(athletes
+		// .parallelStream()
+		// .filter(d ->
+		// d.getDni().toUpperCase().equals("REDACTED")).collect(Collectors.toList())
+		);
 
 		return athletes;
 	}

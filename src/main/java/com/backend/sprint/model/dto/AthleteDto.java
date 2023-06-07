@@ -4,8 +4,10 @@ import java.util.Date;
 import java.util.Set;
 
 import com.opencsv.bean.CsvBindByName;
+import com.opencsv.bean.CsvBindByNames;
 import com.opencsv.bean.CsvDate;
 import com.opencsv.bean.CsvDates;
+import com.opencsv.bean.CsvNumber;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -38,14 +40,17 @@ public class AthleteDto {
 	// Personal info
 	@CsvBindByName(column = "NOMBRE")
 	private String name;
-	@CsvBindByName(column = "PRIMER APELLIDO")
+	@CsvBindByNames(value = { @CsvBindByName(column = "PRIMER APELLIDO"),
+			@CsvBindByName(column = "APELLIDO", profiles = "update_licenses") })
 	private String firstSurname;
-	@CsvBindByName(column = "SEGUNDO APELLIDO")
+	@CsvBindByNames(value = { @CsvBindByName(column = "SEGUNDO APELLIDO"),
+			@CsvBindByName(column = "APELLIDO2", profiles = "update_licenses") })
 	private String secondSurname;
 	@CsvBindByName(column = "FECHA DE NACIMIENTO")
 	@CsvDates(value = { @CsvDate(value = "yyyy/MM/dd"), @CsvDate(value = "dd/MM/yyyy") })
 	private Date birthDate;
-	@CsvBindByName(column = "DNI(Atleta)")
+	@CsvBindByNames(value = { @CsvBindByName(column = "DNI(Atleta)"),
+			@CsvBindByName(column = "NUM_ID", profiles = "update_licenses") })
 	private String dni;
 	@CsvBindByName(column = "SEXO")
 	private String gender;
@@ -80,14 +85,23 @@ public class AthleteDto {
 	// Sport info
 	@CsvBindByName(column = "Categoría")
 	private String category;
-	@CsvBindByName(column = "CAT DORSAL")
+	@CsvBindByNames(value = { @CsvBindByName(column = "CAT DORSAL"),
+			@CsvBindByName(column = "CATEGORÍA", profiles = "update_licenses") })
 	private String dorsalCategory;
-	@CsvBindByName(column = "DORSAL")
+	@CsvBindByName(column = "DORSAL", profiles = "update_licenses")
 	private long dorsalNumber;
-	@CsvBindByName(column = "Licencia")
+	@CsvBindByNames(value = { @CsvBindByName(column = "Licencia"),
+			@CsvBindByName(column = "NUM_LICENCIA", profiles = "update_licenses") })
 	private String license;
-	@CsvBindByName(column = "Tipo de licencia")
+	@CsvBindByNames(value = { @CsvBindByName(column = "Tipo de licencia"),
+			@CsvBindByName(column = "TIPO_LICENCIA", profiles = "update_licenses") })
 	private String licenseType;
+	@CsvBindByNames(value = { @CsvBindByName(column = "CUOTA_LICENCIA", profiles = "update_licenses") })
+	@CsvNumber("#0.0#")
+	private float licenseNationalFee;
+	@CsvBindByNames(value = { @CsvBindByName(column = "CUOTA_LICENCIA", profiles = "update_licenses") })
+	@CsvNumber("#0.0#")
+	private float licenseTerritorialFee;
 	private boolean specialization;
 
 	// Contact info

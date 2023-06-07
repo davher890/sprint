@@ -59,4 +59,10 @@ public interface AthleteRepository
 	@Modifying
 	@Query(value = "UPDATE athletes SET group_id = NULL WHERE group_id = ?1", nativeQuery = true)
 	public void deleteGroupAthletes(long groupId);
+
+	@Query(value = "SELECT * FROM athletes WHERE BTRIM(LTRIM(LOWER(dni),'0')) = BTRIM(LTRIM(LOWER(?1),'0'))", nativeQuery = true)
+	public List<AthleteDao> findByDni(String dni);
+
+	@Query(value = "SELECT * FROM athletes WHERE BTRIM(LOWER(UNACCENT(name))) = BTRIM(LOWER(UNACCENT(?1))) AND BTRIM(LOWER(UNACCENT(first_surname))) = BTRIM(LOWER(UNACCENT(?2))) AND BTRIM(LOWER(UNACCENT(second_surname))) = BTRIM(LOWER(UNACCENT(?3)))", nativeQuery = true)
+	public List<AthleteDao> findByName(String name, String firstSurname, String secondSurname);
 }

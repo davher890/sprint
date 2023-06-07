@@ -88,6 +88,10 @@ public class AthleteDao {
 	private long dorsalNumber;
 	private String license;
 	private String licenseType;
+	@Column(columnDefinition = "float default 0")
+	private float licenseNationalFee;
+	@Column(columnDefinition = "float default 0")
+	private float licenseTerritorialFee;
 
 	@Column(columnDefinition = "boolean default false")
 	private boolean specialization;
