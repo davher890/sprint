@@ -3,6 +3,7 @@ package com.backend.sprint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -20,6 +21,7 @@ import com.backend.sprint.service.UserDetailsServiceImpl;
 import com.backend.sprint.service.UserService;
 
 @Configuration
+@EnableScheduling
 @EnableWebMvc
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {

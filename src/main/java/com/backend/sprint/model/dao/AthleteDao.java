@@ -135,8 +135,6 @@ public class AthleteDao {
 	@Column(columnDefinition = "boolean default true")
 	private boolean active;
 
-	private Date activeDate;
-
 	@CreationTimestamp
 	private Date createdAt;
 

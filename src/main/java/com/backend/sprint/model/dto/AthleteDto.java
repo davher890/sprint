@@ -154,7 +154,6 @@ public class AthleteDto {
 	private long familiarNumber;
 
 	private Date lastRegisterDate;
-	private Date lastActivationDate;
 
 	private Date lastUnregisterDate;
 

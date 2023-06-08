@@ -60,6 +60,10 @@ public interface AthleteRepository
 	@Query(value = "UPDATE athletes SET group_id = NULL WHERE group_id = ?1", nativeQuery = true)
 	public void deleteGroupAthletes(long groupId);
 
+	@Modifying
+	@Query(value = "UPDATE athletes a SET group_id = null FROM unregistered_athletes u WHERE u.id = a.id AND a.group_id IS NOT null", nativeQuery = true)
+	public void deleteGroupUnregisteredAthletes();
+
 	@Query(value = "SELECT * FROM athletes WHERE BTRIM(LTRIM(LOWER(dni),'0')) = BTRIM(LTRIM(LOWER(?1),'0'))", nativeQuery = true)
 	public List<AthleteDao> findByDni(String dni);
 

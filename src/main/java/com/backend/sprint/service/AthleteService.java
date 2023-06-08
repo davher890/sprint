@@ -108,32 +108,13 @@ public class AthleteService {
 		return convertToDto(repository.findById(id).orElse(null));
 	}
 
-	public AthleteDto save(AthleteDto dto) {
+	public List<AthleteDto> findByDni(String dni) {
+		return repository.findByDni(dni).stream().map(this::convertToDto).collect(Collectors.toList());
+	}
 
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		if (auth != null && auth.getPrincipal() != null) {
-			UserDto user = (UserDto) auth.getPrincipal();
-			dto.setUpdatedById(user.getId());
-		}
-
-		if (dto.getBirthDate() != null) {
-			Calendar calendar = Calendar.getInstance();
-			calendar.setTime(dto.getBirthDate());
-		}
-
-		AthleteDao dao = repository.save(convertToDao(dto));
-
-		// New record, add first historic.
-		if (dto.getId() == 0) {
-
-			HistoricDto register = new HistoricDto();
-			register.setAthleteId(dao.getId());
-			register.setDate(dto.getLastRegisterDate());
-			register.setActivationDate(dto.getLastActivationDate());
-			register.setType(HistoricType.REGISTER.name());
-			historicService.save(register);
-		}
-		return convertToDto(dao);
+	public List<AthleteDto> findByName(String name, String firstSurname, String secondSurname) {
+		return repository.findByName(name, firstSurname, secondSurname).stream().map(this::convertToDto)
+				.collect(Collectors.toList());
 	}
 
 	public Set<AthleteDto> findByFamily(long familyId) {
@@ -186,6 +167,10 @@ public class AthleteService {
 		repository.deleteGroupAthletes(id);
 	}
 
+	public void deleteGroupUnregisteredAthletes() {
+		repository.deleteGroupUnregisteredAthletes();
+	}
+
 	public AthleteDto deleteById(long id) {
 
 		AthleteDto athlete = this.findById(id);
@@ -195,6 +180,33 @@ public class AthleteService {
 
 	private List<AthleteDto> convertToDto(List<AthleteDao> dao) {
 		return dao.stream().map(this::convertToDto).collect(Collectors.toList());
+	}
+
+	public AthleteDto save(AthleteDto dto) {
+
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		if (auth != null && auth.getPrincipal() != null) {
+			UserDto user = (UserDto) auth.getPrincipal();
+			dto.setUpdatedById(user.getId());
+		}
+
+		if (dto.getBirthDate() != null) {
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTime(dto.getBirthDate());
+		}
+
+		AthleteDao dao = repository.save(convertToDao(dto));
+
+		// New record, add first historic.
+		if (dto.getId() == 0) {
+
+			HistoricDto register = new HistoricDto();
+			register.setAthleteId(dao.getId());
+			register.setDate(dto.getLastRegisterDate());
+			register.setType(HistoricType.REGISTER.name());
+			historicService.save(register);
+		}
+		return convertToDto(dao);
 	}
 
 	private AthleteDto convertToDto(AthleteDao dao) {
