@@ -93,9 +93,6 @@ public class AthleteDao {
 	@Column(columnDefinition = "float default 0")
 	private float licenseTerritorialFee;
 
-	@Column(columnDefinition = "boolean default false")
-	private boolean specialization;
-
 	// Contact info
 	private String mail;
 	private String phone1;
