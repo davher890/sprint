@@ -84,8 +84,6 @@ public class HistoricService {
 
 		// Remove athlete from all groups
 		AthleteDto athlete = athleteService.findById(id);
-		athlete.setScheduleIds(null);
-		athlete.setGroupId(0);
 		athleteService.save(athlete);
 
 		historic.setAthleteId(id);
