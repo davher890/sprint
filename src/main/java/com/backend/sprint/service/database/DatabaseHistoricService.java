@@ -3,7 +3,7 @@ package com.backend.sprint.service.database;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -102,9 +102,9 @@ public class DatabaseHistoricService extends DatabaseService {
 						String secondSurname = line[ATHLETE_SECONDSURNAME].trim();
 						String name = line[ATHLETE_NAME].trim();
 
-						Date birthDate = null;
+						LocalDate birthDate = null;
 						if (!line[BIRTHDATE].isEmpty() && !line[BIRTHDATE].trim().isEmpty()) {
-							birthDate = dateFormat.parse(line[BIRTHDATE].trim());
+							birthDate = LocalDate.parse(line[BIRTHDATE].trim(), dateFormat);
 						}
 						String gender = line[GENDER].trim().equals("Hombre") ? "male" : "female";
 						String dni = line[DNI].trim();

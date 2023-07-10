@@ -1,5 +1,6 @@
 package com.backend.sprint.model.dto;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.Set;
 
@@ -48,7 +49,7 @@ public class AthleteDto {
 	private String secondSurname;
 	@CsvBindByName(column = "FECHA DE NACIMIENTO")
 	@CsvDates(value = { @CsvDate(value = "yyyy/MM/dd"), @CsvDate(value = "dd/MM/yyyy") })
-	private Date birthDate;
+	private LocalDate birthDate;
 	@CsvBindByNames(value = { @CsvBindByName(column = "DNI(Atleta)"),
 			@CsvBindByName(column = "NUM_ID", profiles = "update_licenses") })
 	private String dni;
@@ -60,22 +61,28 @@ public class AthleteDto {
 	private String birthPlace;
 
 	// Family info
-	@CsvBindByName(column = "NOMBRE DEL PADRE O TUTOR")
+	@CsvBindByNames(value = { @CsvBindByName(column = "NOMBRE DEL PADRE O TUTOR"),
+			@CsvBindByName(column = "NOMBRE TUTOR 1", profiles = "update_relatives") })
 	private String familiarOneName;
-	@CsvBindByName(column = "Fam.1 1er.APELLIDO")
+	@CsvBindByNames(value = { @CsvBindByName(column = "Fam.1 1er.APELLIDO"),
+			@CsvBindByName(column = "PRIMER APELLIDO TUTOR 1", profiles = "update_relatives") })
 	private String familiarOneFirstSurname;
-	@CsvBindByName(column = "Fam.1 2o.APELLIDO")
+	@CsvBindByNames(value = { @CsvBindByName(column = "Fam.1 2o.APELLIDO"),
+			@CsvBindByName(column = "SEGUNDO APELLIDO TUTOR 1", profiles = "update_relatives") })
 	private String familiarOneSecondSurname;
 	@CsvBindByName(column = "Fam.1 Dni")
 	private String familiarOneDni;
 	@CsvBindByName(column = "email 2")
 	private String familiarOneMail;
 
-	@CsvBindByName(column = "NOMBRE DE LA MADRE O TUTORA")
+	@CsvBindByNames(value = { @CsvBindByName(column = "NOMBRE DE LA MADRE O TUTORA"),
+			@CsvBindByName(column = "NOMBRE TUTOR 2", profiles = "update_relatives") })
 	private String familiarTwoName;
-	@CsvBindByName(column = "Fam.2 1er.APELLIDO")
+	@CsvBindByNames(value = { @CsvBindByName(column = "Fam.2 1er.APELLIDO"),
+			@CsvBindByName(column = "PRIMER APELLIDO TUTOR 2", profiles = "update_relatives") })
 	private String familiarTwoFirstSurname;
-	@CsvBindByName(column = "Fam.2 2o.APELLIDO")
+	@CsvBindByNames(value = { @CsvBindByName(column = "Fam.2 2o.APELLIDO"),
+			@CsvBindByName(column = "SEGUNDO APELLIDO TUTOR 2", profiles = "update_relatives") })
 	private String familiarTwoSecondSurname;
 	@CsvBindByName(column = "Fam.2 Dni")
 	private String familiarTwoDni;
@@ -147,9 +154,11 @@ public class AthleteDto {
 
 	private boolean enrollmentFeePaid = false;
 	private boolean membershipFeePaid = false;
+	private boolean licenseFeePaid = false;
 
 	// Code
-	@CsvBindByName(column = "CODIGO ATLETA")
+	@CsvBindByNames(value = { @CsvBindByName(column = "CODIGO ATLETA"),
+			@CsvBindByName(column = "COD ATLETA", profiles = "update_relatives") })
 	private long code;
 	private long familiarNumber;
 

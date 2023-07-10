@@ -42,6 +42,8 @@ public class ReceiptAthleteDao {
 	private float monthlyFee;
 	private float enrollmentFee;
 	private float membershipFee;
+	private float licenseTerritorialFee;
+	private float licenseNationalFee;
 
 	private String days;
 	private Integer numDays;

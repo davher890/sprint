@@ -1,7 +1,6 @@
 package com.backend.sprint.service;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -117,10 +116,6 @@ public class AthleteService {
 				.collect(Collectors.toList());
 	}
 
-	public Set<AthleteDto> findByFamily(long familyId) {
-		return repository.findByFamily(familyId).stream().map(this::convertToDto).collect(Collectors.toSet());
-	}
-
 	public AthleteDto findByCode(long code) {
 		return convertToDto(repository.findByCode(code));
 	}
@@ -190,10 +185,10 @@ public class AthleteService {
 			dto.setUpdatedById(user.getId());
 		}
 
-		if (dto.getBirthDate() != null) {
-			Calendar calendar = Calendar.getInstance();
-			calendar.setTime(dto.getBirthDate());
-		}
+//		if (dto.getBirthDate() != null) {
+//			Calendar calendar = Calendar.getInstance();
+//			calendar.setTime(dto.getBirthDate());
+//		}
 
 		AthleteDao dao = repository.save(convertToDao(dto));
 

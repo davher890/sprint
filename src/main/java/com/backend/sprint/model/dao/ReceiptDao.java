@@ -37,13 +37,16 @@ public class ReceiptDao {
 
 	private String name;
 
-	private String collection;
+	private String paymentType;
 
-	private Date lastRegisterDate;
+	@Column(columnDefinition = "boolean default true")
+	private boolean includeLicenseFee;
 
-	private Date lastUnregisterDate;
+	private Date creationDate;
 
-	private int year;
+	private Date startDate;
+
+	private Date endDate;
 
 	private String status;
 

@@ -2,11 +2,11 @@ package com.backend.sprint.service;
 
 import java.io.IOException;
 import java.text.DateFormatSymbols;
-import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -84,7 +84,7 @@ public class GroupService {
 	@Autowired
 	private SportSchoolRepository sportSchoolRepository;
 
-	private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+	private final static DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy/MM/dd");
 
 	private final Map<DayOfWeek, String> mapDay = new HashMap<DayOfWeek, String>() {
 		/**
@@ -281,11 +281,10 @@ public class GroupService {
 								entity.getFirstSurname() + " " + entity.getSecondSurname() + ", " + entity.getName(),
 								CellType.STRING, style));
 				dataDto.getData()
-						.add(new ExcelValueDto(dateFormat.format(entity.getBirthDate()), CellType.STRING, style));
-				Calendar calendar = Calendar.getInstance();
-				calendar.setTime(entity.getBirthDate());
-				dataDto.getData().add(new ExcelValueDto(
-						AthleteUtils.calculateCategory(calendar.get(Calendar.YEAR)).name(), CellType.STRING, style));
+						.add(new ExcelValueDto(entity.getBirthDate().format(dateFormat), CellType.STRING, style));
+				dataDto.getData()
+						.add(new ExcelValueDto(AthleteUtils.calculateCategory(entity.getBirthDate().getYear()).name(),
+								CellType.STRING, style));
 
 				dataDto.getData().add(new ExcelValueDto(entity.getDays(), CellType.STRING, style));
 

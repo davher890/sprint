@@ -6,7 +6,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -52,9 +51,9 @@ public class ExcelService {
 					|| entity.getLicense().trim().toUpperCase().equals("SIN LICENCIA");
 			return new ExcelValueDto(h ? null : entity.getLicenseType(), d);
 		} else if (dataField.equals("category") && entity.getBirthDate() != null) {
-			Calendar calendar = Calendar.getInstance();
-			calendar.setTime(entity.getBirthDate());
-			return new ExcelValueDto(AthleteUtils.calculateCategory(calendar.get(Calendar.YEAR)).name(), d);
+//			Calendar calendar = Calendar.getInstance();
+//			calendar.setTime(entity.getBirthDate());
+			return new ExcelValueDto(AthleteUtils.calculateCategory(entity.getBirthDate().getYear()).name(), d);
 		} else if (dataField.equals("days")) {
 			String translatedDays = "";
 			String days = entity.getDays();
@@ -88,9 +87,9 @@ public class ExcelService {
 			Date lastUnregisterDate = AthleteUtils.getLastUnregisterDate(entity);
 			return new ExcelValueDto(lastUnregisterDate, d);
 		} else if (dataField.equals("category")) {
-			Calendar calendar = Calendar.getInstance();
-			calendar.setTime(entity.getBirthDate());
-			return new ExcelValueDto(AthleteUtils.calculateCategory(calendar.get(Calendar.YEAR)).name(), d);
+//			Calendar calendar = Calendar.getInstance();
+//			calendar.setTime(entity.getBirthDate());
+			return new ExcelValueDto(AthleteUtils.calculateCategory(entity.getBirthDate().getYear()).name(), d);
 		} else if (dataField.equals("numDays")) {
 			int numDays = 0;
 			if (entity.getSchedules() != null && entity.getSchedules().size() > 0) {
@@ -212,7 +211,8 @@ public class ExcelService {
 			dataDto.getData()
 					.add(new ExcelValueDto(
 							String.valueOf(
-									entity.getMonthlyFee() + entity.getEnrollmentFee() + entity.getMembershipFee()),
+									entity.getMonthlyFee() + entity.getEnrollmentFee() + entity.getMembershipFee()
+											+ entity.getLicenseNationalFee() + entity.getLicenseTerritorialFee()),
 							CellType.NUMERIC));
 			dataDto.getData().add(new ExcelValueDto(concept, CellType.STRING));
 			dataDto.getData().add(new ExcelValueDto("RCUR", CellType.STRING));

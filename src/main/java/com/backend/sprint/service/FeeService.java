@@ -1,26 +1,31 @@
 package com.backend.sprint.service;
 
+import java.text.ParseException;
+import java.util.Calendar;
+import java.util.Date;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.backend.sprint.model.dao.FeeDao;
-import com.backend.sprint.model.dao.LicenseTypeCategoryFeeDao;
 import com.backend.sprint.model.dao.SportSchoolDao;
+import com.backend.sprint.model.dto.AthleteDto;
 import com.backend.sprint.model.dto.FamilyDto;
 import com.backend.sprint.model.dto.FeeDto;
+import com.backend.sprint.model.dto.ReceiptDto;
 import com.backend.sprint.repository.FeeRepository;
-import com.backend.sprint.repository.LicenseTypeCategoryFeeRepository;
 import com.backend.sprint.repository.SportSchoolRepository;
+import com.backend.sprint.utils.FeeTypeEnum;
 import com.backend.sprint.utils.PaymentType;
 
 @Service
 @Transactional
 public class FeeService {
 
-	@Autowired
-	private LicenseTypeCategoryFeeRepository licenseTypeCategoryFeeRepository;
+//	@Autowired
+//	private LicenseTypeCategoryFeeRepository licenseTypeCategoryFeeRepository;
 
 	@Autowired
 	private FamilyService familyService;
@@ -43,20 +48,25 @@ public class FeeService {
 		return convertToDto(repository.findBySportSchoolId(sportSchoolId));
 	}
 
-	public FeeDto getAthleteFee(long id, long familyCode, long familiarNumber, String paymentType, String feeType,
-			boolean specialization, int numDays, String category, String licenseType, boolean isEnrollmentFeePaid,
-			boolean isMembershipFeePaid, String collection, FeeDto sportSchoolFee) {
+	public FeeDto getAthleteFee(AthleteDto athlete, ReceiptDto receiptDto, FeeDto sportSchoolFee)
+			throws ParseException {
 
 		FeeDto fee = new FeeDto();
-		float monthlyFee = this.getMonthlyFee(paymentType, specialization, numDays, category, licenseType,
-				sportSchoolFee) / 3;
+		float monthlyFee = this.getMonthlyFee(athlete, receiptDto, sportSchoolFee);
 		fee.setMonthlyFee(monthlyFee);
 
-		float enrollmentFee = this.getEnrollmentFee(id, familiarNumber, isEnrollmentFeePaid, sportSchoolFee);
+		float enrollmentFee = this.getEnrollmentFee(athlete.getId(), athlete.getFamiliarNumber(),
+				athlete.isEnrollmentFeePaid(), sportSchoolFee);
 		fee.setEnrollmentFee(enrollmentFee);
 
-		float membershipFee = this.getMembershipFee(id, paymentType, familyCode, isMembershipFeePaid, sportSchoolFee);
+		float membershipFee = this.getMembershipFee(athlete.getId(), athlete.getPaymentType(), athlete.getFamilyCode(),
+				athlete.isMembershipFeePaid(), sportSchoolFee);
 		fee.setMembershipFee(membershipFee);
+
+		if (receiptDto.isIncludeLicenseFee()) {
+			fee.setLicenseNationalFee(athlete.getLicenseNationalFee());
+			fee.setLicenseTerritorialFee(athlete.getLicenseNationalFee());
+		}
 
 		return fee;
 	}
@@ -103,7 +113,10 @@ public class FeeService {
 					// Already registered athlete
 					if (id > 0) {
 						if (familyCount > 3) {
-							fee /= familyCount;
+							long min = family.getAthleteIds().stream().mapToLong(v -> v).min().getAsLong();
+							if (min != id) {
+								fee = 0;
+							}
 						}
 					}
 					// New athlete
@@ -112,7 +125,6 @@ public class FeeService {
 							fee /= (familyCount + 1);
 						}
 					}
-
 				}
 			}
 		}
@@ -138,47 +150,91 @@ public class FeeService {
 
 	}
 
-	public float getMonthlyFee(String paymentType, boolean specialization, int numDays, String category,
-			String licenseType, FeeDto sportSchoolFee) {
+	public float getMonthlyFee(AthleteDto athlete, ReceiptDto receiptDto, FeeDto sportSchoolFee) throws ParseException {
 
-		float fee = 0;
+		float trimestralFee = 0;
 
-		if (!paymentType.equals(PaymentType.Subvencionado.label)) {
+//		String licenseType = athlete.getLicenseType();
+//		String category = athlete.getCategory();
 
-			if (sportSchoolFee.getSportSchoolId() == 1 || sportSchoolFee.getSportSchoolId() == 2) {
-				if (specialization) {
-					fee = sportSchoolFee.getQuarterSpecialization();
+		if (!athlete.getPaymentType().equals(PaymentType.Subvencionado.label)) {
+
+//			if (sportSchoolFee.getSportSchoolId() == 1 || sportSchoolFee.getSportSchoolId() == 2) {
+			if (athlete.getFeeType() != null && (athlete.getFeeType().equals(FeeTypeEnum.CLUB.name())
+					|| athlete.getFeeType().equals(FeeTypeEnum.CLUB_ANUAL.name()))) {
+				if (athlete.isSpecialization()) {
+					trimestralFee = sportSchoolFee.getQuarterSpecialization();
 				} else {
+					int numDays = athlete.getNumDays() == null ? 0 : athlete.getNumDays();
 					if (numDays > 0) {
 						switch (numDays) {
 						case 1:
-							fee = sportSchoolFee.getQuarterOneDay();
+							trimestralFee = sportSchoolFee.getQuarterOneDay();
 							break;
 						case 2:
-							fee = sportSchoolFee.getQuarterTwoDays();
+							trimestralFee = sportSchoolFee.getQuarterTwoDays();
 							break;
 						default:
-							fee = sportSchoolFee.getQuarterThreeDays();
+							trimestralFee = sportSchoolFee.getQuarterThreeDays();
 							break;
 						}
-					} else {
-						if (licenseType != null && !licenseType.isEmpty() && category != null && !category.isEmpty()) {
-							LicenseTypeCategoryFeeDao licenseTypeCategoryFee = licenseTypeCategoryFeeRepository
-									.findByLicenseTypeAndCategory(licenseType, category);
-							fee = licenseTypeCategoryFee.getFee();
-						}
 					}
+//					else {
+//						if (licenseType != null && !licenseType.isEmpty() && category != null && !category.isEmpty()) {
+//							LicenseTypeCategoryFeeDao licenseTypeCategoryFee = licenseTypeCategoryFeeRepository
+//									.findByLicenseTypeAndCategory(licenseType, category);
+//							trimestralFee = licenseTypeCategoryFee.getFee();
+//						}
+//					}
 				}
-			}
-			if (sportSchoolFee.getSportSchoolId() == 3 || sportSchoolFee.getSportSchoolId() == 5) {
-				if (licenseType != null && !licenseType.isEmpty() && category != null && !category.isEmpty()) {
-					LicenseTypeCategoryFeeDao licenseTypeCategoryFee = licenseTypeCategoryFeeRepository
-							.findByLicenseTypeAndCategory(licenseType, category);
-					fee = licenseTypeCategoryFee.getFee();
-				}
-			}
-		}
+				if (athlete.getFeeType() != null && athlete.getFeeType().equals(FeeTypeEnum.CLUB_ANUAL.name())) {
+					trimestralFee *= (10. / 3);
+				} else {
 
-		return fee;
+					int diffMonths = getPaymentMonths(receiptDto.getStartDate(), receiptDto.getEndDate(),
+							athlete.getLastRegisterDate());
+					trimestralFee *= (float) diffMonths / 3;
+				}
+			}
+//		if (sportSchoolFee.getSportSchoolId() == 3 || sportSchoolFee.getSportSchoolId() == 5) {
+//			if (athlete.getFeeType().equals(FeeTypeEnum.FED.name())) {
+//				if (licenseType != null && !licenseType.isEmpty() && category != null && !category.isEmpty()) {
+//					LicenseTypeCategoryFeeDao licenseTypeCategoryFee = licenseTypeCategoryFeeRepository
+//							.findByLicenseTypeAndCategory(licenseType, category);
+//					trimestralFee = licenseTypeCategoryFee.getFee();
+//				}
+//			}
+
+		}
+		return trimestralFee;
+
 	}
+
+	private int getPaymentMonths(Date startDate, Date endDate, Date registerDate) {
+
+		int numMonths = 0;
+		Calendar startDateCalendar = Calendar.getInstance();
+		startDateCalendar.setTime(startDate);
+
+		Calendar endDateCalendar = Calendar.getInstance();
+		endDateCalendar.setTime(endDate);
+
+		Calendar registerDateCalendar = Calendar.getInstance();
+		registerDateCalendar.setTime(registerDate);
+
+		while (startDateCalendar.before(endDateCalendar)) {
+			if (startDateCalendar.get(Calendar.MONTH) == registerDateCalendar.get(Calendar.MONTH)
+					&& startDateCalendar.get(Calendar.YEAR) == registerDateCalendar.get(Calendar.YEAR)) {
+				if (registerDateCalendar.get(Calendar.DAY_OF_MONTH) < 25) {
+					numMonths++;
+				}
+			} else {
+				numMonths++;
+			}
+
+			startDateCalendar.add(Calendar.MONTH, 1);
+		}
+		return numMonths;
+	}
+
 }

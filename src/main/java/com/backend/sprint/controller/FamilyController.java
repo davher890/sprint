@@ -5,7 +5,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
@@ -28,8 +27,8 @@ import com.backend.sprint.model.dto.AthleteDto;
 import com.backend.sprint.model.dto.ExcelDataDto;
 import com.backend.sprint.model.dto.ExcelValueDto;
 import com.backend.sprint.model.dto.FamilyDto;
-import com.backend.sprint.service.AthleteService;
 import com.backend.sprint.service.FamilyService;
+import com.backend.sprint.service.RegisteredAthleteService;
 import com.backend.sprint.specifications.FamilySpecificationConstructor;
 import com.backend.sprint.utils.ExcelUtils;
 
@@ -41,7 +40,7 @@ public class FamilyController {
 	private FamilyService service;
 
 	@Autowired
-	private AthleteService athleteService;
+	private RegisteredAthleteService registeredAthleteService;
 
 	@GetMapping("")
 	public Page<FamilyDto> findPagintation(@RequestParam(value = "filters", required = false) List<String> filters,
@@ -81,8 +80,8 @@ public class FamilyController {
 	}
 
 	@GetMapping("/{id}/athletes")
-	public Set<AthleteDto> findAthletesByFAmily(@PathVariable int id) {
-		return athleteService.findByFamily(id);
+	public List<AthleteDto> findAthletesByFAmily(@PathVariable int id) {
+		return registeredAthleteService.findByFamilyId(id);
 	}
 
 	@PostMapping("")

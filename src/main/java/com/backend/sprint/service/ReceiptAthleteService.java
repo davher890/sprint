@@ -1,10 +1,13 @@
 package com.backend.sprint.service;
 
+import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -46,8 +49,12 @@ public class ReceiptAthleteService {
 
 	public Page<ReceiptAthleteDto> findPagintation(Specification<ReceiptAthleteDao> specification, Pageable pageable,
 			String sort, Direction sortDirection) {
-		Page<ReceiptAthleteDao> daoPage = repository.findAll(specification, PageRequest.of(pageable.getPageNumber(),
-				pageable.getPageSize(), Sort.by(sortDirection, "athlete." + sort)));
+		List<String> athleteFields = Arrays.stream(AthleteDao.class.getDeclaredFields()).map(Field::getName)
+				.collect(Collectors.toList());
+
+		String sortField = athleteFields.contains(sort) ? "athlete." + sort : sort;
+		Page<ReceiptAthleteDao> daoPage = repository.findAll(specification,
+				PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(sortDirection, sortField)));
 		return daoPage.map(dao -> convertToDto(dao));
 	}
 
@@ -86,7 +93,9 @@ public class ReceiptAthleteService {
 		if (dao == null) {
 			return null;
 		}
-		ReceiptAthleteDto dto = new ModelMapper().map(dao, ReceiptAthleteDto.class);
+		ModelMapper modelMapper = new ModelMapper();
+		modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+		ReceiptAthleteDto dto = modelMapper.map(dao, ReceiptAthleteDto.class);
 
 		AthleteDao athlete = dao.getAthlete();
 
@@ -123,7 +132,7 @@ public class ReceiptAthleteService {
 		dto.setPaymentType(athlete.getPaymentType());
 		ReceiptDao receipt = dao.getReceipt();
 		if (receipt != null) {
-			dto.setReceiptCollection(receipt.getCollection());
+//			dto.setReceiptCollection(receipt.getCollection());
 			dto.setReceiptName(receipt.getName());
 			dto.setReceiptCreatedAt(receipt.getCreatedAt());
 		}

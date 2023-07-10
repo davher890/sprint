@@ -20,14 +20,23 @@ public class ReceiptDto {
 
 	private String name;
 
-	private String collection;
-	private String collectionName;
+	private String paymentType;
 
-	private Date lastRegisterDate;
+	private Date creationDate;
 
-	private Date lastUnregisterDate;
+	private Date startDate;
 
-	private int year;
+	private Date endDate;
+
+	private float enrollmentFee;
+
+	private float membershipFee;
+
+	private float monthlyFee;
+
+	private float licenseFee;
+
+	private boolean includeLicenseFee;
 
 	private String status = ReceiptStatus.OPEN.name();
 

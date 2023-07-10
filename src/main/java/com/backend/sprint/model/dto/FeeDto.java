@@ -15,11 +15,15 @@ public class FeeDto {
 
 	private long sportSchoolId;
 
-	private float monthlyFee;
+	private float monthlyFee = 0;
 
-	private float enrollmentFee;
+	private float enrollmentFee = 0;
 
-	private float membershipFee;
+	private float membershipFee = 0;
+
+	private float licenseTerritorialFee = 0;
+
+	private float licenseNationalFee = 0;
 
 	private float quarterOneDay;
 

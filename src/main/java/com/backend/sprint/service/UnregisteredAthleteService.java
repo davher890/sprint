@@ -1,5 +1,6 @@
 package com.backend.sprint.service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,9 +34,17 @@ public class UnregisteredAthleteService {
 		return daoPage.map(dao -> convertToDto(dao));
 	}
 
-	public List<AthleteDto> findBySportSchoolIdAndLastUnregisterDate(long sportSchoolId, Date lastUnregisterDate) {
-		return repository.findBySportSchoolIdAndLastUnregisterDate(sportSchoolId, lastUnregisterDate).stream()
-				.map(this::convertToDto).collect(Collectors.toList());
+	public List<AthleteDto> findBySportSchoolIdAndLastUnregisterDate(long sportSchoolId, Date lastUnregisterDate,
+			String paymentType) {
+		List<String> paymentTypes = new ArrayList<String>();
+		if (paymentType.equals("DOM")) {
+			paymentTypes.add(paymentType);
+		} else {
+			paymentTypes.add("TRANSF");
+			paymentTypes.add("MET");
+		}
+		return repository.findBySportSchoolIdAndLastUnregisterDate(sportSchoolId, lastUnregisterDate, paymentTypes)
+				.stream().map(this::convertToDto).collect(Collectors.toList());
 	}
 
 	public List<AthleteDto> findByLastUnregisterDate(Date lastUnregisterDate) {

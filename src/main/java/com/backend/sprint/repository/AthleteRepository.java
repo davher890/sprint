@@ -16,9 +16,6 @@ import com.backend.sprint.model.dao.AthleteDao;
 public interface AthleteRepository
 		extends PagingAndSortingRepository<AthleteDao, Long>, JpaSpecificationExecutor<AthleteDao> {
 
-	@Query(value = "SELECT * FROM athletes WHERE family_id = ?1 AND active = true", nativeQuery = true)
-	public Set<AthleteDao> findByFamily(long familyId);
-
 	@Query(value = "SELECT * FROM athletes a INNER JOIN families f ON f.id = a.family_id WHERE f.code = ?1 AND active = true", nativeQuery = true)
 	public List<AthleteDao> findByFamilyCode(long familyCode);
 
