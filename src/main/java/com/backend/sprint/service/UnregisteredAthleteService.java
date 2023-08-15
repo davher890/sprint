@@ -1,6 +1,7 @@
 package com.backend.sprint.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.backend.sprint.model.dao.UnregisteredAthleteDao;
 import com.backend.sprint.model.dto.AthleteDto;
 import com.backend.sprint.repository.UnregisteredAthleteRepository;
+import com.backend.sprint.utils.AthleteUtils;
 
 @Service
 @Transactional
@@ -35,7 +37,7 @@ public class UnregisteredAthleteService {
 	}
 
 	public List<AthleteDto> findBySportSchoolIdAndLastUnregisterDate(long sportSchoolId, Date lastUnregisterDate,
-			String paymentType) {
+			String paymentType, List<String> feeTypes) {
 		List<String> paymentTypes = new ArrayList<String>();
 		if (paymentType.equals("DOM")) {
 			paymentTypes.add(paymentType);
@@ -43,7 +45,8 @@ public class UnregisteredAthleteService {
 			paymentTypes.add("TRANSF");
 			paymentTypes.add("MET");
 		}
-		return repository.findBySportSchoolIdAndLastUnregisterDate(sportSchoolId, lastUnregisterDate, paymentTypes)
+		return repository
+				.findBySportSchoolIdAndLastUnregisterDate(sportSchoolId, lastUnregisterDate, paymentTypes, feeTypes)
 				.stream().map(this::convertToDto).collect(Collectors.toList());
 	}
 
@@ -61,7 +64,29 @@ public class UnregisteredAthleteService {
 		if (dao == null) {
 			return null;
 		}
-		return new ModelMapper().map(dao, AthleteDto.class);
+		AthleteDto dto = new ModelMapper().map(dao, AthleteDto.class);
+
+		String translatedDays = "";
+		String days = dto.getDays();
+		if (days != null && !days.isEmpty()) {
+			translatedDays = Arrays.asList(days.split(",")).stream().sorted(new AthleteUtils.WeekDayComparator())
+					.map(day -> AthleteUtils.dayTranslate.get(day.trim())).collect(Collectors.joining(","));
+		}
+		dto.setDays(translatedDays);
+		return dto;
+	}
+
+	public List<AthleteDto> findBySportSchoolIdAndLicense(long sportSchoolId, String paymentType,
+			List<String> licenseTypes) {
+		List<String> paymentTypes = new ArrayList<String>();
+		if (paymentType.equals("DOM")) {
+			paymentTypes.add(paymentType);
+		} else {
+			paymentTypes.add("TRANSF");
+			paymentTypes.add("MET");
+		}
+		return repository.findBySportSchoolIdAndLicense(sportSchoolId, paymentTypes, licenseTypes).stream()
+				.map(this::convertToDto).collect(Collectors.toList());
 	}
 
 }

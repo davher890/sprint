@@ -11,10 +11,10 @@ import com.backend.sprint.model.dao.TrainerDao;
 public interface TrainerRepository
 		extends PagingAndSortingRepository<TrainerDao, Long>, JpaSpecificationExecutor<TrainerDao> {
 
-	@Query(value = "SELECT * FROM trainers WHERE name = ?1 ", nativeQuery = true)
+	@Query(value = "SELECT * FROM trainers WHERE name = ?1", nativeQuery = true)
 	public TrainerDao findByName(String name);
 
-	@Query(value = "SELECT * FROM trainers WHERE sport_school_id = ?1 ", nativeQuery = true)
+	@Query(value = "SELECT * FROM trainers WHERE sport_school_id = ?1 ORDER BY name", nativeQuery = true)
 	public List<TrainerDao> findBySportSchoolId(long id);
 
 }

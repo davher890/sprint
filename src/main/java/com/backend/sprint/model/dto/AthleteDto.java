@@ -2,6 +2,7 @@ package com.backend.sprint.model.dto;
 
 import java.time.LocalDate;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 import com.opencsv.bean.CsvBindByName;
@@ -143,7 +144,7 @@ public class AthleteDto {
 	@CsvBindByName(column = "DNI AUTORIZADO CUENTA")
 	private String holderDni;
 
-	private Set<HistoricDto> historic;
+	private List<HistoricDto> historic;
 
 	private Set<ObservationDto> observations;
 
@@ -162,9 +163,9 @@ public class AthleteDto {
 	private long code;
 	private long familiarNumber;
 
-	private Date lastRegisterDate;
+	private LocalDate lastRegisterDate;
 
-	private Date lastUnregisterDate;
+	private LocalDate lastUnregisterDate;
 
 	private boolean active = true;
 

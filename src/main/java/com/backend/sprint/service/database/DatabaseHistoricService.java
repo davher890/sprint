@@ -231,18 +231,11 @@ public class DatabaseHistoricService extends DatabaseService {
 							HistoricDto historic = new HistoricDto();
 							historic.setAthleteId(athlete.getId());
 							historic.setType(HistoricType.REGISTER.name());
-							try {
-								String yearStr = "20";
-								if (Integer.parseInt(year) > 50) {
-									yearStr = "19";
-								}
-								historic.setDate(dayFormat.parse(yearStr + year + "-" + month + "-" + "01"));
-							} catch (ParseException e) {
-								logger.error("Register date");
-								logger.error(String.join("_", line));
-								logger.error(e.getMessage());
-								e.printStackTrace();
+							String yearStr = "20";
+							if (Integer.parseInt(year) > 50) {
+								yearStr = "19";
 							}
+							historic.setDate(LocalDate.parse(yearStr + year + "-" + month + "-" + "01", dayFormatLd));
 							historicService.save(historic);
 						}
 						String unregisterDate = line[UNREGISTER_DATE].trim();
@@ -257,18 +250,11 @@ public class DatabaseHistoricService extends DatabaseService {
 							historic.setType(HistoricType.UNREGISTER.name());
 							historic.setObservations(line[OBSERVATIONS]);
 
-							try {
-								String yearStr = "20";
-								if (Integer.parseInt(year) > 50) {
-									yearStr = "19";
-								}
-								historic.setDate(dayFormat.parse(yearStr + year + "-" + month + "-" + "01"));
-							} catch (ParseException e) {
-								logger.error("Unregister date");
-								logger.error(String.join("_", line));
-								logger.error(e.getMessage());
-								e.printStackTrace();
+							String yearStr = "20";
+							if (Integer.parseInt(year) > 50) {
+								yearStr = "19";
 							}
+							historic.setDate(LocalDate.parse(yearStr + year + "-" + month + "-" + "01", dayFormatLd));
 
 							historicService.save(historic);
 						}

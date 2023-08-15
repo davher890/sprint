@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -81,14 +82,12 @@ public class ExcelService {
 		} else if (dataField.equals("birthDate")) {
 			return new ExcelValueDto(entity.getBirthDate(), d);
 		} else if (dataField.equals("lastRegisterDate")) {
-			Date lastRegisterDate = AthleteUtils.getLastRegisterDate(entity);
+			LocalDate lastRegisterDate = AthleteUtils.getLastRegisterDate(entity);
 			return new ExcelValueDto(lastRegisterDate, d);
 		} else if (dataField.equals("lastUnregisterDate")) {
-			Date lastUnregisterDate = AthleteUtils.getLastUnregisterDate(entity);
+			LocalDate lastUnregisterDate = AthleteUtils.getLastUnregisterDate(entity);
 			return new ExcelValueDto(lastUnregisterDate, d);
 		} else if (dataField.equals("category")) {
-//			Calendar calendar = Calendar.getInstance();
-//			calendar.setTime(entity.getBirthDate());
 			return new ExcelValueDto(AthleteUtils.calculateCategory(entity.getBirthDate().getYear()).name(), d);
 		} else if (dataField.equals("numDays")) {
 			int numDays = 0;

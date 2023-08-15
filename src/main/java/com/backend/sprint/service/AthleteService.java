@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -158,6 +159,27 @@ public class AthleteService {
 		return repository.findByGroupId(id).stream().map(this::convertToDto).collect(Collectors.toList());
 	}
 
+	public List<AthleteDto> findBySportSchoolIdAndLastRegisterDate(long sportSchoolId, Date lastRegisterDate,
+			String paymentType, List<String> feeTypes)
+
+	{
+		List<String> paymentTypes = new ArrayList<String>();
+		if (paymentType.equals("DOM")) {
+			paymentTypes.add(paymentType);
+		} else {
+			paymentTypes.add("TRANSF");
+			paymentTypes.add("MET");
+		}
+		return repository
+				.findBySportSchoolIdAndLastRegisterDate(sportSchoolId, lastRegisterDate, paymentTypes, feeTypes)
+				.stream().map(this::convertToDto).collect(Collectors.toList());
+	}
+
+	public List<Map<String, Integer>> findRegisteredAthletesByDate(long sportSchoolId, String startDate,
+			String endDate) {
+		return repository.findRegisteredAthletesByDate(sportSchoolId, startDate, endDate);
+	}
+
 	public void deleteByGroupId(long id) {
 		repository.deleteGroupAthletes(id);
 	}
@@ -184,11 +206,6 @@ public class AthleteService {
 			UserDto user = (UserDto) auth.getPrincipal();
 			dto.setUpdatedById(user.getId());
 		}
-
-//		if (dto.getBirthDate() != null) {
-//			Calendar calendar = Calendar.getInstance();
-//			calendar.setTime(dto.getBirthDate());
-//		}
 
 		AthleteDao dao = repository.save(convertToDao(dto));
 
@@ -235,6 +252,10 @@ public class AthleteService {
 							.map(ScheduleDao::getId).collect(Collectors.toSet()));
 			dto.setNumDays(dto.getScheduleIds().size());
 			dto.setDays(dao.getSchedules().parallelStream().map(ScheduleDao::getDay).collect(Collectors.joining(",")));
+		}
+		if (dao.getHistoric() != null && !dao.getHistoric().isEmpty()) {
+			dto.setHistoric(
+					dao.getHistoric().stream().map(d -> historicService.convertToDto(d)).collect(Collectors.toList()));
 		}
 		return dto;
 	}

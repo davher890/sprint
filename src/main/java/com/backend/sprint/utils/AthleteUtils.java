@@ -1,12 +1,11 @@
 package com.backend.sprint.utils;
 
+import java.time.LocalDate;
 import java.util.Calendar;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -16,9 +15,9 @@ import com.backend.sprint.model.dto.HistoricDto;
 
 public abstract class AthleteUtils {
 
-	public static Date getLastRegisterDate(Set<HistoricDto> set) {
-		List<HistoricDto> registerHistoric = set.stream()
-				.filter(h -> h.getDate().before(new Date()) && h.getType().equals(HistoricType.REGISTER.name()))
+	public static LocalDate getLastRegisterDate(List<HistoricDto> historic) {
+		List<HistoricDto> registerHistoric = historic.stream()
+				.filter(h -> h.getDate().isBefore(LocalDate.now()) && h.getType().equals(HistoricType.REGISTER.name()))
 				.sorted(Comparator.comparing(HistoricDto::getDate)).collect(Collectors.toList());
 
 		if (registerHistoric.size() > 0) {
@@ -28,9 +27,9 @@ public abstract class AthleteUtils {
 		}
 	}
 
-	public static Date getLastUnregisterDate(Set<HistoricDto> historic) {
-		List<HistoricDto> unregisterHistoric = historic.stream()
-				.filter(h -> h.getDate().before(new Date()) && h.getType().equals(HistoricType.UNREGISTER.name()))
+	public static LocalDate getLastUnregisterDate(List<HistoricDto> historic) {
+		List<HistoricDto> unregisterHistoric = historic.stream().filter(
+				h -> h.getDate().isBefore(LocalDate.now()) && h.getType().equals(HistoricType.UNREGISTER.name()))
 				.sorted(Comparator.comparing(HistoricDto::getDate)).collect(Collectors.toList());
 
 		if (unregisterHistoric.size() > 0) {
@@ -40,9 +39,9 @@ public abstract class AthleteUtils {
 		}
 	}
 
-	public static Date getLastRegisterDate(AthleteDao dao) {
+	public static LocalDate getLastRegisterDate(AthleteDao dao) {
 		List<HistoricDao> registerHistoric = dao.getHistoric().stream()
-				.filter(h -> h.getDate().before(new Date()) && h.getType().equals(HistoricType.REGISTER.name()))
+				.filter(h -> h.getDate().isBefore(LocalDate.now()) && h.getType().equals(HistoricType.REGISTER.name()))
 				.sorted(Comparator.comparing(HistoricDao::getDate)).collect(Collectors.toList());
 
 		if (registerHistoric.size() > 0) {
@@ -52,9 +51,9 @@ public abstract class AthleteUtils {
 		}
 	}
 
-	public static Date getLastUnregisterDate(AthleteDao dao) {
-		List<HistoricDao> unregisterHistoric = dao.getHistoric().stream()
-				.filter(h -> h.getDate().before(new Date()) && h.getType().equals(HistoricType.UNREGISTER.name()))
+	public static LocalDate getLastUnregisterDate(AthleteDao dao) {
+		List<HistoricDao> unregisterHistoric = dao.getHistoric().stream().filter(
+				h -> h.getDate().isBefore(LocalDate.now()) && h.getType().equals(HistoricType.UNREGISTER.name()))
 				.sorted(Comparator.comparing(HistoricDao::getDate)).collect(Collectors.toList());
 
 		if (unregisterHistoric.size() > 0) {

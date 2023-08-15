@@ -82,8 +82,8 @@ public class GenericAthleteDao {
 
 	private long code;
 
-	private Date lastRegisterDate;
-	private Date lastUnregisterDate;
+	private LocalDate lastRegisterDate;
+	private LocalDate lastUnregisterDate;
 
 	private boolean active;
 	private boolean enrollmentFeePaid;

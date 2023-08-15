@@ -1,5 +1,6 @@
 package com.backend.sprint.model.dao;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 import javax.persistence.CascadeType;
@@ -39,10 +40,13 @@ public class ReceiptDao {
 
 	private String paymentType;
 
-	@Column(columnDefinition = "boolean default true")
-	private boolean includeLicenseFee;
+	private String receiptType;
 
-	private Date creationDate;
+	private String season;
+
+	private String licenseTypeStr;
+
+	private LocalDate creationDate;
 
 	private Date startDate;
 

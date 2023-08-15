@@ -46,9 +46,8 @@ public class SportSchoolService {
 	}
 
 	public List<SportSchoolDto> findAll() {
-		return StreamSupport.stream(repository.findAll().spliterator(), false).filter(d -> d.getName() != null)
-				.map(this::convertToDto).sorted(Comparator.comparing(SportSchoolDto::getName))
-				.collect(Collectors.toList());
+		return StreamSupport.stream(repository.findAll(Sort.by(Direction.ASC, "name")).spliterator(), false)
+				.filter(d -> d.getName() != null).map(this::convertToDto).collect(Collectors.toList());
 	}
 
 	public List<SportSchoolDto> findAllById(Set<Long> ids) {

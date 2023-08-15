@@ -1,5 +1,6 @@
 package com.backend.sprint.service;
 
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -83,6 +84,9 @@ public class ReceiptService {
 		dto.setMembershipFee(repository.getSumMembershipFee(dto.getId()));
 		dto.setMonthlyFee(repository.getSumMonthlyFee(dto.getId()));
 		dto.setLicenseFee(repository.getSumLicenseFee(dto.getId()));
+		if (dao.getLicenseTypeStr() != null) {
+			dto.setLicenseTypes(Arrays.asList(dao.getLicenseTypeStr().split(",")));
+		}
 		return dto;
 	}
 
@@ -94,6 +98,9 @@ public class ReceiptService {
 			dao.setSportSchool(sportSchoolRepository.findById(dto.getSportSchoolId()).get());
 		} else {
 			dao.setSportSchool(null);
+		}
+		if (dto.getLicenseTypes() != null && !dto.getLicenseTypes().isEmpty()) {
+			dao.setLicenseTypeStr(String.join(",", dto.getLicenseTypes()));
 		}
 		return dao;
 	}

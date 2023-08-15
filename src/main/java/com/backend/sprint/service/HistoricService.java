@@ -1,8 +1,7 @@
 package com.backend.sprint.service;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -61,9 +60,9 @@ public class HistoricService {
 		long athleteId = historic.getAthleteId();
 
 		AthleteDto athlete = athleteService.findById(athleteId);
-		Set<HistoricDto> historics = athlete.getHistoric();
+		List<HistoricDto> historics = athlete.getHistoric();
 		if (historics == null) {
-			historics = new HashSet<HistoricDto>();
+			historics = new ArrayList<HistoricDto>();
 		}
 		historics.add(historic);
 		athlete.setLastRegisterDate(AthleteUtils.getLastRegisterDate(historics));
@@ -92,7 +91,7 @@ public class HistoricService {
 		return this.save(historic);
 	}
 
-	private HistoricDto convertToDto(HistoricDao dao) {
+	protected HistoricDto convertToDto(HistoricDao dao) {
 		if (dao == null) {
 			return null;
 		}

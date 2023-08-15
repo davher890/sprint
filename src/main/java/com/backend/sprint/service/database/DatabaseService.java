@@ -54,8 +54,11 @@ public class DatabaseService {
 	protected ObservationService observationService;
 
 	DateFormat historicDateFormat = new SimpleDateFormat("dd/MM/yyyy");
-	DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("MM/dd/yy");
 	DateFormat dayFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+	DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("MM/dd/yy");
+	DateTimeFormatter dayFormatLd = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
 	static Map<String, String> registarDateMap = new HashMap<>();
 	static {
 		registarDateMap = new HashMap<>();

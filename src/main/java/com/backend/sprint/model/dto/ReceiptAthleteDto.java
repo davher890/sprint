@@ -1,5 +1,6 @@
 package com.backend.sprint.model.dto;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.Set;
 
@@ -19,6 +20,8 @@ public class ReceiptAthleteDto {
 
 	private long familyId;
 	private long familyCode;
+
+	private long code;
 
 	private long groupId;
 	private String groupName;
@@ -46,7 +49,10 @@ public class ReceiptAthleteDto {
 	private String paymentType;
 	private String feeType;
 
+	// Receipt info
 	private long receiptId;
+	private Date startDate;
+	private Date endDate;
 
 	private long athleteId;
 
@@ -57,12 +63,12 @@ public class ReceiptAthleteDto {
 	private float licenseTerritorialFee;
 	private float licenseNationalFee;
 
-	private Date lastRegisterDate;
-	private Date lastUnregisterDate;
+	private LocalDate lastRegisterDate;
+	private LocalDate lastUnregisterDate;
 
-	private String receiptCollection;
 	private String receiptName;
 	private Date receiptCreatedAt;
+	private String season;
 
 	private String status;
 

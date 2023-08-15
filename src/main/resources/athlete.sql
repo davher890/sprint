@@ -9,7 +9,7 @@ CREATE OR REPLACE VIEW registered_athletes AS
 	inner join families fs on fs.id = a.family_id
 	inner join (select athlete_id, type, date, row_number() over (partition by athlete_id order by date desc, type desc) rn
 		from historic
-		where date <= now() or (date > now() and activation_date <= now())) h on a.id = h.athlete_id
+		where date <= now()) h on a.id = h.athlete_id
 	left join (select athlete_id, string_agg(s."day", ',') as days, string_agg(s."id"::text, ',') as schedule_ids, count(schedule_id) as num_days
 		from athletes_schedules ass
 		inner join schedules s on ass.schedule_id = s.id group by 1) athlete_schedules on athlete_schedules.athlete_id = a.id

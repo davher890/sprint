@@ -64,6 +64,11 @@ public class AthleteController {
 		return service.findByPhoneList(phoneList);
 	}
 
+	@GetMapping("/code")
+	public AthleteDto findByCode(@RequestParam(value = "code", required = true) int code) {
+		return service.findByCode(code);
+	}
+
 	@GetMapping("/surnames")
 	public List<AthleteDto> findBySurnames(@RequestParam(value = "first_surname", required = true) String firstSurname,
 			@RequestParam(value = "second_surname", required = true) String secondSurname) {

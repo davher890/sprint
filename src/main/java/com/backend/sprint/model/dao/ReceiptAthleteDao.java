@@ -3,6 +3,7 @@ package com.backend.sprint.model.dao;
 import java.util.Date;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -38,11 +39,16 @@ public class ReceiptAthleteDao {
 	@JoinColumn(name = "athlete_id")
 	private AthleteDao athlete;
 
+	private long code;
+	private long familyCode;
+
 	// Fee
 	private float monthlyFee;
 	private float enrollmentFee;
 	private float membershipFee;
+	@Column(columnDefinition = "float default 0")
 	private float licenseTerritorialFee;
+	@Column(columnDefinition = "float default 0")
 	private float licenseNationalFee;
 
 	private String days;

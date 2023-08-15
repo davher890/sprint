@@ -2,7 +2,6 @@ package com.backend.sprint.service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,8 +40,24 @@ public class RegisteredAthleteService {
 		return repository.findAll(specification, pageable);
 	}
 
-	public List<AthleteDto> findBySportSchoolIdAndLastRegisterDate(long sportSchoolId, Date lastRegisterDate,
-			String paymentType) {
+//	public List<AthleteDto> findBySportSchoolIdAndLastRegisterDate(long sportSchoolId, Date lastRegisterDate,
+//			String paymentType, List<String> feeTypes)
+//
+//	{
+//		List<String> paymentTypes = new ArrayList<String>();
+//		if (paymentType.equals("DOM")) {
+//			paymentTypes.add(paymentType);
+//		} else {
+//			paymentTypes.add("TRANSF");
+//			paymentTypes.add("MET");
+//		}
+//		return repository
+//				.findBySportSchoolIdAndLastRegisterDate(sportSchoolId, lastRegisterDate, paymentTypes, feeTypes)
+//				.stream().map(this::convertToDto).collect(Collectors.toList());
+//	}
+
+	public List<AthleteDto> findBySportSchoolIdAndLicense(long sportSchoolId, String paymentType,
+			List<String> licenseTypes) {
 		List<String> paymentTypes = new ArrayList<String>();
 		if (paymentType.equals("DOM")) {
 			paymentTypes.add(paymentType);
@@ -50,7 +65,7 @@ public class RegisteredAthleteService {
 			paymentTypes.add("TRANSF");
 			paymentTypes.add("MET");
 		}
-		return repository.findBySportSchoolIdAndLastRegisterDate(sportSchoolId, lastRegisterDate, paymentTypes).stream()
+		return repository.findBySportSchoolIdAndLicense(sportSchoolId, paymentTypes, licenseTypes).stream()
 				.map(this::convertToDto).collect(Collectors.toList());
 	}
 
@@ -81,5 +96,4 @@ public class RegisteredAthleteService {
 		dto.setDays(translatedDays);
 		return dto;
 	}
-
 }

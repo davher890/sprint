@@ -34,7 +34,7 @@ public class TrainerController {
 
 	@GetMapping("")
 	public Page<TrainerDto> findPagintation(@RequestParam(value = "filters", required = false) List<String> filters,
-			Pageable pageable, @RequestParam(defaultValue = "id") String sort,
+			Pageable pageable, @RequestParam(defaultValue = "name") String sort,
 			@RequestParam(defaultValue = "DESC") Direction sortDirection) {
 		if (filters == null) {
 			filters = new ArrayList<String>();

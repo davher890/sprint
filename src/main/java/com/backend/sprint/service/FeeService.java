@@ -1,6 +1,8 @@
 package com.backend.sprint.service;
 
 import java.text.ParseException;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -59,11 +61,11 @@ public class FeeService {
 				athlete.isEnrollmentFeePaid(), sportSchoolFee);
 		fee.setEnrollmentFee(enrollmentFee);
 
-		float membershipFee = this.getMembershipFee(athlete.getId(), athlete.getPaymentType(), athlete.getFamilyCode(),
-				athlete.isMembershipFeePaid(), sportSchoolFee);
+		float membershipFee = this.getMembershipFee(athlete.getId(), athlete.getPaymentType(), athlete.getFeeType(),
+				athlete.getFamilyCode(), athlete.isMembershipFeePaid(), sportSchoolFee);
 		fee.setMembershipFee(membershipFee);
 
-		if (receiptDto.isIncludeLicenseFee()) {
+		if (receiptDto.getReceiptType() != null && receiptDto.getReceiptType().equals("LICENSE")) {
 			fee.setLicenseNationalFee(athlete.getLicenseNationalFee());
 			fee.setLicenseTerritorialFee(athlete.getLicenseNationalFee());
 		}
@@ -97,12 +99,13 @@ public class FeeService {
 	}
 
 	// Annually
-	public float getMembershipFee(long id, String paymentType, long familyCode, boolean isMembershipFeePaid,
-			FeeDto sportSchoolFee) {
+	public float getMembershipFee(long id, String paymentType, String feeType, long familyCode,
+			boolean isMembershipFeePaid, FeeDto sportSchoolFee) {
 
 		float fee = 0;
 
-		if (!paymentType.equals(PaymentType.Subvencionado.label) && !isMembershipFeePaid) {
+		if (!paymentType.equals(PaymentType.Subvencionado.label) && !feeType.equals(FeeTypeEnum.CLUB_ANUAL.name())
+				&& !isMembershipFeePaid) {
 
 			fee = sportSchoolFee.getMembershipFee();
 			FamilyDto family = familyService.findByCode(familyCode);
@@ -112,7 +115,7 @@ public class FeeService {
 
 					// Already registered athlete
 					if (id > 0) {
-						if (familyCount > 3) {
+						if (familyCount >= 3) {
 							long min = family.getAthleteIds().stream().mapToLong(v -> v).min().getAsLong();
 							if (min != id) {
 								fee = 0;
@@ -210,7 +213,7 @@ public class FeeService {
 
 	}
 
-	private int getPaymentMonths(Date startDate, Date endDate, Date registerDate) {
+	private int getPaymentMonths(Date startDate, Date endDate, LocalDate registerDate) {
 
 		int numMonths = 0;
 		Calendar startDateCalendar = Calendar.getInstance();
@@ -220,7 +223,7 @@ public class FeeService {
 		endDateCalendar.setTime(endDate);
 
 		Calendar registerDateCalendar = Calendar.getInstance();
-		registerDateCalendar.setTime(registerDate);
+		registerDateCalendar.setTime(Date.from(registerDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
 
 		while (startDateCalendar.before(endDateCalendar)) {
 			if (startDateCalendar.get(Calendar.MONTH) == registerDateCalendar.get(Calendar.MONTH)
