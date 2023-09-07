@@ -3,8 +3,8 @@ package com.backend.sprint.service.database;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
+import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -103,9 +103,9 @@ public class DatabaseExternalAthletesService extends DatabaseService {
 				String firstSurname = line[ATHLETE_FIRSTSURNAME].trim();
 				String secondSurname = line[ATHLETE_SECONDSURNAME].trim();
 				String name = line[ATHLETE_NAME].trim();
-				Date birthDate = null;
+				LocalDate birthDate = null;
 				if (!line[BIRTHDATE].trim().isEmpty() && !line[BIRTHDATE].trim().isEmpty()) {
-					birthDate = dateFormat.parse(line[BIRTHDATE].trim());
+					birthDate = LocalDate.parse(line[BIRTHDATE].trim(), dateFormat);
 				}
 				String birthDateYear = line[YEAR];
 				String gender = line[GENDER].trim().equals("Hombre") ? "male" : "female";
@@ -229,18 +229,11 @@ public class DatabaseExternalAthletesService extends DatabaseService {
 					HistoricDto historic = new HistoricDto();
 					historic.setAthleteId(athlete.getId());
 					historic.setType(HistoricType.REGISTER.name());
-					try {
-						String yearStr = "20";
-						if (Integer.parseInt(year) > 50) {
-							yearStr = "19";
-						}
-						historic.setDate(dayFormat.parse(yearStr + year + "-" + month + "-" + "01"));
-					} catch (ParseException e) {
-						logger.error("Register date");
-						logger.error(String.join("_", line));
-						logger.error(e.getMessage());
-						e.printStackTrace();
+					String yearStr = "20";
+					if (Integer.parseInt(year) > 50) {
+						yearStr = "19";
 					}
+					historic.setDate(LocalDate.parse(yearStr + year + "-" + month + "-" + "01", dayFormatLd));
 					historicService.save(historic);
 				}
 

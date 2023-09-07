@@ -2,6 +2,8 @@ package com.backend.sprint.utils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -15,6 +17,9 @@ import com.backend.sprint.model.dto.ExcelDataDto;
 import com.backend.sprint.model.dto.ExcelValueDto;
 
 public abstract class ExcelUtils {
+
+	private final static SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy/MM/dd");
+	private final static DateTimeFormatter localDateFormatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
 
 	public static Sheet generateExcel(XSSFWorkbook workbook, String sheetName, List<ExcelDataDto> data) {
 		// Create a Sheet
@@ -58,7 +63,11 @@ public abstract class ExcelUtils {
 				Cell cell = dataRow.createCell(j, excelValueDto.getType());
 				if (excelValueDto.getColumnDto() != null && excelValueDto.getColumnDto().getType() != null
 						&& excelValueDto.getColumnDto().getType().equals("date")) {
-					cell.setCellValue(excelValueDto.getDateValue());
+					if (excelValueDto.getLocalDateValue() != null) {
+						cell.setCellValue(excelValueDto.getLocalDateValue().format(localDateFormatter));
+					} else if (excelValueDto.getDateValue() != null) {
+						cell.setCellValue(dateFormatter.format(excelValueDto.getDateValue()));
+					}
 					cell.setCellStyle(excelValueDto.getStyle(wb));
 				} else {
 					cell.setCellValue(excelValueDto.getValue());

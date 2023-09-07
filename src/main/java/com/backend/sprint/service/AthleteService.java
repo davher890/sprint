@@ -1,10 +1,10 @@
 package com.backend.sprint.service;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -117,10 +117,6 @@ public class AthleteService {
 				.collect(Collectors.toList());
 	}
 
-	public Set<AthleteDto> findByFamily(long familyId) {
-		return repository.findByFamily(familyId).stream().map(this::convertToDto).collect(Collectors.toSet());
-	}
-
 	public AthleteDto findByCode(long code) {
 		return convertToDto(repository.findByCode(code));
 	}
@@ -155,12 +151,37 @@ public class AthleteService {
 		return convertToDto(repository.findByFamilyCode(dto.getFamilyCode()));
 	}
 
+	public List<AthleteDto> findByFamilyId(long id) {
+		return repository.findByFamilyId(id).stream().map(this::convertToDto).collect(Collectors.toList());
+	}
+
 	public List<AthleteDao> findDaoByGroupId(long id) {
 		return repository.findByGroupId(id);
 	}
 
 	public List<AthleteDto> findByGroupId(long id) {
 		return repository.findByGroupId(id).stream().map(this::convertToDto).collect(Collectors.toList());
+	}
+
+	public List<AthleteDto> findBySportSchoolIdAndLastRegisterDate(long sportSchoolId, Date lastRegisterDate,
+			String paymentType, List<String> feeTypes)
+
+	{
+		List<String> paymentTypes = new ArrayList<String>();
+		if (paymentType.equals("DOM")) {
+			paymentTypes.add(paymentType);
+		} else {
+			paymentTypes.add("TRANSF");
+			paymentTypes.add("MET");
+		}
+		return repository
+				.findBySportSchoolIdAndLastRegisterDate(sportSchoolId, lastRegisterDate, paymentTypes, feeTypes)
+				.stream().map(this::convertToDto).collect(Collectors.toList());
+	}
+
+	public List<Map<String, Integer>> findRegisteredAthletesByDate(long sportSchoolId, String startDate,
+			String endDate) {
+		return repository.findRegisteredAthletesByDate(sportSchoolId, startDate, endDate);
 	}
 
 	public void deleteByGroupId(long id) {
@@ -188,11 +209,6 @@ public class AthleteService {
 		if (auth != null && auth.getPrincipal() != null) {
 			UserDto user = (UserDto) auth.getPrincipal();
 			dto.setUpdatedById(user.getId());
-		}
-
-		if (dto.getBirthDate() != null) {
-			Calendar calendar = Calendar.getInstance();
-			calendar.setTime(dto.getBirthDate());
 		}
 
 		AthleteDao dao = repository.save(convertToDao(dto));
@@ -240,6 +256,10 @@ public class AthleteService {
 							.map(ScheduleDao::getId).collect(Collectors.toSet()));
 			dto.setNumDays(dto.getScheduleIds().size());
 			dto.setDays(dao.getSchedules().parallelStream().map(ScheduleDao::getDay).collect(Collectors.joining(",")));
+		}
+		if (dao.getHistoric() != null && !dao.getHistoric().isEmpty()) {
+			dto.setHistoric(
+					dao.getHistoric().stream().map(d -> historicService.convertToDto(d)).collect(Collectors.toList()));
 		}
 		return dto;
 	}

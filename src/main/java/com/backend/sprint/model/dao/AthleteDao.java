@@ -1,5 +1,6 @@
 package com.backend.sprint.model.dao;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.Set;
 
@@ -48,7 +49,7 @@ public class AthleteDao {
 	private String name;
 	private String firstSurname;
 	private String secondSurname;
-	private Date birthDate;
+	private LocalDate birthDate;
 	private String dni;
 	private String gender;
 	private String nationality;

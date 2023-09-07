@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.backend.sprint.model.dto.AthleteDto;
-import com.backend.sprint.model.dto.FeeDto;
 import com.backend.sprint.model.dto.HistoricDto;
 import com.backend.sprint.model.dto.ObservationDto;
 import com.backend.sprint.model.dto.ReceiptAthleteDto;
@@ -63,6 +62,11 @@ public class AthleteController {
 	public List<AthleteDto> findByPhoneList(
 			@RequestParam(value = "phone_list", required = true) List<String> phoneList) {
 		return service.findByPhoneList(phoneList);
+	}
+
+	@GetMapping("/code")
+	public AthleteDto findByCode(@RequestParam(value = "code", required = true) int code) {
+		return service.findByCode(code);
 	}
 
 	@GetMapping("/surnames")
@@ -116,14 +120,14 @@ public class AthleteController {
 		return observationService.findAthleteObservations(id);
 	}
 
-	@PostMapping("/fee")
-	public FeeDto getFee(@RequestBody AthleteDto dto) {
-		int numDays = dto.getScheduleIds() == null ? 0 : dto.getScheduleIds().size();
-		FeeDto fee = feeService.findBySportSchoolId(dto.getSportSchoolId());
-		return feeService.getAthleteFee(dto.getId(), dto.getFamilyCode(), dto.getFamiliarNumber(), dto.getPaymentType(),
-				dto.getFeeType(), dto.isSpecialization(), numDays, dto.getCategory(), dto.getLicenseType(),
-				dto.isEnrollmentFeePaid(), dto.isMembershipFeePaid(), null, fee);
-	}
+//	@PostMapping("/fee")
+//	public FeeDto getFee(@RequestBody AthleteDto dto) {
+//		int numDays = dto.getScheduleIds() == null ? 0 : dto.getScheduleIds().size();
+//		FeeDto fee = feeService.findBySportSchoolId(dto.getSportSchoolId());
+//		return feeService.getAthleteFee(dto.getId(), dto.getFamilyCode(), dto.getFamiliarNumber(), dto.getPaymentType(),
+//				dto.getFeeType(), dto.isSpecialization(), numDays, dto.getCategory(), dto.getLicenseType(),
+//				dto.isEnrollmentFeePaid(), dto.isMembershipFeePaid(), null, fee);
+//	}
 
 	@PostMapping("")
 	public AthleteDto save(@RequestBody AthleteDto dto) {

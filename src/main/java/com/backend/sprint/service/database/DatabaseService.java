@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -53,8 +54,11 @@ public class DatabaseService {
 	protected ObservationService observationService;
 
 	DateFormat historicDateFormat = new SimpleDateFormat("dd/MM/yyyy");
-	DateFormat dateFormat = new SimpleDateFormat("MM/dd/yy");
 	DateFormat dayFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+	DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("MM/dd/yy");
+	DateTimeFormatter dayFormatLd = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
 	static Map<String, String> registarDateMap = new HashMap<>();
 	static {
 		registarDateMap = new HashMap<>();

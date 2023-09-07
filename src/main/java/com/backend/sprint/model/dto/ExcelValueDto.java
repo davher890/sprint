@@ -1,5 +1,6 @@
 package com.backend.sprint.model.dto;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -16,6 +17,7 @@ public class ExcelValueDto {
 
 	private String value;
 	private Date dateValue;
+	private LocalDate localDateValue;
 
 	private CellType type;
 
@@ -41,6 +43,16 @@ public class ExcelValueDto {
 
 	public ExcelValueDto(Date value, ColumnDto columnDto) {
 		this.dateValue = value;
+		this.columnDto = new ColumnDto();
+		this.columnDto.setDataField(columnDto.getDataField());
+		this.columnDto.setType("date");
+		this.columnDto.setShow(columnDto.isShow());
+		this.columnDto.setText(columnDto.getText());
+		this.type = this.getCellType(columnDto);
+	}
+
+	public ExcelValueDto(LocalDate value, ColumnDto columnDto) {
+		this.localDateValue = value;
 		this.columnDto = new ColumnDto();
 		this.columnDto.setDataField(columnDto.getDataField());
 		this.columnDto.setType("date");

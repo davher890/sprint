@@ -26,6 +26,7 @@ import com.backend.sprint.model.dto.SportSchoolDto;
 import com.backend.sprint.model.dto.UserDto;
 import com.backend.sprint.repository.SportSchoolRepository;
 import com.backend.sprint.repository.UserRepository;
+import com.backend.sprint.utils.FeeTypeEnum;
 
 @Service
 @Transactional
@@ -45,9 +46,8 @@ public class SportSchoolService {
 	}
 
 	public List<SportSchoolDto> findAll() {
-		return StreamSupport.stream(repository.findAll().spliterator(), false).filter(d -> d.getName() != null)
-				.map(this::convertToDto).sorted(Comparator.comparing(SportSchoolDto::getName))
-				.collect(Collectors.toList());
+		return StreamSupport.stream(repository.findAll(Sort.by(Direction.ASC, "name")).spliterator(), false)
+				.filter(d -> d.getName() != null).map(this::convertToDto).collect(Collectors.toList());
 	}
 
 	public List<SportSchoolDto> findAllById(Set<Long> ids) {
@@ -66,25 +66,26 @@ public class SportSchoolService {
 		List<SelectOptionDto> options = new ArrayList<SelectOptionDto>();
 		if (sportSchoolId == 1) {
 			// Santa Ana
-			options.add(new SelectOptionDto("CLUB", "Club"));
-			options.add(new SelectOptionDto("CLUB_ANUAL", "Club Anual"));
-			options.add(new SelectOptionDto("PISTAS", "Pistas"));
-			options.add(new SelectOptionDto("LIC_PISTAS", "Licencia/Pistas"));
-			options.add(new SelectOptionDto("ENTRENADOR", "Entrenadores"));
+			options.add(new SelectOptionDto(FeeTypeEnum.CLUB.name(), FeeTypeEnum.CLUB.label));
+			options.add(new SelectOptionDto(FeeTypeEnum.CLUB_ANUAL.name(), FeeTypeEnum.CLUB_ANUAL.label));
 		} else if (sportSchoolId == 2) {
 
 			// Paracuellos
-			options.add(new SelectOptionDto("CLUB", "Club"));
-			options.add(new SelectOptionDto("CLUB_ANUAL", "Club Anual"));
-		} else if (sportSchoolId == 3 || sportSchoolId == 5) {
+			options.add(new SelectOptionDto(FeeTypeEnum.CLUB.name(), FeeTypeEnum.CLUB.label));
+			options.add(new SelectOptionDto(FeeTypeEnum.CLUB_ANUAL.name(), FeeTypeEnum.CLUB_ANUAL.label));
+		} else if (sportSchoolId == 3) {
 
 			// Externos
-			options.add(new SelectOptionDto("LICENCIA", "Licencia"));
-			options.add(new SelectOptionDto("SOCIO", "Socio"));
-			options.add(new SelectOptionDto("ENTRENADOR", "Entrenadores"));
-			options.add(new SelectOptionDto("FED", "Federación"));
+			options.add(new SelectOptionDto(FeeTypeEnum.SOCIO.name(), FeeTypeEnum.SOCIO.label));
+			options.add(new SelectOptionDto(FeeTypeEnum.FED.name(), FeeTypeEnum.FED.label));
+		} else if (sportSchoolId == 5) {
+
+			// Padres
+			options.add(new SelectOptionDto(FeeTypeEnum.PISTAS.name(), FeeTypeEnum.PISTAS.label));
+			options.add(new SelectOptionDto(FeeTypeEnum.PISTAS_FED.name(), FeeTypeEnum.PISTAS_FED.label));
+
 		} else {
-			options.add(new SelectOptionDto("CLUB", "Club"));
+			options.add(new SelectOptionDto(FeeTypeEnum.CLUB.name(), FeeTypeEnum.CLUB.label));
 		}
 
 		return options;

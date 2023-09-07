@@ -1,8 +1,8 @@
 package com.backend.sprint.service;
 
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -19,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.backend.sprint.model.dao.ReceiptDao;
 import com.backend.sprint.model.dto.ReceiptDto;
-import com.backend.sprint.model.dto.SelectOptionDto;
 import com.backend.sprint.repository.ReceiptAthleteRepository;
 import com.backend.sprint.repository.ReceiptRepository;
 import com.backend.sprint.repository.SportSchoolRepository;
@@ -33,9 +32,6 @@ public class ReceiptService {
 
 	@Autowired
 	private ReceiptAthleteRepository receiptAthleteRepository;
-
-	@Autowired
-	private SportSchoolService sportSchoolService;
 
 	@Autowired
 	private SportSchoolRepository sportSchoolRepository;
@@ -80,17 +76,16 @@ public class ReceiptService {
 			return null;
 		}
 		ReceiptDto dto = new ModelMapper().map(dao, ReceiptDto.class);
-
-		List<SelectOptionDto> collections = sportSchoolService.findCollectionsById(dto.getSportSchoolId());
-		Optional<SelectOptionDto> collection = collections.stream().filter(r -> r.getId() == dto.getCollection())
-				.findFirst();
-
-		if (collection.isPresent()) {
-			dto.setCollectionName(collection.get().getName());
-		}
 		if (dao.getSportSchool() != null) {
 			dto.setSportSchoolId(dao.getSportSchool().getId());
 			dto.setSportSchoolName(dao.getSportSchool().getName());
+		}
+		dto.setEnrollmentFee(repository.getSumEnrollmentFee(dto.getId()));
+		dto.setMembershipFee(repository.getSumMembershipFee(dto.getId()));
+		dto.setMonthlyFee(repository.getSumMonthlyFee(dto.getId()));
+		dto.setLicenseFee(repository.getSumLicenseFee(dto.getId()));
+		if (dao.getLicenseTypeStr() != null) {
+			dto.setLicenseTypes(Arrays.asList(dao.getLicenseTypeStr().split(",")));
 		}
 		return dto;
 	}
@@ -103,6 +98,9 @@ public class ReceiptService {
 			dao.setSportSchool(sportSchoolRepository.findById(dto.getSportSchoolId()).get());
 		} else {
 			dao.setSportSchool(null);
+		}
+		if (dto.getLicenseTypes() != null && !dto.getLicenseTypes().isEmpty()) {
+			dao.setLicenseTypeStr(String.join(",", dto.getLicenseTypes()));
 		}
 		return dao;
 	}

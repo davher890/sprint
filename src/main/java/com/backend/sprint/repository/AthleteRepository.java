@@ -2,6 +2,7 @@ package com.backend.sprint.repository;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -16,11 +17,11 @@ import com.backend.sprint.model.dao.AthleteDao;
 public interface AthleteRepository
 		extends PagingAndSortingRepository<AthleteDao, Long>, JpaSpecificationExecutor<AthleteDao> {
 
-	@Query(value = "SELECT * FROM athletes WHERE family_id = ?1 AND active = true", nativeQuery = true)
-	public Set<AthleteDao> findByFamily(long familyId);
-
 	@Query(value = "SELECT * FROM athletes a INNER JOIN families f ON f.id = a.family_id WHERE f.code = ?1 AND active = true", nativeQuery = true)
 	public List<AthleteDao> findByFamilyCode(long familyCode);
+
+	@Query(value = "SELECT * FROM athletes WHERE family_id = ?1 AND active = true", nativeQuery = true)
+	public List<AthleteDao> findByFamilyId(long familyId);
 
 	@Query(value = "SELECT * FROM athletes WHERE code = ?1 AND active = true", nativeQuery = true)
 	public AthleteDao findByCode(long code);
@@ -32,7 +33,7 @@ public interface AthleteRepository
 	public long findLastFamilyCode();
 
 	@Query(value = "SELECT * FROM athletes a1 INNER JOIN "
-			+ "(SELECT id FROM athletes WHERE (phone1 IN (?1) OR phone2 IN (?1) OR phone3 IN (?1) AND sport_school_id IN ?2) AND active = true GROUP by 1) a2 "
+			+ "(SELECT id FROM athletes WHERE (phone1 IN (?1) OR phone2 IN (?1) OR phone3 IN (?1) AND sport_school_id IN ?2) AND active = true GROUP by id) a2 "
 			+ "ON a1.id = a2.id", nativeQuery = true)
 	public List<AthleteDao> findByPhoneList(List<String> phoneList, Set<Long> sportSchoolIds);
 
@@ -69,4 +70,26 @@ public interface AthleteRepository
 
 	@Query(value = "SELECT * FROM athletes WHERE BTRIM(LOWER(UNACCENT(name))) = BTRIM(LOWER(UNACCENT(?1))) AND BTRIM(LOWER(UNACCENT(first_surname))) = BTRIM(LOWER(UNACCENT(?2))) AND BTRIM(LOWER(UNACCENT(second_surname))) = BTRIM(LOWER(UNACCENT(?3)))", nativeQuery = true)
 	public List<AthleteDao> findByName(String name, String firstSurname, String secondSurname);
+
+	// For receipts
+	@Query(value = "SELECT ath.* FROM athletes ath INNER JOIN ("
+			+ "SELECT a.code, h.date, h.type, h.athlete_id, ROW_NUMBER() OVER ( PARTITION BY athlete_id ORDER BY date DESC) rn "
+			+ "FROM athletes a INNER JOIN historic h on a.id = h.athlete_id WHERE sport_school_id = ?1 "
+			+ "AND date < ?2 AND payment_type IN (?3) AND fee_type IN (?4) "
+			+ "AND active = true ) his on his.athlete_id = ath.id "
+			+ "WHERE rn = 1 AND type = 'REGISTER'", nativeQuery = true)
+	public List<AthleteDao> findBySportSchoolIdAndLastRegisterDate(long sportSchoolId, Date lastRegisterDate,
+			List<String> paymentTypes, List<String> feeTypes);
+
+	// Get active athletes by date
+	@Query(value = "SELECT date_limit, COUNT(athlete_id) "
+			+ "FROM (SELECT h.athlete_id, h.type, t.date as date_limit, row_number() OVER (PARTITION BY h.athlete_id, t.date order by h.date desc, type desc) AS rn "
+			+ "FROM historic h "
+			+ "CROSS JOIN (SELECT CURRENT_DATE + i AS date FROM GENERATE_SERIES(date(?2) - CURRENT_DATE, date(?3) - CURRENT_DATE) i) t WHERE h.date <= t.date ) r "
+			+ "INNER JOIN athletes a ON a.id = r.athlete_id AND active = true AND sport_school_id = ?1 "
+			+ "WHERE rn = 1 AND type = 'REGISTER' AND active = true "
+			+ "GROUP BY 1 ORDER BY 1 DESC;", nativeQuery = true)
+	public List<Map<String, Integer>> findRegisteredAthletesByDate(long sportSchoolId, String startDate,
+			String endDate);
+
 }

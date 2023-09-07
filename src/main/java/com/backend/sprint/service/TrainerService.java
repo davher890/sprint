@@ -66,8 +66,8 @@ public class TrainerService {
 		return convertToDto(repository.findByName(name));
 	}
 
-	public Set<TrainerDto> findBySportSchoolId(long id) {
-		return repository.findBySportSchoolId(id).stream().map(this::convertToDto).collect(Collectors.toSet());
+	public List<TrainerDto> findBySportSchoolId(long id) {
+		return repository.findBySportSchoolId(id).stream().map(this::convertToDto).collect(Collectors.toList());
 	}
 
 	public TrainerDto save(TrainerDto dto) {

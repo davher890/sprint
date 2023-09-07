@@ -2,11 +2,11 @@ package com.backend.sprint.service;
 
 import java.io.IOException;
 import java.text.DateFormatSymbols;
-import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -84,7 +85,7 @@ public class GroupService {
 	@Autowired
 	private SportSchoolRepository sportSchoolRepository;
 
-	private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+	private final static DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy/MM/dd");
 
 	private final Map<DayOfWeek, String> mapDay = new HashMap<DayOfWeek, String>() {
 		/**
@@ -118,8 +119,8 @@ public class GroupService {
 		return repository.findById(id).get();
 	}
 
-	public Set<GroupDto> findByTrainerId(long trainerId) {
-		return repository.findByTrainerId(trainerId).stream().map(this::convertToDto).collect(Collectors.toSet());
+	public List<GroupDto> findByTrainerId(long trainerId) {
+		return repository.findByTrainerId(trainerId).stream().map(this::convertToDto).collect(Collectors.toList());
 	}
 
 	public List<GroupDto> findBySportSchoolIdAndGroupId(long sportSchoolId, Set<Long> groupIds) {
@@ -141,16 +142,35 @@ public class GroupService {
 		return convertToDto(repository.findByName(name.trim(), sportSchoolId));
 	}
 
-	public List<GroupDto> findBySpecialization(boolean specialization) {
-		return repository.findBySpecialization(specialization).stream().map(this::convertToDto)
-				.collect(Collectors.toList());
-	}
-
 	public GroupDto save(GroupDto dto) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		UserDto user = (UserDto) auth.getPrincipal();
 		dto.setUpdatedById(user.getId());
-		return convertToDto(repository.save(convertToDao(dto)));
+		GroupDto dtoSaved = convertToDto(repository.save(convertToDao(dto)));
+
+		// Check if the schedules have changed.
+//		if (!dto.getScheduleIds().equals(dtoSaved.getScheduleIds())) {
+		// Update the group athletes
+		List<AthleteDto> athletes = athleteService.findByGroupId(dtoSaved.getId());
+		athletes.parallelStream().forEach((AthleteDto athlete) -> {
+			Set<Long> newScheduleIds = athlete.getSchedules().stream().mapToLong((ScheduleDto sch) -> {
+				if (dtoSaved.getScheduleIds().contains(sch.getId())) {
+					return sch.getId();
+				} else {
+					Optional<ScheduleDto> findSch = dtoSaved.getSchedules().stream()
+							.filter(sch2 -> sch2.getDay().equals(sch.getDay())).findFirst();
+					if (findSch.isPresent()) {
+						return findSch.get().getId();
+					} else {
+						return 0L;
+					}
+				}
+			}).boxed().filter(d -> d > 0).collect(Collectors.toSet());
+			athlete.setScheduleIds(newScheduleIds);
+			athleteService.save(athlete);
+		});
+//		}
+		return dtoSaved;
 	}
 
 	public GroupDto convertToDto(GroupDao dao) {
@@ -281,11 +301,10 @@ public class GroupService {
 								entity.getFirstSurname() + " " + entity.getSecondSurname() + ", " + entity.getName(),
 								CellType.STRING, style));
 				dataDto.getData()
-						.add(new ExcelValueDto(dateFormat.format(entity.getBirthDate()), CellType.STRING, style));
-				Calendar calendar = Calendar.getInstance();
-				calendar.setTime(entity.getBirthDate());
-				dataDto.getData().add(new ExcelValueDto(
-						AthleteUtils.calculateCategory(calendar.get(Calendar.YEAR)).name(), CellType.STRING, style));
+						.add(new ExcelValueDto(entity.getBirthDate().format(dateFormat), CellType.STRING, style));
+				dataDto.getData()
+						.add(new ExcelValueDto(AthleteUtils.calculateCategory(entity.getBirthDate().getYear()).name(),
+								CellType.STRING, style));
 
 				dataDto.getData().add(new ExcelValueDto(entity.getDays(), CellType.STRING, style));
 

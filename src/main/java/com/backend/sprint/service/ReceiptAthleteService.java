@@ -1,10 +1,13 @@
 package com.backend.sprint.service;
 
+import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -46,8 +49,12 @@ public class ReceiptAthleteService {
 
 	public Page<ReceiptAthleteDto> findPagintation(Specification<ReceiptAthleteDao> specification, Pageable pageable,
 			String sort, Direction sortDirection) {
-		Page<ReceiptAthleteDao> daoPage = repository.findAll(specification, PageRequest.of(pageable.getPageNumber(),
-				pageable.getPageSize(), Sort.by(sortDirection, "athlete." + sort)));
+		List<String> athleteFields = Arrays.stream(AthleteDao.class.getDeclaredFields()).map(Field::getName)
+				.collect(Collectors.toList());
+
+		String sortField = athleteFields.contains(sort) ? "athlete." + sort : sort;
+		Page<ReceiptAthleteDao> daoPage = repository.findAll(specification,
+				PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(sortDirection, sortField)));
 		return daoPage.map(dao -> convertToDto(dao));
 	}
 
@@ -57,6 +64,12 @@ public class ReceiptAthleteService {
 
 	public Set<ReceiptAthleteDto> findByReceiptId(long receiptId) {
 		return repository.findByReceiptId(receiptId).stream().map(this::convertToDto).collect(Collectors.toSet());
+	}
+
+	public Set<ReceiptAthleteDto> findByAthleteIdAndReceiptStatusAndSeason(long athleteId, String status,
+			String season) {
+		return repository.findByAthleteIdAndReceiptStatusAndSeason(athleteId, status, season).stream()
+				.map(this::convertToDto).collect(Collectors.toSet());
 	}
 
 	public Set<ReceiptAthleteDto> findByAthleteIdAndReceiptStatus(long athleteId, String status) {
@@ -86,7 +99,9 @@ public class ReceiptAthleteService {
 		if (dao == null) {
 			return null;
 		}
-		ReceiptAthleteDto dto = new ModelMapper().map(dao, ReceiptAthleteDto.class);
+		ModelMapper modelMapper = new ModelMapper();
+		modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+		ReceiptAthleteDto dto = modelMapper.map(dao, ReceiptAthleteDto.class);
 
 		AthleteDao athlete = dao.getAthlete();
 
@@ -103,10 +118,10 @@ public class ReceiptAthleteService {
 			dto.setGroupId(group.getId());
 			dto.setGroupName(group.getName());
 			dto.setSpecialization(group.isSpecialization());
-
-//		dto.setScheduleIds(athlete.getSchedules().stream().map(ScheduleDao::getId).collect(Collectors.toSet()));
 		}
 
+		dto.setCode(athlete.getCode());
+		dto.setAthleteId(athlete.getId());
 		dto.setName(athlete.getName());
 		dto.setFirstSurname(athlete.getFirstSurname());
 		dto.setSecondSurname(athlete.getSecondSurname());
@@ -123,9 +138,12 @@ public class ReceiptAthleteService {
 		dto.setPaymentType(athlete.getPaymentType());
 		ReceiptDao receipt = dao.getReceipt();
 		if (receipt != null) {
-			dto.setReceiptCollection(receipt.getCollection());
+			dto.setReceiptId(receipt.getId());
 			dto.setReceiptName(receipt.getName());
 			dto.setReceiptCreatedAt(receipt.getCreatedAt());
+			dto.setSeason(receipt.getSeason());
+			dto.setStartDate(receipt.getStartDate());
+			dto.setEndDate(receipt.getEndDate());
 		}
 
 //		Set<ReceiptAthleteDao> receipts = athlete.getReceipts();
@@ -140,9 +158,15 @@ public class ReceiptAthleteService {
 	}
 
 	private ReceiptAthleteDao convertToDao(ReceiptAthleteDto dto) {
-		ReceiptAthleteDao dao = new ModelMapper().map(dto, ReceiptAthleteDao.class);
+		ModelMapper modelMapper = new ModelMapper();
+		modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 
-		dao.setAthlete(athleteRepository.findById(dto.getAthleteId()).get());
+		ReceiptAthleteDao dao = modelMapper.map(dto, ReceiptAthleteDao.class);
+
+		AthleteDao athlete = athleteRepository.findById(dto.getAthleteId()).get();
+		dao.setAthlete(athlete);
+		dao.setCode(athlete.getCode());
+		dao.setFamilyCode(athlete.getFamily().getCode());
 		dao.setReceipt(receiptRepository.findById(dto.getReceiptId()).get());
 
 		return dao;

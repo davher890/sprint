@@ -9,7 +9,7 @@ import com.backend.sprint.model.dao.SportSchoolDao;
 public interface SportSchoolRepository
 		extends PagingAndSortingRepository<SportSchoolDao, Long>, JpaSpecificationExecutor<SportSchoolDao> {
 
-	@Query(value = "SELECT * FROM sport_schools WHERE name = ?1 ", nativeQuery = true)
+	@Query(value = "SELECT * FROM sport_schools WHERE name = ?1", nativeQuery = true)
 	SportSchoolDao findByName(String name);
 
 }

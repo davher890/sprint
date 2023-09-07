@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -40,6 +41,7 @@ import com.backend.sprint.model.dto.SelectOptionDto;
 import com.backend.sprint.model.dto.SportSchoolDto;
 import com.backend.sprint.model.dto.TrainerDto;
 import com.backend.sprint.model.dto.UserDto;
+import com.backend.sprint.service.AthleteService;
 import com.backend.sprint.service.FeeService;
 import com.backend.sprint.service.GroupService;
 import com.backend.sprint.service.SportSchoolService;
@@ -53,10 +55,16 @@ import com.backend.sprint.utils.ExcelUtils;
 public class SportSchoolController {
 
 	@Autowired
-	private SportSchoolService service;
+	private AthleteService athleteService;
+
+	@Autowired
+	private FeeService feeService;
 
 	@Autowired
 	private GroupService groupService;
+
+	@Autowired
+	private SportSchoolService service;
 
 	@Autowired
 	private TrainerService trainerService;
@@ -64,13 +72,10 @@ public class SportSchoolController {
 	@Autowired
 	private UserService userService;
 
-	@Autowired
-	private FeeService feeService;
-
 	@GetMapping("")
 	public Page<SportSchoolDto> findPagintation(@RequestParam(value = "filters", required = false) List<String> filters,
-			Pageable pageable, @RequestParam(defaultValue = "id") String sort,
-			@RequestParam(defaultValue = "DESC") Direction sortDirection) {
+			Pageable pageable, @RequestParam(value = "sort", defaultValue = "name") String sort,
+			@RequestParam(value = "sortDirection", defaultValue = "DESC") Direction sortDirection) {
 		if (filters == null) {
 			filters = new ArrayList<String>();
 		}
@@ -143,8 +148,15 @@ public class SportSchoolController {
 	}
 
 	@GetMapping("/{id}/trainers")
-	public Set<TrainerDto> findSportSchoolTrainers(@PathVariable int id) {
+	public List<TrainerDto> findSportSchoolTrainers(@PathVariable int id) {
 		return trainerService.findBySportSchoolId(id);
+	}
+
+	@GetMapping("/{id}/athletes_by_date")
+	public List<Map<String, Integer>> findfindRegisteredAthletesByDate(@PathVariable int id,
+			@RequestParam(value = "start_date", required = false) String startDate,
+			@RequestParam(value = "end_date", required = false) String endDate) {
+		return athleteService.findRegisteredAthletesByDate(id, startDate, endDate);
 	}
 
 	@PostMapping("")

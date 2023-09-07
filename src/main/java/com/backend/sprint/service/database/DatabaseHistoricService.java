@@ -3,7 +3,7 @@ package com.backend.sprint.service.database;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -102,9 +102,9 @@ public class DatabaseHistoricService extends DatabaseService {
 						String secondSurname = line[ATHLETE_SECONDSURNAME].trim();
 						String name = line[ATHLETE_NAME].trim();
 
-						Date birthDate = null;
+						LocalDate birthDate = null;
 						if (!line[BIRTHDATE].isEmpty() && !line[BIRTHDATE].trim().isEmpty()) {
-							birthDate = dateFormat.parse(line[BIRTHDATE].trim());
+							birthDate = LocalDate.parse(line[BIRTHDATE].trim(), dateFormat);
 						}
 						String gender = line[GENDER].trim().equals("Hombre") ? "male" : "female";
 						String dni = line[DNI].trim();
@@ -231,18 +231,11 @@ public class DatabaseHistoricService extends DatabaseService {
 							HistoricDto historic = new HistoricDto();
 							historic.setAthleteId(athlete.getId());
 							historic.setType(HistoricType.REGISTER.name());
-							try {
-								String yearStr = "20";
-								if (Integer.parseInt(year) > 50) {
-									yearStr = "19";
-								}
-								historic.setDate(dayFormat.parse(yearStr + year + "-" + month + "-" + "01"));
-							} catch (ParseException e) {
-								logger.error("Register date");
-								logger.error(String.join("_", line));
-								logger.error(e.getMessage());
-								e.printStackTrace();
+							String yearStr = "20";
+							if (Integer.parseInt(year) > 50) {
+								yearStr = "19";
 							}
+							historic.setDate(LocalDate.parse(yearStr + year + "-" + month + "-" + "01", dayFormatLd));
 							historicService.save(historic);
 						}
 						String unregisterDate = line[UNREGISTER_DATE].trim();
@@ -257,18 +250,11 @@ public class DatabaseHistoricService extends DatabaseService {
 							historic.setType(HistoricType.UNREGISTER.name());
 							historic.setObservations(line[OBSERVATIONS]);
 
-							try {
-								String yearStr = "20";
-								if (Integer.parseInt(year) > 50) {
-									yearStr = "19";
-								}
-								historic.setDate(dayFormat.parse(yearStr + year + "-" + month + "-" + "01"));
-							} catch (ParseException e) {
-								logger.error("Unregister date");
-								logger.error(String.join("_", line));
-								logger.error(e.getMessage());
-								e.printStackTrace();
+							String yearStr = "20";
+							if (Integer.parseInt(year) > 50) {
+								yearStr = "19";
 							}
+							historic.setDate(LocalDate.parse(yearStr + year + "-" + month + "-" + "01", dayFormatLd));
 
 							historicService.save(historic);
 						}

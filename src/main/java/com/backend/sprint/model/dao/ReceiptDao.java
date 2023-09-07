@@ -1,5 +1,6 @@
 package com.backend.sprint.model.dao;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 import javax.persistence.CascadeType;
@@ -37,13 +38,19 @@ public class ReceiptDao {
 
 	private String name;
 
-	private String collection;
+	private String paymentType;
 
-	private Date lastRegisterDate;
+	private String receiptType;
 
-	private Date lastUnregisterDate;
+	private String season;
 
-	private int year;
+	private String licenseTypeStr;
+
+	private LocalDate creationDate;
+
+	private Date startDate;
+
+	private Date endDate;
 
 	private String status;
 

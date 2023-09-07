@@ -1,5 +1,6 @@
 package com.backend.sprint.model.dao;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 import javax.persistence.CascadeType;
@@ -37,9 +38,7 @@ public class HistoricDao {
 
 	private String type;
 
-	private Date date;
-
-	private Date activationDate;
+	private LocalDate date;
 
 	@Column(columnDefinition = "text")
 	private String observations;

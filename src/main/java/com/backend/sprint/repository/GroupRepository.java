@@ -16,18 +16,15 @@ public interface GroupRepository
 	public GroupDao findByName(String name, int sportSchoolId);
 
 	@Query(value = "SELECT * FROM groups WHERE trainer_id = ?1 AND active = true ORDER BY name", nativeQuery = true)
-	public Set<GroupDao> findByTrainerId(long trainerId);
+	public List<GroupDao> findByTrainerId(long trainerId);
 
 	@Query(value = "SELECT * FROM groups WHERE sport_school_id IN (?1) AND active = true ORDER BY name", nativeQuery = true)
-	public Set<GroupDao> findBySportSchoolIds(List<Long> sportSchoolIds);
+	public List<GroupDao> findBySportSchoolIds(List<Long> sportSchoolIds);
 
 	@Query(value = "SELECT * FROM groups WHERE sport_school_id = ?1 AND active = true ORDER BY name", nativeQuery = true)
-	public Set<GroupDao> findBySportSchoolId(long sportSchoolId);
+	public List<GroupDao> findBySportSchoolId(long sportSchoolId);
 
 	@Query(value = "SELECT * FROM groups WHERE sport_school_id = ?1 AND id IN (?2) AND active = true ORDER BY name", nativeQuery = true)
-	public Set<GroupDao> findBySportSchoolIdAndGroupIds(long sportSchoolId, Set<Long> groupIds);
-
-	@Query(value = "SELECT * FROM groups WHERE specialization = ?1 AND active = true ORDER BY name", nativeQuery = true)
-	public Set<GroupDao> findBySpecialization(boolean specialization);
+	public List<GroupDao> findBySportSchoolIdAndGroupIds(long sportSchoolId, Set<Long> groupIds);
 
 }

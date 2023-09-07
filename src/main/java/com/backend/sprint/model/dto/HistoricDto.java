@@ -1,5 +1,6 @@
 package com.backend.sprint.model.dto;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 import lombok.Getter;
@@ -17,7 +18,7 @@ public class HistoricDto {
 
 	private String type;
 
-	private Date date;
+	private LocalDate date;
 
 	private String observations;
 

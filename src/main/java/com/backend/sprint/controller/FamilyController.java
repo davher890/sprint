@@ -5,7 +5,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
@@ -81,8 +80,8 @@ public class FamilyController {
 	}
 
 	@GetMapping("/{id}/athletes")
-	public Set<AthleteDto> findAthletesByFAmily(@PathVariable int id) {
-		return athleteService.findByFamily(id);
+	public List<AthleteDto> findAthletesByFAmily(@PathVariable int id) {
+		return athleteService.findByFamilyId(id);
 	}
 
 	@PostMapping("")

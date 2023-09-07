@@ -1,6 +1,8 @@
 package com.backend.sprint.model.dto;
 
+import java.time.LocalDate;
 import java.util.Date;
+import java.util.List;
 
 import com.backend.sprint.utils.ReceiptStatus;
 
@@ -20,14 +22,27 @@ public class ReceiptDto {
 
 	private String name;
 
-	private String collection;
-	private String collectionName;
+	private String paymentType;
 
-	private Date lastRegisterDate;
+	private String receiptType;
 
-	private Date lastUnregisterDate;
+	private String season;
 
-	private int year;
+	private List<String> licenseTypes;
+
+	private LocalDate creationDate;
+
+	private Date startDate;
+
+	private Date endDate;
+
+	private float enrollmentFee;
+
+	private float membershipFee;
+
+	private float monthlyFee;
+
+	private float licenseFee;
 
 	private String status = ReceiptStatus.OPEN.name();
 

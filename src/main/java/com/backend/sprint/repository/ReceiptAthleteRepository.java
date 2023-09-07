@@ -19,8 +19,12 @@ public interface ReceiptAthleteRepository
 	@Query(value = "SELECT ras.* FROM receipt_athletes ras INNER JOIN receipts rs ON rs.id = ras.receipt_id AND rs.active = true WHERE ras.athlete_id = ?1 ", nativeQuery = true)
 	public List<ReceiptAthleteDao> findByAthleteId(long receiptId);
 
+	@Query(value = "SELECT ras.* FROM receipt_athletes ras INNER JOIN receipts rs ON rs.id = ras.receipt_id AND rs.active = true AND rs.status = ?2 AND rs.season = ?3 WHERE ras.athlete_id = ?1 ", nativeQuery = true)
+	public List<ReceiptAthleteDao> findByAthleteIdAndReceiptStatusAndSeason(long receiptId, String status,
+			String season);
+
 	@Query(value = "SELECT ras.* FROM receipt_athletes ras INNER JOIN receipts rs ON rs.id = ras.receipt_id AND rs.active = true AND rs.status = ?2 WHERE ras.athlete_id = ?1 ", nativeQuery = true)
-	public List<ReceiptAthleteDao> findByAthleteIdAndReceiptStatus(long receiptId, String status);
+	public List<ReceiptAthleteDao> findByAthleteIdAndReceiptStatus(long athleteId, String status);
 
 	@Query(value = "SELECT * FROM receipt_athletes WHERE athlete_id = ?1 AND receipt_id = ?2", nativeQuery = true)
 	public ReceiptAthleteDao findByAthleteIdAndReceiptId(long athleteId, long receiptId);
@@ -44,4 +48,5 @@ public interface ReceiptAthleteRepository
 	@Modifying
 	@Query(value = "DELETE FROM receipt_athletes WHERE receipt_id = ?1 AND athlete_id IN ?2", nativeQuery = true)
 	void deleteByAthleteIds(long receiptId, List<Long> athleteIds);
+
 }

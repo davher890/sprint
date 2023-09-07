@@ -2,7 +2,6 @@ package com.backend.sprint.service;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -65,7 +64,7 @@ public class FamilyService {
 			return null;
 		}
 		FamilyDto dto = new ModelMapper().map(dao, FamilyDto.class);
-		Set<AthleteDto> athletes = athleteService.findByFamily(dto.getId());
+		List<AthleteDto> athletes = athleteService.findByFamilyId(dto.getId());
 		if (athletes != null) {
 			dto.setAthleteIds(athletes.stream().map(AthleteDto::getId).collect(Collectors.toSet()));
 		} else {

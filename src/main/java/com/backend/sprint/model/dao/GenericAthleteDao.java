@@ -1,7 +1,9 @@
 package com.backend.sprint.model.dao;
 
+import java.time.LocalDate;
 import java.util.Date;
 
+import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
 
 import lombok.Getter;
@@ -24,7 +26,7 @@ public class GenericAthleteDao {
 	private String name;
 	private String firstSurname;
 	private String secondSurname;
-	private Date birthDate;
+	private LocalDate birthDate;
 	private String dni;
 	private String gender;
 	private String nationality;
@@ -80,12 +82,17 @@ public class GenericAthleteDao {
 
 	private long code;
 
-	private Date lastRegisterDate;
-	private Date lastUnregisterDate;
+	private LocalDate lastRegisterDate;
+	private LocalDate lastUnregisterDate;
 
 	private boolean active;
 	private boolean enrollmentFeePaid;
 	private boolean membershipFeePaid;
+
+	@Column(columnDefinition = "float default 0")
+	private float licenseNationalFee;
+	@Column(columnDefinition = "float default 0")
+	private float licenseTerritorialFee;
 
 	private Date createdAt;
 
