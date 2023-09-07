@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +40,29 @@ public class FeeService {
 	private SportSchoolRepository sportSchoolRepository;
 
 	public FeeDto save(FeeDto dto) {
-		return convertToDto(repository.save(convertToDao(dto)));
+
+		FeeDao oldFee = repository.findBySportSchoolId(dto.getSportSchoolId());
+
+		if (oldFee != null) {
+			FeeDto oldDto = findById(oldFee.getId());
+
+			oldDto.setLicenseNationalFee(dto.getLicenseNationalFee());
+			oldDto.setLicenseTerritorialFee(dto.getLicenseTerritorialFee());
+
+			oldDto.setEnrollmentFee(dto.getEnrollmentFee());
+			oldDto.setMembershipFee(dto.getMembershipFee());
+			oldDto.setMonthlyFee(dto.getMonthlyFee());
+			// Quarterly
+			oldDto.setQuarterOneDay(dto.getQuarterOneDay());
+			oldDto.setQuarterTwoDays(dto.getQuarterTwoDays());
+			oldDto.setQuarterThreeDays(dto.getQuarterThreeDays());
+			oldDto.setQuarterSpecialization(dto.getQuarterSpecialization());
+
+			oldDto.setUpdatedAt(null);
+			return convertToDto(repository.save(convertToDao(oldDto)));
+		} else {
+			return convertToDto(repository.save(convertToDao(dto)));
+		}
 	}
 
 	public FeeDto findById(long id) {
@@ -92,8 +115,10 @@ public class FeeService {
 		}
 
 		FeeDao dao = new ModelMapper().map(dto, FeeDao.class);
-		if (dto.getSportSchoolId() != 0) {
-			dao.setSportSchool(sportSchoolRepository.findById(dto.getSportSchoolId()).get());
+		long sportSchoolId = dto.getSportSchoolId();
+		if (sportSchoolId != 0) {
+			Optional<SportSchoolDao> sportSchool = sportSchoolRepository.findById(sportSchoolId);
+			dao.setSportSchool(sportSchool.get());
 		}
 		return dao;
 	}

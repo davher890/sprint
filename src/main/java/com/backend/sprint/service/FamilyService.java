@@ -29,7 +29,7 @@ public class FamilyService {
 	private FamilyRepository repository;
 
 	@Autowired
-	private RegisteredAthleteService registeredAthleteService;
+	private AthleteService athleteService;
 
 	public Page<FamilyDto> findPagintation(Specification<FamilyDao> specification, Pageable pageable, String sort,
 			Direction sortDirection) {
@@ -64,7 +64,7 @@ public class FamilyService {
 			return null;
 		}
 		FamilyDto dto = new ModelMapper().map(dao, FamilyDto.class);
-		List<AthleteDto> athletes = registeredAthleteService.findByFamilyId(dto.getId());
+		List<AthleteDto> athletes = athleteService.findByFamilyId(dto.getId());
 		if (athletes != null) {
 			dto.setAthleteIds(athletes.stream().map(AthleteDto::getId).collect(Collectors.toSet()));
 		} else {

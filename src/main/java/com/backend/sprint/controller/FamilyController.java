@@ -27,8 +27,8 @@ import com.backend.sprint.model.dto.AthleteDto;
 import com.backend.sprint.model.dto.ExcelDataDto;
 import com.backend.sprint.model.dto.ExcelValueDto;
 import com.backend.sprint.model.dto.FamilyDto;
+import com.backend.sprint.service.AthleteService;
 import com.backend.sprint.service.FamilyService;
-import com.backend.sprint.service.RegisteredAthleteService;
 import com.backend.sprint.specifications.FamilySpecificationConstructor;
 import com.backend.sprint.utils.ExcelUtils;
 
@@ -40,7 +40,7 @@ public class FamilyController {
 	private FamilyService service;
 
 	@Autowired
-	private RegisteredAthleteService registeredAthleteService;
+	private AthleteService athleteService;
 
 	@GetMapping("")
 	public Page<FamilyDto> findPagintation(@RequestParam(value = "filters", required = false) List<String> filters,
@@ -81,7 +81,7 @@ public class FamilyController {
 
 	@GetMapping("/{id}/athletes")
 	public List<AthleteDto> findAthletesByFAmily(@PathVariable int id) {
-		return registeredAthleteService.findByFamilyId(id);
+		return athleteService.findByFamilyId(id);
 	}
 
 	@PostMapping("")

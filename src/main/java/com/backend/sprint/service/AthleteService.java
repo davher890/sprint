@@ -151,6 +151,10 @@ public class AthleteService {
 		return convertToDto(repository.findByFamilyCode(dto.getFamilyCode()));
 	}
 
+	public List<AthleteDto> findByFamilyId(long id) {
+		return repository.findByFamilyId(id).stream().map(this::convertToDto).collect(Collectors.toList());
+	}
+
 	public List<AthleteDao> findDaoByGroupId(long id) {
 		return repository.findByGroupId(id);
 	}

@@ -17,9 +17,6 @@ public interface RegisteredAthleteRepository
 	@Query(value = "SELECT * FROM registered_athletes WHERE sport_school_id = ?1 AND active = true", nativeQuery = true)
 	public List<RegisteredAthleteDao> findBySportSchoolId(long sportSchoolId);
 
-	@Query(value = "SELECT * FROM registered_athletes WHERE family_id = ?1 AND active = true", nativeQuery = true)
-	public List<RegisteredAthleteDao> findByFamilyId(long familyId);
-
 	// For receipts
 //	@Query(value = "SELECT * FROM registered_athletes WHERE sport_school_id = ?1 AND last_register_date < ?2 AND payment_type IN (?3) AND fee_type IN (?4) AND active = true", nativeQuery = true)
 //	public List<RegisteredAthleteDao> findBySportSchoolIdAndLastRegisterDate(long sportSchoolId, Date lastRegisterDate,

@@ -73,7 +73,7 @@ public class SportSchoolController {
 	private UserService userService;
 
 	@GetMapping("")
-	public Page<SportSchoolDto> findPagintation(@RequestParam(value = "filters") List<String> filters,
+	public Page<SportSchoolDto> findPagintation(@RequestParam(value = "filters", required = false) List<String> filters,
 			Pageable pageable, @RequestParam(value = "sort", defaultValue = "name") String sort,
 			@RequestParam(value = "sortDirection", defaultValue = "DESC") Direction sortDirection) {
 		if (filters == null) {

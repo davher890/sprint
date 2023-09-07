@@ -20,6 +20,9 @@ public interface AthleteRepository
 	@Query(value = "SELECT * FROM athletes a INNER JOIN families f ON f.id = a.family_id WHERE f.code = ?1 AND active = true", nativeQuery = true)
 	public List<AthleteDao> findByFamilyCode(long familyCode);
 
+	@Query(value = "SELECT * FROM athletes WHERE family_id = ?1 AND active = true", nativeQuery = true)
+	public List<AthleteDao> findByFamilyId(long familyId);
+
 	@Query(value = "SELECT * FROM athletes WHERE code = ?1 AND active = true", nativeQuery = true)
 	public AthleteDao findByCode(long code);
 
