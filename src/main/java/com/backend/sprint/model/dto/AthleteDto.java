@@ -111,6 +111,7 @@ public class AthleteDto {
 	@CsvNumber("#0.0#")
 	private float licenseTerritorialFee;
 	private boolean specialization;
+	private String trackHours;
 
 	// Contact info
 	@CsvBindByName(column = "email 1")

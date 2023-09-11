@@ -58,6 +58,8 @@ public class FeeService {
 			oldDto.setQuarterThreeDays(dto.getQuarterThreeDays());
 			oldDto.setQuarterSpecialization(dto.getQuarterSpecialization());
 
+			oldDto.setTrackFee(dto.getTrackFee());
+
 			oldDto.setUpdatedAt(null);
 			return convertToDto(repository.save(convertToDao(oldDto)));
 		} else {
@@ -182,12 +184,8 @@ public class FeeService {
 
 		float trimestralFee = 0;
 
-//		String licenseType = athlete.getLicenseType();
-//		String category = athlete.getCategory();
-
 		if (!athlete.getPaymentType().equals(PaymentType.Subvencionado.label)) {
 
-//			if (sportSchoolFee.getSportSchoolId() == 1 || sportSchoolFee.getSportSchoolId() == 2) {
 			if (athlete.getFeeType() != null && (athlete.getFeeType().equals(FeeTypeEnum.CLUB.name())
 					|| athlete.getFeeType().equals(FeeTypeEnum.CLUB_ANUAL.name()))) {
 				if (athlete.isSpecialization()) {
@@ -207,13 +205,6 @@ public class FeeService {
 							break;
 						}
 					}
-//					else {
-//						if (licenseType != null && !licenseType.isEmpty() && category != null && !category.isEmpty()) {
-//							LicenseTypeCategoryFeeDao licenseTypeCategoryFee = licenseTypeCategoryFeeRepository
-//									.findByLicenseTypeAndCategory(licenseType, category);
-//							trimestralFee = licenseTypeCategoryFee.getFee();
-//						}
-//					}
 				}
 				if (athlete.getFeeType() != null && athlete.getFeeType().equals(FeeTypeEnum.CLUB_ANUAL.name())) {
 					trimestralFee *= (10. / 3);
@@ -224,15 +215,6 @@ public class FeeService {
 					trimestralFee *= (float) diffMonths / 3;
 				}
 			}
-//		if (sportSchoolFee.getSportSchoolId() == 3 || sportSchoolFee.getSportSchoolId() == 5) {
-//			if (athlete.getFeeType().equals(FeeTypeEnum.FED.name())) {
-//				if (licenseType != null && !licenseType.isEmpty() && category != null && !category.isEmpty()) {
-//					LicenseTypeCategoryFeeDao licenseTypeCategoryFee = licenseTypeCategoryFeeRepository
-//							.findByLicenseTypeAndCategory(licenseType, category);
-//					trimestralFee = licenseTypeCategoryFee.getFee();
-//				}
-//			}
-
 		}
 		return trimestralFee;
 

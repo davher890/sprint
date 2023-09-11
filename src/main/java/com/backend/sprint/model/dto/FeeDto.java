@@ -25,13 +25,15 @@ public class FeeDto {
 
 	private float licenseNationalFee = 0;
 
-	private float quarterOneDay;
+	private float quarterOneDay = 0;
 
-	private float quarterTwoDays;
+	private float quarterTwoDays = 0;
 
-	private float quarterThreeDays;
+	private float quarterThreeDays = 0;
 
-	private float quarterSpecialization;
+	private float quarterSpecialization = 0;
+
+	private float trackFee = 0;
 
 	private Date createdAt;
 

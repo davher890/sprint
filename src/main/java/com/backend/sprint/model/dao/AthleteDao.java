@@ -93,6 +93,7 @@ public class AthleteDao {
 	private float licenseNationalFee;
 	@Column(columnDefinition = "float default 0")
 	private float licenseTerritorialFee;
+	private String trackHours;
 
 	// Contact info
 	private String mail;
