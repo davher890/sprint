@@ -43,6 +43,14 @@ public class FeeDao {
 
 	@Column(columnDefinition = "real default 0")
 	@NotNull
+	private float equipmentAnnualFee = 0;
+
+	@Column(columnDefinition = "real default 0")
+	@NotNull
+	private float sportSchoolAnnualFee = 0;
+
+	@Column(columnDefinition = "real default 0")
+	@NotNull
 	private float membership;
 
 	@Column(columnDefinition = "real default 0")

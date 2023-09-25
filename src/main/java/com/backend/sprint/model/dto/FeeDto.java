@@ -19,6 +19,10 @@ public class FeeDto {
 
 	private float enrollmentFee = 0;
 
+	private float equipmentAnnualFee = 0;
+
+	private float sportSchoolAnnualFee = 0;
+
 	private float membershipFee = 0;
 
 	private float licenseTerritorialFee = 0;

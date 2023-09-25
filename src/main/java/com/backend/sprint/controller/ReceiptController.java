@@ -19,8 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,7 +34,6 @@ import com.backend.sprint.model.dto.AthleteDto;
 import com.backend.sprint.model.dto.FeeDto;
 import com.backend.sprint.model.dto.ReceiptAthleteDto;
 import com.backend.sprint.model.dto.ReceiptDto;
-import com.backend.sprint.model.dto.UserDto;
 import com.backend.sprint.service.AthleteService;
 import com.backend.sprint.service.ExcelService;
 import com.backend.sprint.service.FeeService;
@@ -184,31 +181,19 @@ public class ReceiptController {
 
 		ReceiptDto dto = service.save(receiptData);
 
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		UserDto user = (UserDto) auth.getPrincipal();
+		if (receiptData.getId() > 0) {
+			receiptAthleteService.deleteByReceiptId(receiptData.getId());
+		}
 
-		if (user.isAdmin() || receiptData.getId() == 0) {
-
-			if (receiptData.getId() > 0) {
-				receiptAthleteService.deleteByReceiptId(receiptData.getId());
-			}
-
-			if (dto.getReceiptType() != null && dto.getReceiptType().equals("LICENSE")) {
-				calculateLicenseFee(dto);
-			} else {
-				calculateTrimestralFee(dto);
-			}
+		if (dto.getReceiptType() != null && dto.getReceiptType().equals("LICENSE")) {
+			dto = calculateLicenseFee(dto);
+		} else {
+			dto = calculateTrimestralFee(dto);
 		}
 		return dto;
 	}
 
-	private void calculateLicenseFee(ReceiptDto dto) {
-
-		List<AthleteDto> registeredAthletes = registeredAthleteService
-				.findBySportSchoolIdAndLicense(dto.getSportSchoolId(), dto.getPaymentType(), dto.getLicenseTypes());
-
-		List<AthleteDto> unregisteredAthletes = unregisteredAthleteService
-				.findBySportSchoolIdAndLicense(dto.getSportSchoolId(), dto.getPaymentType(), dto.getLicenseTypes());
+	private ReceiptDto calculateLicenseFee(ReceiptDto dto) {
 
 		dto.setStatus("processing");
 		final ReceiptDto receiptDto = service.save(dto);
@@ -216,6 +201,12 @@ public class ReceiptController {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
+				List<AthleteDto> registeredAthletes = registeredAthleteService.findBySportSchoolIdAndLicense(
+						dto.getSportSchoolId(), dto.getPaymentType(), dto.getLicenseTypes());
+
+				List<AthleteDto> unregisteredAthletes = unregisteredAthleteService.findBySportSchoolIdAndLicense(
+						dto.getSportSchoolId(), dto.getPaymentType(), dto.getLicenseTypes());
+
 				registeredAthletes.addAll(unregisteredAthletes);
 				registeredAthletes.parallelStream()
 //					.filter(a -> a.getId() == 856 || a.getId() == 995)
@@ -244,21 +235,11 @@ public class ReceiptController {
 				service.save(receiptDto);
 			}
 		}).start();
+
+		return receiptDto;
 	}
 
-	private void calculateTrimestralFee(ReceiptDto dto) {
-		Calendar creationDate = Calendar.getInstance();
-		creationDate.setTime(Date.from(dto.getCreationDate().atStartOfDay(ZoneId.systemDefault()).toInstant()));
-
-		creationDate.add(Calendar.DATE, -15);
-		// Save athletes to the receipt
-		List<AthleteDto> registeredAthletes = athleteService.findBySportSchoolIdAndLastRegisterDate(
-				dto.getSportSchoolId(), creationDate.getTime(), dto.getPaymentType(),
-				Arrays.asList(new String[] { FeeTypeEnum.CLUB.name(), FeeTypeEnum.CLUB_ANUAL.name() }));
-
-//		List<AthleteDto> unregisteredAthletes = unregisteredAthleteService.findBySportSchoolIdAndLastUnregisterDate(
-//				dto.getSportSchoolId(), dto.getStartDate(), dto.getPaymentType(),
-//				Arrays.asList(new String[] { FeeTypeEnum.CLUB.name(), FeeTypeEnum.CLUB_ANUAL.name() }));
+	private ReceiptDto calculateTrimestralFee(ReceiptDto dto) {
 
 		dto.setStatus("processing");
 		final ReceiptDto receiptDto = service.save(dto);
@@ -269,7 +250,15 @@ public class ReceiptController {
 
 			@Override
 			public void run() {
-//				registeredAthletes.addAll(unregisteredAthletes);
+				Calendar creationDate = Calendar.getInstance();
+				creationDate.setTime(Date.from(dto.getCreationDate().atStartOfDay(ZoneId.systemDefault()).toInstant()));
+
+				creationDate.add(Calendar.DATE, -15);
+				// Save athletes to the receipt
+				List<AthleteDto> registeredAthletes = athleteService.findBySportSchoolIdAndLastRegisterDate(
+						dto.getSportSchoolId(), creationDate.getTime(), dto.getPaymentType(),
+						Arrays.asList(new String[] { FeeTypeEnum.CLUB.name(), FeeTypeEnum.CLUB_ANUAL.name() }));
+
 				registeredAthletes.parallelStream()
 //					.filter(a -> a.getId() == 856 || a.getId() == 995)
 						.forEach(athlete -> {
@@ -345,6 +334,7 @@ public class ReceiptController {
 				service.save(receiptDto);
 			}
 		}).start();
+		return receiptDto;
 	}
 
 	@PostMapping("/{id}/excel")

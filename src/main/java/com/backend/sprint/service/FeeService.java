@@ -3,8 +3,10 @@ package com.backend.sprint.service;
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
@@ -13,12 +15,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.backend.sprint.model.dao.FeeDao;
+import com.backend.sprint.model.dao.RegisteredAthleteDao;
 import com.backend.sprint.model.dao.SportSchoolDao;
 import com.backend.sprint.model.dto.AthleteDto;
 import com.backend.sprint.model.dto.FamilyDto;
 import com.backend.sprint.model.dto.FeeDto;
 import com.backend.sprint.model.dto.ReceiptDto;
 import com.backend.sprint.repository.FeeRepository;
+import com.backend.sprint.repository.RegisteredAthleteRepository;
 import com.backend.sprint.repository.SportSchoolRepository;
 import com.backend.sprint.utils.FeeTypeEnum;
 import com.backend.sprint.utils.PaymentType;
@@ -35,6 +39,9 @@ public class FeeService {
 
 	@Autowired
 	private FeeRepository repository;
+
+	@Autowired
+	private RegisteredAthleteRepository registeredAthleteRepository;
 
 	@Autowired
 	private SportSchoolRepository sportSchoolRepository;
@@ -60,6 +67,9 @@ public class FeeService {
 
 			oldDto.setTrackFee(dto.getTrackFee());
 
+			oldDto.setSportSchoolAnnualFee(dto.getSportSchoolAnnualFee());
+			oldDto.setEquipmentAnnualFee(dto.getEquipmentAnnualFee());
+
 			oldDto.setUpdatedAt(null);
 			return convertToDto(repository.save(convertToDao(oldDto)));
 		} else {
@@ -78,16 +88,23 @@ public class FeeService {
 	public FeeDto getAthleteFee(AthleteDto athlete, ReceiptDto receiptDto, FeeDto sportSchoolFee)
 			throws ParseException {
 
+		FamilyDto family = familyService.findByCode(athlete.getFamilyCode());
+		List<RegisteredAthleteDao> familyAthltes = null;
+
+		if (family != null) {
+			familyAthltes = registeredAthleteRepository.findByAthleteIds(new ArrayList<Long>(family.getAthleteIds()));
+		}
+
 		FeeDto fee = new FeeDto();
 		float monthlyFee = this.getMonthlyFee(athlete, receiptDto, sportSchoolFee);
 		fee.setMonthlyFee(monthlyFee);
 
-		float enrollmentFee = this.getEnrollmentFee(athlete.getId(), athlete.getFamiliarNumber(),
-				athlete.isEnrollmentFeePaid(), sportSchoolFee);
+		float enrollmentFee = this.getEnrollmentFee(athlete.getId(), familyAthltes, athlete.isEnrollmentFeePaid(),
+				sportSchoolFee);
 		fee.setEnrollmentFee(enrollmentFee);
 
 		float membershipFee = this.getMembershipFee(athlete.getId(), athlete.getPaymentType(), athlete.getFeeType(),
-				athlete.getFamilyCode(), athlete.isMembershipFeePaid(), sportSchoolFee);
+				familyAthltes, athlete.isMembershipFeePaid(), sportSchoolFee);
 		fee.setMembershipFee(membershipFee);
 
 		if (receiptDto.getReceiptType() != null && receiptDto.getReceiptType().equals("LICENSE")) {
@@ -126,7 +143,7 @@ public class FeeService {
 	}
 
 	// Annually
-	public float getMembershipFee(long id, String paymentType, String feeType, long familyCode,
+	public float getMembershipFee(long id, String paymentType, String feeType, List<RegisteredAthleteDao> familyAthltes,
 			boolean isMembershipFeePaid, FeeDto sportSchoolFee) {
 
 		float fee = 0;
@@ -135,15 +152,15 @@ public class FeeService {
 				&& !isMembershipFeePaid) {
 
 			fee = sportSchoolFee.getMembershipFee();
-			FamilyDto family = familyService.findByCode(familyCode);
-			if (family != null) {
-				int familyCount = family.getCount();
+			if (familyAthltes != null) {
+
+				int familyCount = familyAthltes.size();
 				if (familyCount > 0) {
 
 					// Already registered athlete
 					if (id > 0) {
 						if (familyCount >= 3) {
-							long min = family.getAthleteIds().stream().mapToLong(v -> v).min().getAsLong();
+							long min = familyAthltes.stream().mapToLong(v -> v.getId()).min().getAsLong();
 							if (min != id) {
 								fee = 0;
 							}
@@ -162,22 +179,29 @@ public class FeeService {
 	}
 
 	// Once
-	public float getEnrollmentFee(long id, long familiarNumber, boolean isEnrollmentFeePaid, FeeDto sportSchoolFee) {
+	public float getEnrollmentFee(long id, List<RegisteredAthleteDao> familyAthltes, boolean isEnrollmentFeePaid,
+			FeeDto sportSchoolFee) {
 
 		float fee = 0;
+
+		// If any of the relatives has paid the enrollment fee, the fee for this athlete
+		// is 1/2 fee.
+		// If not, one of the new athletes pays the whole fee and the rest pays 1/2 fee
+		boolean existing = familyAthltes.stream().anyMatch(f -> f.isEnrollmentFeePaid());
+
 		if (id == 0 || !isEnrollmentFeePaid) {
 			fee = sportSchoolFee.getEnrollmentFee();
-			if (sportSchoolFee.getSportSchoolId() == 3) {
-				fee = 10;
-			} else {
-				if (familiarNumber > 1) {
+			if (sportSchoolFee.getSportSchoolId() != 3 && familyAthltes.size() > 1) {
+				if (existing) {
 					fee *= 0.5;
+				} else {
+					if (id != familyAthltes.stream().mapToLong(v -> v.getId()).min().getAsLong()) {
+						fee *= 0.5;
+					}
 				}
 			}
-
 		}
 		return fee;
-
 	}
 
 	public float getMonthlyFee(AthleteDto athlete, ReceiptDto receiptDto, FeeDto sportSchoolFee) throws ParseException {

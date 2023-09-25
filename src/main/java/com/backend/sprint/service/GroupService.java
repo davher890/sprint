@@ -148,28 +148,31 @@ public class GroupService {
 		dto.setUpdatedById(user.getId());
 		GroupDto dtoSaved = convertToDto(repository.save(convertToDao(dto)));
 
-		// Check if the schedules have changed.
-//		if (!dto.getScheduleIds().equals(dtoSaved.getScheduleIds())) {
 		// Update the group athletes
 		List<AthleteDto> athletes = athleteService.findByGroupId(dtoSaved.getId());
 		athletes.parallelStream().forEach((AthleteDto athlete) -> {
-			Set<Long> newScheduleIds = athlete.getSchedules().stream().mapToLong((ScheduleDto sch) -> {
-				if (dtoSaved.getScheduleIds().contains(sch.getId())) {
-					return sch.getId();
-				} else {
-					Optional<ScheduleDto> findSch = dtoSaved.getSchedules().stream()
-							.filter(sch2 -> sch2.getDay().equals(sch.getDay())).findFirst();
-					if (findSch.isPresent()) {
-						return findSch.get().getId();
+
+			Set<Long> newScheduleIds = null;
+			if (dtoSaved.isSpecialization()) {
+				newScheduleIds = dtoSaved.getScheduleIds();
+			} else {
+				newScheduleIds = athlete.getSchedules().stream().mapToLong((ScheduleDto sch) -> {
+					if (dtoSaved.getScheduleIds().contains(sch.getId())) {
+						return sch.getId();
 					} else {
-						return 0L;
+						Optional<ScheduleDto> findSch = dtoSaved.getSchedules().stream()
+								.filter(sch2 -> sch2.getDay().equals(sch.getDay())).findFirst();
+						if (findSch.isPresent()) {
+							return findSch.get().getId();
+						} else {
+							return 0L;
+						}
 					}
-				}
-			}).boxed().filter(d -> d > 0).collect(Collectors.toSet());
+				}).boxed().filter(d -> d > 0).collect(Collectors.toSet());
+			}
 			athlete.setScheduleIds(newScheduleIds);
 			athleteService.save(athlete);
 		});
-//		}
 		return dtoSaved;
 	}
 

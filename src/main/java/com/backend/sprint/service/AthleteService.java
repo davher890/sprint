@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.backend.sprint.model.dao.AthleteDao;
+import com.backend.sprint.model.dao.GroupDao;
 import com.backend.sprint.model.dao.ScheduleDao;
 import com.backend.sprint.model.dto.AthleteDto;
 import com.backend.sprint.model.dto.FamilyDto;
@@ -164,9 +165,7 @@ public class AthleteService {
 	}
 
 	public List<AthleteDto> findBySportSchoolIdAndLastRegisterDate(long sportSchoolId, Date lastRegisterDate,
-			String paymentType, List<String> feeTypes)
-
-	{
+			String paymentType, List<String> feeTypes) {
 		List<String> paymentTypes = new ArrayList<String>();
 		if (paymentType.equals("DOM")) {
 			paymentTypes.add(paymentType);
@@ -236,8 +235,10 @@ public class AthleteService {
 			dto.setSportSchoolName(dao.getSportSchool().getName());
 		}
 
-		if (dao.getGroup() != null) {
-			dto.setGroupName(dao.getGroup().getName());
+		GroupDao group = dao.getGroup();
+		if (group != null) {
+			dto.setGroupName(group.getName());
+			dto.setSpecialization(group.isSpecialization());
 		}
 
 		if (dao.getFamily() != null) {
