@@ -156,6 +156,7 @@ public class AthleteDto {
 
 	private boolean enrollmentFeePaid = false;
 	private boolean membershipFeePaid = false;
+	private boolean sportSchoolAnnualFeePaid = false;
 	private boolean licenseFeePaid = false;
 
 	// Code

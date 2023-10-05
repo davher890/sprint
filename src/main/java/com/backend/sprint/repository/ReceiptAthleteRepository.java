@@ -42,6 +42,10 @@ public interface ReceiptAthleteRepository
 	public void ahtleteEnrollmentFeePaid(long receiptId);
 
 	@Modifying
+	@Query(value = "UPDATE athletes a SET sport_school_annual_fee_paid = true FROM receipt_athletes ra WHERE ra.athlete_id = a.id AND ra.receipt_id = ?1", nativeQuery = true)
+	public void ahtleteSportSchoolAnnualFeePaid(long receiptId);
+
+	@Modifying
 	@Query(value = "DELETE FROM receipt_athletes WHERE receipt_id = ?1", nativeQuery = true)
 	void deleteByReceiptId(long receiptId);
 

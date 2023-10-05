@@ -89,6 +89,7 @@ public class ReceiptAthleteService {
 		repository.validateReceiptId(receiptId);
 		repository.athleteMembershipFeePaid(receiptId);
 		repository.ahtleteEnrollmentFeePaid(receiptId);
+		repository.ahtleteSportSchoolAnnualFeePaid(receiptId);
 	}
 
 	public void deleteByReceiptId(long receiptId) {

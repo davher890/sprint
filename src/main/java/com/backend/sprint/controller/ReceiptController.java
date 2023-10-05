@@ -282,6 +282,7 @@ public class ReceiptController {
 								raDto.setMonthlyFee((int) fee.getMonthlyFee());
 								raDto.setEnrollmentFee((int) fee.getEnrollmentFee());
 								raDto.setMembershipFee((int) fee.getMembershipFee());
+								raDto.setSportSchoolAnnualFee((int) fee.getSportSchoolAnnualFee());
 								raDto.setLicenseNationalFee(fee.getLicenseNationalFee());
 								raDto.setLicenseTerritorialFee(fee.getLicenseTerritorialFee());
 								raDto.setStatus(PaymentStatus.PENDING.name().toLowerCase());
@@ -322,7 +323,7 @@ public class ReceiptController {
 								}
 
 								if (raDto.getMonthlyFee() > 0 || raDto.getEnrollmentFee() > 0
-										|| raDto.getMembershipFee() > 0) {
+										|| raDto.getMembershipFee() > 0 || raDto.getSportSchoolAnnualFee() > 0) {
 									receiptAthleteService.save(raDto);
 								}
 							} catch (ParseException e) {
