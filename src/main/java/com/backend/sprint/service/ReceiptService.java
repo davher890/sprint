@@ -83,6 +83,7 @@ public class ReceiptService {
 		dto.setEnrollmentFee(repository.getSumEnrollmentFee(dto.getId()));
 		dto.setMembershipFee(repository.getSumMembershipFee(dto.getId()));
 		dto.setMonthlyFee(repository.getSumMonthlyFee(dto.getId()));
+		dto.setSportSchoolAnnualFee(repository.getSumSportSchoolAnnualFee(dto.getId()));
 		dto.setLicenseFee(repository.getSumLicenseFee(dto.getId()));
 		if (dao.getLicenseTypeStr() != null) {
 			dto.setLicenseTypes(Arrays.asList(dao.getLicenseTypeStr().split(",")));

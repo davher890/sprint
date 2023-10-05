@@ -40,6 +40,8 @@ public class ReceiptDto {
 
 	private float membershipFee;
 
+	private float sportSchoolAnnualFee;
+
 	private float monthlyFee;
 
 	private float licenseFee;

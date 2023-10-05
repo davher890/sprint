@@ -107,6 +107,9 @@ public class FeeService {
 				familyAthltes, athlete.isMembershipFeePaid(), sportSchoolFee);
 		fee.setMembershipFee(membershipFee);
 
+		float sportSchoolAnnualFee = this.getSportSchoolAnnualFee(sportSchoolFee, athlete.isSportSchoolAnnualFeePaid());
+		fee.setSportSchoolAnnualFee(sportSchoolAnnualFee);
+
 		if (receiptDto.getReceiptType() != null && receiptDto.getReceiptType().equals("LICENSE")) {
 			fee.setLicenseNationalFee(athlete.getLicenseNationalFee());
 			fee.setLicenseTerritorialFee(athlete.getLicenseNationalFee());
@@ -143,8 +146,8 @@ public class FeeService {
 	}
 
 	// Annually
-	public float getMembershipFee(long id, String paymentType, String feeType, List<RegisteredAthleteDao> familyAthltes,
-			boolean isMembershipFeePaid, FeeDto sportSchoolFee) {
+	private float getMembershipFee(long id, String paymentType, String feeType,
+			List<RegisteredAthleteDao> familyAthltes, boolean isMembershipFeePaid, FeeDto sportSchoolFee) {
 
 		float fee = 0;
 
@@ -178,8 +181,18 @@ public class FeeService {
 		return fee;
 	}
 
+	private float getSportSchoolAnnualFee(FeeDto sportSchoolFee, boolean isSportSchoolAnnualFeePaid) {
+
+		float fee = 0;
+
+		if (!isSportSchoolAnnualFeePaid) {
+			fee = sportSchoolFee.getSportSchoolAnnualFee();
+		}
+		return fee;
+	}
+
 	// Once
-	public float getEnrollmentFee(long id, List<RegisteredAthleteDao> familyAthltes, boolean isEnrollmentFeePaid,
+	private float getEnrollmentFee(long id, List<RegisteredAthleteDao> familyAthltes, boolean isEnrollmentFeePaid,
 			FeeDto sportSchoolFee) {
 
 		float fee = 0;
@@ -191,7 +204,7 @@ public class FeeService {
 
 		if (id == 0 || !isEnrollmentFeePaid) {
 			fee = sportSchoolFee.getEnrollmentFee();
-			if (sportSchoolFee.getSportSchoolId() != 3 && familyAthltes.size() > 1) {
+			if (sportSchoolFee.getSportSchoolId() != 5 && familyAthltes.size() > 1) {
 				if (existing) {
 					fee *= 0.5;
 				} else {
@@ -204,7 +217,8 @@ public class FeeService {
 		return fee;
 	}
 
-	public float getMonthlyFee(AthleteDto athlete, ReceiptDto receiptDto, FeeDto sportSchoolFee) throws ParseException {
+	private float getMonthlyFee(AthleteDto athlete, ReceiptDto receiptDto, FeeDto sportSchoolFee)
+			throws ParseException {
 
 		float trimestralFee = 0;
 

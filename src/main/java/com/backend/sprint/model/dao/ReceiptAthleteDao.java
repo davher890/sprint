@@ -43,9 +43,15 @@ public class ReceiptAthleteDao {
 	private long familyCode;
 
 	// Fee
+	@Column(columnDefinition = "float default 0")
 	private float monthlyFee;
+	@Column(columnDefinition = "float default 0")
 	private float enrollmentFee;
+	@Column(columnDefinition = "float default 0")
 	private float membershipFee;
+	@Column(columnDefinition = "float default 0")
+	private float sportSchoolAnnualFee;
+
 	@Column(columnDefinition = "float default 0")
 	private float licenseTerritorialFee;
 	@Column(columnDefinition = "float default 0")
