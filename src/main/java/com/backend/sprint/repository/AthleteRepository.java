@@ -73,11 +73,10 @@ public interface AthleteRepository
 
 	// For receipts
 	@Query(value = "SELECT ath.* FROM athletes ath INNER JOIN ("
-			+ "SELECT a.code, h.date, h.type, h.athlete_id, ROW_NUMBER() OVER ( PARTITION BY athlete_id ORDER BY date DESC) rn "
+			+ "SELECT a.code, h.date, h.type, h.athlete_id, ROW_NUMBER() OVER ( PARTITION BY athlete_id ORDER BY date DESC) rn, DATE_PART('day', now() - h.date) as trial_days "
 			+ "FROM athletes a INNER JOIN historic h on a.id = h.athlete_id WHERE sport_school_id = ?1 "
 			+ "AND date < ?2 AND payment_type IN (?3) AND fee_type IN (?4) "
-			+ "AND active = true ) his on his.athlete_id = ath.id "
-			+ "WHERE rn = 1 AND type = 'REGISTER'", nativeQuery = true)
+			+ "AND active = true ) his on his.athlete_id = ath.id AND trial_days > 15 AND rn = 1 AND type = 'REGISTER'", nativeQuery = true)
 	public List<AthleteDao> findBySportSchoolIdAndLastRegisterDate(long sportSchoolId, Date lastRegisterDate,
 			List<String> paymentTypes, List<String> feeTypes);
 

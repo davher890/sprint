@@ -23,7 +23,6 @@ import com.backend.sprint.model.dto.ObservationDto;
 import com.backend.sprint.model.dto.ReceiptAthleteDto;
 import com.backend.sprint.model.dto.SportdataDto;
 import com.backend.sprint.service.AthleteService;
-import com.backend.sprint.service.FeeService;
 import com.backend.sprint.service.HistoricService;
 import com.backend.sprint.service.ObservationService;
 import com.backend.sprint.service.ReceiptAthleteService;
@@ -50,8 +49,8 @@ public class AthleteController {
 	@Autowired
 	private SportdataService sportdataService;
 
-	@Autowired
-	private FeeService feeService;
+//	@Autowired
+//	private FeeService feeService;
 
 	@GetMapping("/all")
 	public List<AthleteDto> findAll() {

@@ -253,7 +253,7 @@ public class ReceiptController {
 				Calendar creationDate = Calendar.getInstance();
 				creationDate.setTime(Date.from(dto.getCreationDate().atStartOfDay(ZoneId.systemDefault()).toInstant()));
 
-				creationDate.add(Calendar.DATE, -15);
+//				creationDate.add(Calendar.DATE, -15);
 				// Save athletes to the receipt
 				List<AthleteDto> registeredAthletes = athleteService.findBySportSchoolIdAndLastRegisterDate(
 						dto.getSportSchoolId(), creationDate.getTime(), dto.getPaymentType(),
