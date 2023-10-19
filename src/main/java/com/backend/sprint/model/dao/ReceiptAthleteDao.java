@@ -64,6 +64,7 @@ public class ReceiptAthleteDao {
 	private Date lastUnregisterDate;
 
 	private String status;
+	private String observations;
 
 	@CreationTimestamp
 	private Date createdAt;

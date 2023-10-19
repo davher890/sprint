@@ -93,9 +93,46 @@ public class AthleteController {
 
 	@GetMapping("/{athleteId}/receipts/{receiptId}/status")
 	public ReceiptAthleteDto athleteReceipt(@PathVariable int athleteId, @PathVariable int receiptId,
-			@RequestParam(value = "status", required = true) String status) {
+			@RequestParam(value = "status", required = true) String status,
+			@RequestParam(value = "observations", required = false) String observations) {
 		ReceiptAthleteDto receipt = receiptAthleteService.findByAthleteIdAndReceiptId(athleteId, receiptId);
 		receipt.setStatus(status);
+		receipt.setObservations(observations);
+
+		AthleteDto athlete = service.findById(receipt.getAthleteId());
+		if (status.equals(ReceiptStatus.RETURN.label)) {
+
+			/*
+			 * If the receipt has enrollment fee or membershipFee unset fee paid
+			 */
+			if (receipt.getEnrollmentFee() > 0) {
+				athlete.setEnrollmentFeePaid(false);
+			}
+			if (receipt.getMembershipFee() > 0) {
+				athlete.setMembershipFeePaid(false);
+			}
+			if (receipt.getSportSchoolAnnualFee() > 0) {
+				athlete.setSportSchoolAnnualFeePaid(false);
+			}
+			service.save(athlete);
+
+		} else if (status.equals(ReceiptStatus.PAID.label)) {
+
+			/*
+			 * If the receipt has enrollment fee or membershipFee set fee paid
+			 */
+			if (receipt.getEnrollmentFee() > 0) {
+				athlete.setEnrollmentFeePaid(true);
+			}
+			if (receipt.getMembershipFee() > 0) {
+				athlete.setMembershipFeePaid(true);
+			}
+			if (receipt.getSportSchoolAnnualFee() > 0) {
+				athlete.setSportSchoolAnnualFeePaid(true);
+			}
+			service.save(athlete);
+		}
+
 		return receiptAthleteService.save(receipt);
 	}
 
