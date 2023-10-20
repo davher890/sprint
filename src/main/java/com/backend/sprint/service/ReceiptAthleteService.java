@@ -104,6 +104,8 @@ public class ReceiptAthleteService {
 		modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 		ReceiptAthleteDto dto = modelMapper.map(dao, ReceiptAthleteDto.class);
 
+		dto.setTotalFee(dao.getEnrollmentFee() + dao.getMembershipFee() + dao.getMonthlyFee()
+				+ dao.getLicenseNationalFee() + dao.getLicenseTerritorialFee() + dao.getSportSchoolAnnualFee());
 		AthleteDao athlete = dao.getAthlete();
 
 		SportSchoolDao sportSchool = athlete.getSportSchool();

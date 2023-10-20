@@ -63,6 +63,7 @@ public class ReceiptAthleteDto {
 	private int sportSchoolAnnualFee;
 	private float licenseTerritorialFee;
 	private float licenseNationalFee;
+	private float totalFee;
 
 	private LocalDate lastRegisterDate;
 	private LocalDate lastUnregisterDate;
