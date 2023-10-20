@@ -41,7 +41,6 @@ import com.backend.sprint.service.ReceiptAthleteService;
 import com.backend.sprint.service.ReceiptService;
 import com.backend.sprint.service.RegisteredAthleteService;
 import com.backend.sprint.service.UnregisteredAthleteService;
-import com.backend.sprint.specifications.ReceiptAthleteSpecificationConstructor;
 import com.backend.sprint.specifications.ReceiptSpecificationConstructor;
 import com.backend.sprint.utils.AthleteUtils;
 import com.backend.sprint.utils.FeeTypeEnum;
@@ -135,36 +134,6 @@ public class ReceiptController {
 //			return receiptAthleteService.save(raDto);
 //		}).collect(Collectors.toList());
 //	}
-
-	@GetMapping("/{id}/athletes")
-	public Page<ReceiptAthleteDto> findReceiptIdAthletes(@PathVariable int id,
-			@RequestParam(value = "filters", required = false) List<String> filters, Pageable pageable,
-			@RequestParam(defaultValue = "id") String sort,
-			@RequestParam(defaultValue = "DESC") Direction sortDirection) {
-
-		try {
-
-			filters = utils.getFilters(filters);
-			filters.add("receiptId__=__" + id);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return Page.empty();
-		}
-
-		return receiptAthleteService.findPagintation(new ReceiptAthleteSpecificationConstructor<>(filters), pageable,
-				sort, sortDirection);
-	}
-
-	@PostMapping("/athletes")
-	public ReceiptAthleteDto save(@RequestBody ReceiptAthleteDto dto) {
-		return receiptAthleteService.save(dto);
-	}
-
-	@GetMapping("/athletes/{id}")
-	public ReceiptAthleteDto findReceiptAthleteById(@PathVariable int id) {
-		return receiptAthleteService.findById(id);
-	}
 
 	@GetMapping("/{id}/validate")
 	public ReceiptDto receiptValidation(@PathVariable int id) {
