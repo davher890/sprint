@@ -28,6 +28,7 @@ import com.backend.sprint.model.dto.ReceiptAthleteDto;
 import com.backend.sprint.repository.AthleteRepository;
 import com.backend.sprint.repository.ReceiptAthleteRepository;
 import com.backend.sprint.repository.ReceiptRepository;
+import com.backend.sprint.utils.AthleteUtils;
 
 @Service
 @Transactional
@@ -72,6 +73,16 @@ public class ReceiptAthleteService {
 				.map(this::convertToDto).collect(Collectors.toSet());
 	}
 
+	public Set<ReceiptAthleteDto> findByReceiptStatusAndSeasonAndIsRegistered(String status, String season) {
+		return repository.findByReceiptStatusAndSeasonAndIsRegistered(status, season).stream().map(this::convertToDto)
+				.collect(Collectors.toSet());
+	}
+
+	public Set<ReceiptAthleteDto> findByReceiptStatusAndSeasonAndIsUnregistered(String status, String season) {
+		return repository.findByReceiptStatusAndSeasonAndIsUnregistered(status, season).stream().map(this::convertToDto)
+				.collect(Collectors.toSet());
+	}
+
 	public Set<ReceiptAthleteDto> findByAthleteIdAndReceiptStatus(long athleteId, String status) {
 		return repository.findByAthleteIdAndReceiptStatus(athleteId, status).stream().map(this::convertToDto)
 				.collect(Collectors.toSet());
@@ -106,6 +117,14 @@ public class ReceiptAthleteService {
 
 		dto.setTotalFee(dao.getEnrollmentFee() + dao.getMembershipFee() + dao.getMonthlyFee()
 				+ dao.getLicenseNationalFee() + dao.getLicenseTerritorialFee() + dao.getSportSchoolAnnualFee());
+		String translatedDays = "";
+		String days = dto.getDays();
+		if (days != null && !days.isEmpty()) {
+			translatedDays = Arrays.asList(days.split(",")).stream().sorted(new AthleteUtils.WeekDayComparator())
+					.map(day -> AthleteUtils.dayTranslate.get(day.trim())).collect(Collectors.joining(","));
+		}
+		dto.setDays(translatedDays);
+
 		AthleteDao athlete = dao.getAthlete();
 
 		SportSchoolDao sportSchool = athlete.getSportSchool();
@@ -148,14 +167,6 @@ public class ReceiptAthleteService {
 			dto.setStartDate(receipt.getStartDate());
 			dto.setEndDate(receipt.getEndDate());
 		}
-
-//		Set<ReceiptAthleteDao> receipts = athlete.getReceipts();
-//		if (receipts != null && !receipts.isEmpty()) {
-//			dto.setMonthlyFee(dto.getMonthlyFee() + receipts.stream()
-//					.filter(d -> d.getCreatedAt().before(dto.getCreatedAt())
-//							&& d.getStatus().equals(PaymentStatus.PENDING.name().toLowerCase()))
-//					.map(ReceiptAthleteDao::getMonthlyFee).reduce(Float.valueOf(0), Float::sum));
-//		}
 
 		return dto;
 	}

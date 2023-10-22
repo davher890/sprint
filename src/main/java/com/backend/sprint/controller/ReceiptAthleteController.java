@@ -1,6 +1,7 @@
 package com.backend.sprint.controller;
 
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -59,21 +60,15 @@ public class ReceiptAthleteController {
 		return receiptAthleteService.findById(id);
 	}
 
-	@GetMapping("/return")
-	public Page<ReceiptAthleteDto> findReturnedReceipts(Pageable pageable,
-			@RequestParam(defaultValue = "id") String sort,
-			@RequestParam(defaultValue = "DESC") Direction sortDirection) {
+	@GetMapping("/athletes/return/registered")
+	public Set<ReceiptAthleteDto> findReturnedReceiptsRegistered(@RequestParam(defaultValue = "id") String season) {
+		return receiptAthleteService.findByReceiptStatusAndSeasonAndIsRegistered("return", season);
 
-		try {
-			List<String> filters = utils.getFilters(null);
-			filters.add("status__=__return");
+	}
 
-			return receiptAthleteService.findPagintation(new ReceiptAthleteSpecificationConstructor<>(filters),
-					pageable, sort, sortDirection);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return Page.empty();
-		}
+	@GetMapping("/athletes/return/unregistered")
+	public Set<ReceiptAthleteDto> findReturnedReceiptsUnregistered(@RequestParam(defaultValue = "id") String season) {
+		return receiptAthleteService.findByReceiptStatusAndSeasonAndIsUnregistered("return", season);
+
 	}
 }
