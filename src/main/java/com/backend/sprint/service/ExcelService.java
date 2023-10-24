@@ -60,7 +60,7 @@ public class ExcelService {
 			String days = entity.getDays();
 			if (days != null && !days.isEmpty()) {
 				translatedDays = Arrays.asList(days.split(",")).stream().sorted(new AthleteUtils.WeekDayComparator())
-						.map(day -> AthleteUtils.dayTranslate.get(day)).collect(Collectors.joining(","));
+						.map(day -> AthleteUtils.dayTranslateSP.get(day)).collect(Collectors.joining(","));
 			}
 			return new ExcelValueDto(translatedDays, d);
 		} else if (dataField.equals("gender")) {
@@ -102,7 +102,7 @@ public class ExcelService {
 			try {
 				if (days != null && !days.isEmpty()) {
 					translatedDays = Arrays.asList(days.split(",")).stream()
-							.map(day -> AthleteUtils.dayTranslate.get(day)).collect(Collectors.joining(","));
+							.map(day -> AthleteUtils.dayTranslateSP.get(day)).collect(Collectors.joining(","));
 				}
 			} catch (Exception e) {
 				System.out.print(entity.getId());

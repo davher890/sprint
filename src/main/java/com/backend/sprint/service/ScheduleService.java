@@ -77,7 +77,7 @@ public class ScheduleService {
 			return null;
 		}
 		ScheduleDto dto = new ModelMapper().map(dao, ScheduleDto.class);
-		dto.setDayTranslate(AthleteUtils.dayTranslate.get(dto.getDay()));
+		dto.setDayTranslate(AthleteUtils.dayTranslateSP.get(dto.getDay()));
 
 		UserDao updatedBy = dao.getUpdatedBy();
 		if (updatedBy != null) {

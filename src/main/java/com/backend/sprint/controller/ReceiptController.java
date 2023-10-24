@@ -44,7 +44,6 @@ import com.backend.sprint.service.UnregisteredAthleteService;
 import com.backend.sprint.specifications.ReceiptSpecificationConstructor;
 import com.backend.sprint.utils.AthleteUtils;
 import com.backend.sprint.utils.FeeTypeEnum;
-import com.backend.sprint.utils.PaymentStatus;
 import com.backend.sprint.utils.PaymentType;
 import com.backend.sprint.utils.ReceiptStatus;
 
@@ -196,7 +195,7 @@ public class ReceiptController {
 							raDto.setLicenseTerritorialFee(
 									dto.getLicenseTypes().contains("territorial") ? athlete.getLicenseTerritorialFee()
 											: 0);
-							raDto.setStatus(PaymentStatus.PENDING.name().toLowerCase());
+							raDto.setStatus(ReceiptStatus.PENDING.name().toLowerCase());
 
 							receiptAthleteService.save(raDto);
 						});
@@ -254,7 +253,7 @@ public class ReceiptController {
 								raDto.setSportSchoolAnnualFee((int) fee.getSportSchoolAnnualFee());
 								raDto.setLicenseNationalFee(fee.getLicenseNationalFee());
 								raDto.setLicenseTerritorialFee(fee.getLicenseTerritorialFee());
-								raDto.setStatus(PaymentStatus.PENDING.name().toLowerCase());
+								raDto.setStatus(ReceiptStatus.PENDING.name().toLowerCase());
 
 								// Look for season receipts.
 								Set<ReceiptAthleteDto> receipts = receiptAthleteService

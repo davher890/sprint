@@ -87,7 +87,7 @@ public class RegisteredAthleteService {
 		String days = dto.getDays();
 		if (days != null && !days.isEmpty()) {
 			translatedDays = Arrays.asList(days.split(",")).stream().sorted(new AthleteUtils.WeekDayComparator())
-					.map(day -> AthleteUtils.dayTranslate.get(day.trim())).collect(Collectors.joining(","));
+					.map(day -> AthleteUtils.dayTranslateSP.get(day.trim())).collect(Collectors.joining(","));
 		}
 		dto.setDays(translatedDays);
 		return dto;
