@@ -118,7 +118,13 @@ public abstract class AthleteUtils {
 		return category;
 	}
 
-	public static final Map<String, String> dayTranslate = new HashMap<String, String>() {
+	static Map<String, Integer> dayNumberMap = Stream
+			.of(new Object[][] { { "monday", 1 }, { "lunes", 1 }, { "tuesday", 2 }, { "martes", 2 }, { "wednesday", 3 },
+					{ "miercoles", 3 }, { "thursday", 4 }, { "jueves", 4 }, { "friday", 5 }, { "viernes", 5 },
+					{ "saturday", 6 }, { "sabado", 6 }, { "sunday", 7 }, { "domingo", 7 }, })
+			.collect(Collectors.toMap(data -> (String) data[0], data -> (Integer) data[1]));
+
+	public static final Map<String, String> dayTranslateSP = new HashMap<String, String>() {
 
 		private static final long serialVersionUID = 1L;
 
@@ -133,10 +139,20 @@ public abstract class AthleteUtils {
 		}
 	};
 
-	static Map<String, Integer> dayNumberMap = Stream
-			.of(new Object[][] { { "monday", 1 }, { "tuesday", 2 }, { "wednesday", 3 }, { "thursday", 4 },
-					{ "friday", 5 }, { "saturday", 6 }, { "sunday", 7 }, })
-			.collect(Collectors.toMap(data -> (String) data[0], data -> (Integer) data[1]));
+	public static final Map<String, String> dayTranslateEN = new HashMap<String, String>() {
+
+		private static final long serialVersionUID = 1L;
+
+		{
+			put("Lunes", "MONDAY");
+			put("Martes", "TUESDAY");
+			put("Miercoles", "WEDNESDAY");
+			put("Jueves", "THURSDAY");
+			put("Viernes", "FRIDAY");
+			put("Sabado", "SATURDAY");
+			put("Domingo", "SUNDAY");
+		}
+	};
 
 	public static class WeekDayComparator implements Comparator<String> {
 		public int compare(String c1, String c2) {
@@ -146,4 +162,5 @@ public abstract class AthleteUtils {
 			return dayNumberMap.get(c1.toLowerCase()).compareTo(dayNumberMap.get(c2.toLowerCase()));
 		}
 	}
+
 }

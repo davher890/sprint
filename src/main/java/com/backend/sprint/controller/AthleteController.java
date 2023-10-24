@@ -93,11 +93,9 @@ public class AthleteController {
 
 	@GetMapping("/{athleteId}/receipts/{receiptId}/status")
 	public ReceiptAthleteDto athleteReceipt(@PathVariable int athleteId, @PathVariable int receiptId,
-			@RequestParam(value = "status", required = true) String status,
-			@RequestParam(value = "observations", required = false) String observations) {
+			@RequestParam(value = "status", required = true) String status) {
 		ReceiptAthleteDto receipt = receiptAthleteService.findByAthleteIdAndReceiptId(athleteId, receiptId);
 		receipt.setStatus(status);
-		receipt.setObservations(observations);
 
 		AthleteDto athlete = service.findById(receipt.getAthleteId());
 		if (status.equals(ReceiptStatus.RETURN.label)) {

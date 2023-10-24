@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.backend.sprint.controller.utils.Utils;
 import com.backend.sprint.model.dto.ReceiptAthleteDto;
+import com.backend.sprint.model.dto.ReceiptAthleteObservationDto;
+import com.backend.sprint.service.ReceiptAthleteObservationService;
 import com.backend.sprint.service.ReceiptAthleteService;
 import com.backend.sprint.specifications.ReceiptAthleteSpecificationConstructor;
 
@@ -26,6 +28,9 @@ public class ReceiptAthleteController {
 
 	@Autowired
 	private ReceiptAthleteService receiptAthleteService;
+
+	@Autowired
+	private ReceiptAthleteObservationService receiptAthleteObservationService;
 
 	@Autowired
 	private Utils utils;
@@ -58,6 +63,11 @@ public class ReceiptAthleteController {
 	@GetMapping("/athletes/{id}")
 	public ReceiptAthleteDto findReceiptAthleteById(@PathVariable int id) {
 		return receiptAthleteService.findById(id);
+	}
+
+	@GetMapping("/athletes/{id}/observations")
+	public List<ReceiptAthleteObservationDto> getReceiptAthleteObservations(@PathVariable int id) {
+		return receiptAthleteObservationService.findReceiptAthleteObservations(id);
 	}
 
 	@GetMapping("/athletes/return/registered")

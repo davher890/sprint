@@ -73,7 +73,6 @@ public class ReceiptAthleteDto {
 	private String season;
 
 	private String status;
-	private String observations;
 
 	private Date createdAt;
 	private Date updatedAt;
