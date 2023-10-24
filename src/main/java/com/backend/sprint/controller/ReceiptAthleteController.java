@@ -3,7 +3,6 @@ package com.backend.sprint.controller;
 import java.util.List;
 import java.util.Set;
 
-import org.postgresql.util.PSQLException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -67,7 +66,7 @@ public class ReceiptAthleteController {
 	}
 
 	@GetMapping("/athletes/{id}/observations")
-	public List<ReceiptAthleteObservationDto> getReceiptAthleteObservations(@PathVariable int id) throws PSQLException {
+	public List<ReceiptAthleteObservationDto> getReceiptAthleteObservations(@PathVariable int id) {
 		return receiptAthleteObservationService.findReceiptAthleteObservations(id);
 	}
 

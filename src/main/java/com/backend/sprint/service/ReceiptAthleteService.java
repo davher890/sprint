@@ -180,7 +180,8 @@ public class ReceiptAthleteService {
 		String days = dao.getDays();
 		if (days != null && !days.isEmpty()) {
 			translatedDays = Arrays.asList(days.split(",")).stream().sorted(new AthleteUtils.WeekDayComparator())
-					.map(day -> AthleteUtils.dayTranslateEN.get(day.trim())).collect(Collectors.joining(","));
+					.map(day -> AthleteUtils.dayTranslateEN.getOrDefault(day.trim(), day.trim()))
+					.collect(Collectors.joining(","));
 		}
 		dao.setDays(translatedDays);
 
