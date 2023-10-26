@@ -62,7 +62,9 @@ public interface AthleteRepository
 	public void deleteGroupAthletes(long groupId);
 
 	@Modifying
-	@Query(value = "UPDATE athletes a SET group_id = null FROM unregistered_athletes u WHERE u.id = a.id AND a.group_id IS NOT null", nativeQuery = true)
+	@Query(value = "UPDATE athletes a SET group_id = null FROM ( "
+			+ "SELECT u.id, type, date, row_number() over (partition by h.athlete_id order by date) as rn FROM unregistered_athletes u LEFT JOIN historic h ON h.athlete_id = u.id AND h.date > now() WHERE group_id IS NOT null "
+			+ ") as u WHERE u.id = a.id AND rn = 1 AND type is null or type = 'UNREGISTER' ", nativeQuery = true)
 	public void deleteGroupUnregisteredAthletes();
 
 	@Query(value = "SELECT * FROM athletes WHERE BTRIM(LTRIM(LOWER(dni),'0')) = BTRIM(LTRIM(LOWER(?1),'0'))", nativeQuery = true)
