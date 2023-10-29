@@ -27,7 +27,9 @@ import com.backend.sprint.model.dao.SportSchoolDao;
 import com.backend.sprint.model.dto.ReceiptAthleteDto;
 import com.backend.sprint.repository.AthleteRepository;
 import com.backend.sprint.repository.ReceiptAthleteRepository;
+import com.backend.sprint.repository.ReceiptRegisteredAthleteRepository;
 import com.backend.sprint.repository.ReceiptRepository;
+import com.backend.sprint.repository.ReceiptUnregisteredAthleteRepository;
 import com.backend.sprint.utils.AthleteUtils;
 
 @Service
@@ -36,6 +38,12 @@ public class ReceiptAthleteService {
 
 	@Autowired
 	private ReceiptAthleteRepository repository;
+
+	@Autowired
+	private ReceiptUnregisteredAthleteRepository receiptUnregisteredAthleterepository;
+
+	@Autowired
+	private ReceiptRegisteredAthleteRepository receiptRegisteredAthleterepository;
 
 	@Autowired
 	private ReceiptRepository receiptRepository;
@@ -73,15 +81,15 @@ public class ReceiptAthleteService {
 				.map(this::convertToDto).collect(Collectors.toSet());
 	}
 
-	public Set<ReceiptAthleteDto> findByReceiptStatusAndSeasonAndIsRegistered(String status, String season) {
-		return repository.findByReceiptStatusAndSeasonAndIsRegistered(status, season).stream().map(this::convertToDto)
-				.collect(Collectors.toSet());
-	}
+//	public Set<ReceiptAthleteDto> findByReceiptStatusAndSeasonAndIsRegistered(String status, String season) {
+//		return repository.findByReceiptStatusAndSeasonAndIsRegistered(status, season).stream().map(this::convertToDto)
+//				.collect(Collectors.toSet());
+//	}
 
-	public Set<ReceiptAthleteDto> findByReceiptStatusAndSeasonAndIsUnregistered(String status, String season) {
-		return repository.findByReceiptStatusAndSeasonAndIsUnregistered(status, season).stream().map(this::convertToDto)
-				.collect(Collectors.toSet());
-	}
+//	public Set<ReceiptAthleteDto> findByReceiptStatusAndSeasonAndIsUnregistered(String status, String season) {
+//		return repository.findByReceiptStatusAndSeasonAndIsUnregistered(status, season).stream().map(this::convertToDto)
+//				.collect(Collectors.toSet());
+//	}
 
 	public Set<ReceiptAthleteDto> findByAthleteIdAndReceiptStatus(long athleteId, String status) {
 		return repository.findByAthleteIdAndReceiptStatus(athleteId, status).stream().map(this::convertToDto)
@@ -125,7 +133,22 @@ public class ReceiptAthleteService {
 		}
 		dto.setDays(translatedDays);
 
-		AthleteDao athlete = dao.getAthlete();
+		ReceiptDao receipt = dao.getReceipt();
+		if (receipt != null) {
+			dto.setReceiptId(receipt.getId());
+			dto.setReceiptName(receipt.getName());
+			dto.setReceiptCreatedAt(receipt.getCreatedAt());
+			dto.setSeason(receipt.getSeason());
+			dto.setStartDate(receipt.getStartDate());
+			dto.setEndDate(receipt.getEndDate());
+		}
+
+		dto = convertAthleteFieldsToDto(dto, dao.getAthlete());
+
+		return dto;
+	}
+
+	private ReceiptAthleteDto convertAthleteFieldsToDto(ReceiptAthleteDto dto, AthleteDao athlete) {
 
 		SportSchoolDao sportSchool = athlete.getSportSchool();
 		dto.setSportSchoolId(sportSchool.getId());
@@ -158,15 +181,6 @@ public class ReceiptAthleteService {
 		dto.setFeeType(athlete.getFeeType());
 
 		dto.setPaymentType(athlete.getPaymentType());
-		ReceiptDao receipt = dao.getReceipt();
-		if (receipt != null) {
-			dto.setReceiptId(receipt.getId());
-			dto.setReceiptName(receipt.getName());
-			dto.setReceiptCreatedAt(receipt.getCreatedAt());
-			dto.setSeason(receipt.getSeason());
-			dto.setStartDate(receipt.getStartDate());
-			dto.setEndDate(receipt.getEndDate());
-		}
 
 		return dto;
 	}

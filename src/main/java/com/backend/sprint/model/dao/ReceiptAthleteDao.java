@@ -32,12 +32,12 @@ public class ReceiptAthleteDao {
 	private long id;
 
 	@ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	@JoinColumn(name = "receipt_id")
-	private ReceiptDao receipt;
-
-	@ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	@JoinColumn(name = "athlete_id")
 	private AthleteDao athlete;
+
+	@ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@JoinColumn(name = "receipt_id")
+	private ReceiptDao receipt;
 
 	private long code;
 	private long familyCode;

@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import com.backend.sprint.model.dao.AthleteDao;
 import com.backend.sprint.model.dao.GenericAthleteDao;
+import com.backend.sprint.model.dao.GenericReceiptAthleteDao;
 import com.backend.sprint.model.dao.ReceiptAthleteDao;
 import com.backend.sprint.model.dao.ScheduleDao;
 import com.backend.sprint.model.dto.ColumnDto;
@@ -65,6 +66,28 @@ public class ExcelService {
 			return new ExcelValueDto(translatedDays, d);
 		} else if (dataField.equals("gender")) {
 			return new ExcelValueDto(entity.getGender().equals("male") ? "Hombre" : "Mujer", d);
+		} else {
+			return new ExcelValueDto(BeanUtils.getProperty(entity, dataField), d);
+		}
+	}
+
+	private ExcelValueDto getExcelValueFromEntity(String dataField, GenericReceiptAthleteDao entity, ColumnDto d)
+			throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+
+		if (dataField.equals("sportSchoolId")) {
+			return new ExcelValueDto(entity.getSportSchoolName(), d);
+		} else if (dataField.equals("days")) {
+			String translatedDays = "";
+			String days = entity.getDays();
+			if (days != null && !days.isEmpty()) {
+				translatedDays = Arrays.asList(days.split(",")).stream().sorted(new AthleteUtils.WeekDayComparator())
+						.map(day -> AthleteUtils.dayTranslateSP.get(day)).collect(Collectors.joining(","));
+			}
+			return new ExcelValueDto(translatedDays, d);
+		} else if (dataField.equals("totalFee")) {
+			return new ExcelValueDto(String.valueOf(entity.getMembershipFee() + entity.getEnrollmentFee()
+					+ entity.getLicenseNationalFee() + entity.getLicenseTerritorialFee() + entity.getMonthlyFee()
+					+ entity.getSportSchoolAnnualFee()), d);
 		} else {
 			return new ExcelValueDto(BeanUtils.getProperty(entity, dataField), d);
 		}
@@ -118,6 +141,33 @@ public class ExcelService {
 
 	public ByteArrayOutputStream downloadAthletesExcel(List<ColumnDto> columns,
 			List<? extends GenericAthleteDao> athletes, String excelName) throws IOException {
+		List<ExcelDataDto> data = new ArrayList<>();
+
+		ExcelDataDto header = new ExcelDataDto();
+		header.getData().addAll(columns.parallelStream().filter(ColumnDto::isShow).map(d -> {
+			return new ExcelValueDto(d.getText(), CellType.STRING);
+		}).collect(Collectors.toList()));
+		data.add(header);
+
+		data.addAll(athletes.parallelStream().map(entity -> {
+			ExcelDataDto dataDto = new ExcelDataDto();
+			dataDto.getData().addAll(columns.parallelStream().filter(ColumnDto::isShow).map(d -> {
+				try {
+					String dataField = d.getDataField();
+					return getExcelValueFromEntity(dataField, entity, d);
+				} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+					return null;
+				}
+			}).filter(Objects::nonNull).collect(Collectors.toList()));
+			return dataDto;
+		}).filter(Objects::nonNull).collect(Collectors.toList()));
+
+		return ExcelUtils.generateExcel(excelName, data);
+
+	}
+
+	public ByteArrayOutputStream downloadReceiptAthletesExcel(List<ColumnDto> columns,
+			List<? extends GenericReceiptAthleteDao> athletes, String excelName) throws IOException {
 		List<ExcelDataDto> data = new ArrayList<>();
 
 		ExcelDataDto header = new ExcelDataDto();

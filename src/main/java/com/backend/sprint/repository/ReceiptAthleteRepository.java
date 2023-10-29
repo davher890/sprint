@@ -23,8 +23,8 @@ public interface ReceiptAthleteRepository
 	public List<ReceiptAthleteDao> findByAthleteIdAndReceiptStatusAndSeason(long receiptId, String status,
 			String season);
 
-	@Query(value = "SELECT ras.* FROM receipt_athletes ras INNER JOIN registered_athletes ra on ra.id = ras.athlete_id INNER JOIN receipts rs ON rs.id = ras.receipt_id AND rs.active = true AND ras.status = ?1 AND rs.season = ?2", nativeQuery = true)
-	public List<ReceiptAthleteDao> findByReceiptStatusAndSeasonAndIsRegistered(String status, String season);
+//	@Query(value = "SELECT ras.* FROM receipt_athletes ras INNER JOIN registered_athletes ra on ra.id = ras.athlete_id INNER JOIN receipts rs ON rs.id = ras.receipt_id AND rs.active = true AND ras.status = ?1 AND rs.season = ?2", nativeQuery = true)
+//	public List<ReceiptAthleteDao> findByReceiptStatusAndSeasonAndIsRegistered(String status, String season);
 
 	@Query(value = "SELECT ras.* FROM receipt_athletes ras INNER JOIN unregistered_athletes ra on ra.id = ras.athlete_id INNER JOIN receipts rs ON rs.id = ras.receipt_id AND rs.active = true AND ras.status = ?1 AND rs.season = ?2", nativeQuery = true)
 	public List<ReceiptAthleteDao> findByReceiptStatusAndSeasonAndIsUnregistered(String status, String season);

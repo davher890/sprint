@@ -42,3 +42,38 @@ CREATE OR REPLACE VIEW unregistered_athletes AS
 		group by 1) h_register on h_register.athlete_id = a.id
 	where ((rn is null AND type is null) OR (rn = 1 AND type = 'UNREGISTER'));
 commit;
+
+
+
+
+DROP VIEW IF EXISTS receipt_unregistered_athletes;
+CREATE OR REPLACE VIEW receipt_unregistered_athletes AS
+	SELECT
+	    ras.*,
+	    ra.name, ra.first_surname, ra.second_surname, ra.payment_type, ra.fee_type, ra.active,
+        ss.id as sport_school_id, ss.name as sport_school_name,
+        coalesce(gs.id, 0) as group_id, gs.name as group_name, coalesce(gs.specialization, false) as specialization,
+        rs.name as receipt_name, rs.season
+	FROM receipt_athletes ras
+	INNER JOIN registered_athletes ra on ra.id = ras.athlete_id
+    INNER JOIN sport_schools ss on ss.id = ra.sport_school_id
+    LEFT JOIN groups gs on gs.id = ra.group_id
+	INNER JOIN receipts rs ON rs.id = ras.receipt_id
+	AND rs.active = true;
+commit;
+
+DROP VIEW IF EXISTS receipt_registered_athletes;
+CREATE OR REPLACE VIEW receipt_registered_athletes AS
+	SELECT
+	    ras.*,
+	    ra.name, ra.first_surname, ra.second_surname, ra.payment_type, ra.fee_type, ra.active,
+        ss.id as sport_school_id, ss.name as sport_school_name,
+        coalesce(gs.id, 0) as group_id, gs.name as group_name, coalesce(gs.specialization, false) as specialization,
+        rs.name as receipt_name, rs.season
+	FROM receipt_athletes ras
+	INNER JOIN unregistered_athletes ra on ra.id = ras.athlete_id
+    INNER JOIN sport_schools ss on ss.id = ra.sport_school_id
+    LEFT JOIN groups gs on gs.id = ra.group_id
+	INNER JOIN receipts rs ON rs.id = ras.receipt_id
+	AND rs.active = true;
+commit;
