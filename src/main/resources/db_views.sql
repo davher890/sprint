@@ -44,8 +44,6 @@ CREATE OR REPLACE VIEW unregistered_athletes AS
 commit;
 
 
-
-
 DROP VIEW IF EXISTS receipt_unregistered_athletes;
 CREATE OR REPLACE VIEW receipt_unregistered_athletes AS
 	SELECT
@@ -55,7 +53,7 @@ CREATE OR REPLACE VIEW receipt_unregistered_athletes AS
         coalesce(gs.id, 0) as group_id, gs.name as group_name, coalesce(gs.specialization, false) as specialization,
         rs.name as receipt_name, rs.season
 	FROM receipt_athletes ras
-	INNER JOIN registered_athletes ra on ra.id = ras.athlete_id
+	INNER JOIN unregistered_athletes ra on ra.id = ras.athlete_id
     INNER JOIN sport_schools ss on ss.id = ra.sport_school_id
     LEFT JOIN groups gs on gs.id = ra.group_id
 	INNER JOIN receipts rs ON rs.id = ras.receipt_id
@@ -71,7 +69,7 @@ CREATE OR REPLACE VIEW receipt_registered_athletes AS
         coalesce(gs.id, 0) as group_id, gs.name as group_name, coalesce(gs.specialization, false) as specialization,
         rs.name as receipt_name, rs.season
 	FROM receipt_athletes ras
-	INNER JOIN unregistered_athletes ra on ra.id = ras.athlete_id
+	INNER JOIN registered_athletes ra on ra.id = ras.athlete_id
     INNER JOIN sport_schools ss on ss.id = ra.sport_school_id
     LEFT JOIN groups gs on gs.id = ra.group_id
 	INNER JOIN receipts rs ON rs.id = ras.receipt_id
