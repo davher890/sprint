@@ -17,7 +17,7 @@ public class DeleteUnregisteredAthletesGroupCron {
 	private Logger logger = LoggerFactory.getLogger(DeleteUnregisteredAthletesGroupCron.class);
 
 	// Every day 5 AM
-	@Scheduled(cron = "0 */10 * * * *")
+	@Scheduled(cron = "0 0 5 * * *")
 	private void deleteUnregisteredAthletesGroup() {
 		logger.info("Triggering scheduled cron");
 		athleteService.deleteGroupUnregisteredAthletes();
