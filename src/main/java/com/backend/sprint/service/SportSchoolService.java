@@ -66,11 +66,13 @@ public class SportSchoolService {
 		List<SelectOptionDto> options = new ArrayList<SelectOptionDto>();
 		if (sportSchoolId == 1) {
 			// Santa Ana
+			options.add(new SelectOptionDto(FeeTypeEnum.SOCIO.name(), FeeTypeEnum.SOCIO.label));
 			options.add(new SelectOptionDto(FeeTypeEnum.CLUB.name(), FeeTypeEnum.CLUB.label));
 			options.add(new SelectOptionDto(FeeTypeEnum.CLUB_ANUAL.name(), FeeTypeEnum.CLUB_ANUAL.label));
 		} else if (sportSchoolId == 2) {
 
 			// Paracuellos
+			options.add(new SelectOptionDto(FeeTypeEnum.SOCIO.name(), FeeTypeEnum.SOCIO.label));
 			options.add(new SelectOptionDto(FeeTypeEnum.CLUB.name(), FeeTypeEnum.CLUB.label));
 			options.add(new SelectOptionDto(FeeTypeEnum.CLUB_ANUAL.name(), FeeTypeEnum.CLUB_ANUAL.label));
 		} else if (sportSchoolId == 3) {
@@ -81,6 +83,7 @@ public class SportSchoolService {
 		} else if (sportSchoolId == 5) {
 
 			// Padres
+			options.add(new SelectOptionDto(FeeTypeEnum.SOCIO.name(), FeeTypeEnum.SOCIO.label));
 			options.add(new SelectOptionDto(FeeTypeEnum.PISTAS.name(), FeeTypeEnum.PISTAS.label));
 			options.add(new SelectOptionDto(FeeTypeEnum.PISTAS_FED.name(), FeeTypeEnum.PISTAS_FED.label));
 
