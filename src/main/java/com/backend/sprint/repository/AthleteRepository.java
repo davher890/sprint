@@ -75,12 +75,12 @@ public interface AthleteRepository
 
 	// For receipts
 	@Query(value = "SELECT ath.* FROM athletes ath INNER JOIN ("
-			+ "SELECT a.code, h.date, h.type, h.athlete_id, ROW_NUMBER() OVER ( PARTITION BY athlete_id ORDER BY date DESC) rn, DATE_PART('day', now() - h.date) as trial_days "
+			+ "SELECT a.code, h.date, h.type, h.athlete_id, ROW_NUMBER() OVER ( PARTITION BY athlete_id ORDER BY date DESC) rn, ABS(EXTRACT(day FROM h.date - LEAD(GREATEST(h.date, ?5)) OVER (PARTITION BY athlete_id ORDER BY h.date DESC))) as delta "
 			+ "FROM athletes a INNER JOIN historic h on a.id = h.athlete_id WHERE sport_school_id = ?1 "
 			+ "AND date < ?2 AND payment_type IN (?3) AND fee_type IN (?4) "
-			+ "AND active = true ) his on his.athlete_id = ath.id AND trial_days > 15 AND rn = 1 AND type = 'REGISTER'", nativeQuery = true)
+			+ "AND active = true ) his on his.athlete_id = ath.id AND ( (rn = 1 AND type = 'REGISTER' AND DATE_PART('day', ?2 - date) > 30) OR (rn = 1 AND type = 'UNREGISTER' AND date > ?5 AND delta > 30) ) ", nativeQuery = true)
 	public List<AthleteDao> findBySportSchoolIdAndLastRegisterDate(long sportSchoolId, Date lastRegisterDate,
-			List<String> paymentTypes, List<String> feeTypes);
+			List<String> paymentTypes, List<String> feeTypes, Date startPeriod);
 
 	// Get active athletes by date
 	@Query(value = "SELECT date_limit, COUNT(athlete_id) "

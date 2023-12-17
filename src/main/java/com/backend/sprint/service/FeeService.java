@@ -249,7 +249,7 @@ public class FeeService {
 				} else {
 
 					int diffMonths = getPaymentMonths(receiptDto.getStartDate(), receiptDto.getEndDate(),
-							athlete.getLastRegisterDate());
+							athlete.getLastRegisterDate(), athlete.getLastUnregisterDate());
 					trimestralFee *= (float) diffMonths / 3;
 				}
 			}
@@ -258,7 +258,7 @@ public class FeeService {
 
 	}
 
-	private int getPaymentMonths(Date startDate, Date endDate, LocalDate registerDate) {
+	private int getPaymentMonths(Date startDate, Date endDate, LocalDate registerDate, LocalDate unregisterDate) {
 
 		int numMonths = 0;
 		Calendar startDateCalendar = Calendar.getInstance();
@@ -267,17 +267,33 @@ public class FeeService {
 		Calendar endDateCalendar = Calendar.getInstance();
 		endDateCalendar.setTime(endDate);
 
-		Calendar registerDateCalendar = Calendar.getInstance();
-		registerDateCalendar.setTime(Date.from(registerDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
-
 		while (startDateCalendar.before(endDateCalendar)) {
-			if (startDateCalendar.get(Calendar.MONTH) == registerDateCalendar.get(Calendar.MONTH)
-					&& startDateCalendar.get(Calendar.YEAR) == registerDateCalendar.get(Calendar.YEAR)) {
-				if (registerDateCalendar.get(Calendar.DAY_OF_MONTH) < 25) {
+			if (registerDate != null) {
+				Calendar registerDateCalendar = Calendar.getInstance();
+				registerDateCalendar.setTime(Date.from(registerDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+
+				if (startDateCalendar.get(Calendar.MONTH) == registerDateCalendar.get(Calendar.MONTH)
+						&& startDateCalendar.get(Calendar.YEAR) == registerDateCalendar.get(Calendar.YEAR)) {
+					if (registerDateCalendar.get(Calendar.DAY_OF_MONTH) < 25) {
+						numMonths++;
+					}
+				} else {
 					numMonths++;
 				}
-			} else {
-				numMonths++;
+			}
+			if (unregisterDate != null) {
+				Calendar unregisterDateCalendar = Calendar.getInstance();
+				unregisterDateCalendar
+						.setTime(Date.from(registerDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+
+				if (startDateCalendar.get(Calendar.MONTH) == unregisterDateCalendar.get(Calendar.MONTH)
+						&& startDateCalendar.get(Calendar.YEAR) == unregisterDateCalendar.get(Calendar.YEAR)) {
+					if (unregisterDateCalendar.get(Calendar.DAY_OF_MONTH) > 10) {
+						numMonths++;
+					}
+				} else {
+					numMonths++;
+				}
 			}
 
 			startDateCalendar.add(Calendar.MONTH, 1);

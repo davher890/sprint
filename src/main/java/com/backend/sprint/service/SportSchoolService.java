@@ -20,10 +20,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.backend.sprint.model.dao.FeeTypeDao;
 import com.backend.sprint.model.dao.SportSchoolDao;
+import com.backend.sprint.model.dto.FeeTypeDto;
 import com.backend.sprint.model.dto.SelectOptionDto;
 import com.backend.sprint.model.dto.SportSchoolDto;
 import com.backend.sprint.model.dto.UserDto;
+import com.backend.sprint.repository.FeeTypeRepository;
 import com.backend.sprint.repository.SportSchoolRepository;
 import com.backend.sprint.repository.UserRepository;
 import com.backend.sprint.utils.FeeTypeEnum;
@@ -37,6 +40,12 @@ public class SportSchoolService {
 
 	@Autowired
 	private UserRepository userRepository;
+
+	@Autowired
+	private FeeTypeService feeTypeService;
+
+	@Autowired
+	private FeeTypeRepository feeTypeRepository;
 
 	public Page<SportSchoolDto> findPagintation(Specification<SportSchoolDao> specification, Pageable pageable,
 			String sort, Direction sortDirection) {
@@ -146,6 +155,14 @@ public class SportSchoolService {
 		} else {
 			dao.setUpdatedBy(null);
 		}
+
+		Set<FeeTypeDao> feeTypesDao = dao.getFeeTypes();
+		if (feeTypesDao != null) {
+			Set<FeeTypeDto> feeTypes = feeTypeService.convertToDto(feeTypesDao);
+			dto.setFeeTypeIds(feeTypes.parallelStream().map(FeeTypeDto::getId).collect(Collectors.toSet()));
+			dto.setFeeTypes(feeTypes);
+		}
+
 		return dto;
 	}
 
@@ -157,6 +174,12 @@ public class SportSchoolService {
 
 		if (dto.getUpdatedById() != 0) {
 			dao.setUpdatedBy(userRepository.findById(dto.getUpdatedById()).get());
+		}
+
+		if (dto.getFeeTypeIds() != null) {
+			dao.setFeeTypes(dto.getFeeTypeIds().stream().map(scheduleId -> {
+				return feeTypeRepository.findById(scheduleId).get();
+			}).collect(Collectors.toSet()));
 		}
 
 		return dao;

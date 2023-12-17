@@ -129,6 +129,42 @@ public class ReceiptAthleteController {
 				new ReceiptUnregisteredAthleteSpecificationConstructor<>(filters), pageable, sort, sortDirection);
 	}
 
+	@GetMapping("/athletes/not_paid/registered")
+	public Page<ReceiptAthleteDto> findNotPaidReceiptsRegistered(@RequestParam(defaultValue = "season") String season,
+			@RequestParam(value = "filters", required = false) List<String> filters, Pageable pageable,
+			@RequestParam(defaultValue = "id") String sort,
+			@RequestParam(defaultValue = "DESC") Direction sortDirection) {
+		try {
+			filters = utils.getFilters(filters);
+			filters.add("season__LIKE__" + season);
+			filters.add("status__LIKE__" + ReceiptStatus.NOT_PAID.label);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return Page.empty();
+		}
+		return receiptRegisteredAthleteService.findPagintation(
+				new ReceiptRegisteredAthleteSpecificationConstructor<>(filters), pageable, sort, sortDirection);
+	}
+
+	@GetMapping("/athletes/not_paid/unregistered")
+	Page<ReceiptAthleteDto> findNotPaidReceiptsUnregistered(@RequestParam(defaultValue = "season") String season,
+			@RequestParam(value = "filters", required = false) List<String> filters, Pageable pageable,
+			@RequestParam(defaultValue = "id") String sort,
+			@RequestParam(defaultValue = "DESC") Direction sortDirection) {
+		try {
+			filters = utils.getFilters(filters);
+			filters.add("season__LIKE__" + season);
+			filters.add("status__LIKE__" + ReceiptStatus.NOT_PAID.label);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return Page.empty();
+		}
+		return receiptUnregisteredAthleteService.findPagintation(
+				new ReceiptUnregisteredAthleteSpecificationConstructor<>(filters), pageable, sort, sortDirection);
+	}
+
 	@PostMapping("/athletes/return/registered/excel")
 	public void returnedReceiptsRegisteredExcel(@RequestParam(defaultValue = "season") String season,
 			@RequestBody List<ColumnDto> columns,
