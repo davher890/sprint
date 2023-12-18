@@ -88,14 +88,14 @@ public class ReceiptAthleteService {
 	}
 
 	public void paidReceiptId(long receiptId) {
-		repository.receiptStatus(receiptId, ReceiptStatus.PAID.label);
+		repository.receiptStatus(receiptId, ReceiptStatus.PAID.name());
 		repository.athleteMembershipFeePaid(receiptId);
 		repository.ahtleteEnrollmentFeePaid(receiptId);
 		repository.ahtleteSportSchoolAnnualFeePaid(receiptId);
 	}
 
 	public void notPaidReceiptId(long receiptId) {
-		repository.receiptStatus(receiptId, ReceiptStatus.NOT_PAID.label);
+		repository.receiptStatus(receiptId, ReceiptStatus.NOT_PAID.name());
 	}
 
 	public void payReceiptAthleteId(long receiptAthleteId) {

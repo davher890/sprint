@@ -101,7 +101,7 @@ public class ReceiptAthleteController {
 			@RequestParam(defaultValue = "DESC") Direction sortDirection) {
 		try {
 			filters = utils.getFilters(filters);
-			filters.add("status__LIKE__" + ReceiptStatus.RETURN.label);
+			filters.add("status__LIKE__" + ReceiptStatus.RETURN.name());
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -119,7 +119,7 @@ public class ReceiptAthleteController {
 		try {
 			filters = utils.getFilters(filters);
 			filters.add("season__LIKE__" + season);
-			filters.add("status__LIKE__" + ReceiptStatus.RETURN.label);
+			filters.add("status__LIKE__" + ReceiptStatus.RETURN.name());
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -137,7 +137,7 @@ public class ReceiptAthleteController {
 		try {
 			filters = utils.getFilters(filters);
 			filters.add("season__LIKE__" + season);
-			filters.add("status__LIKE__" + ReceiptStatus.NOT_PAID.label);
+			filters.add("status__LIKE__" + ReceiptStatus.NOT_PAID.name());
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -155,7 +155,7 @@ public class ReceiptAthleteController {
 		try {
 			filters = utils.getFilters(filters);
 			filters.add("season__LIKE__" + season);
-			filters.add("status__LIKE__" + ReceiptStatus.NOT_PAID.label);
+			filters.add("status__LIKE__" + ReceiptStatus.NOT_PAID.name());
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -174,7 +174,7 @@ public class ReceiptAthleteController {
 		try {
 			filters = utils.getFilters(filters);
 			filters.add("season__LIKE__" + season);
-			filters.add("status__LIKE__" + ReceiptStatus.RETURN.label);
+			filters.add("status__LIKE__" + ReceiptStatus.RETURN.name());
 		} catch (Exception e) {
 			e.printStackTrace();
 			return;
@@ -197,7 +197,7 @@ public class ReceiptAthleteController {
 		try {
 			filters = utils.getFilters(filters);
 			filters.add("season__LIKE__" + season);
-			filters.add("status__LIKE__" + ReceiptStatus.RETURN.label);
+			filters.add("status__LIKE__" + ReceiptStatus.RETURN.name());
 		} catch (Exception e) {
 			e.printStackTrace();
 			return;

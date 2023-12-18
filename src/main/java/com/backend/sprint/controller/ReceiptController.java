@@ -134,7 +134,7 @@ public class ReceiptController {
 	public ReceiptDto receiptValidation(@PathVariable int id) {
 
 		ReceiptDto dto = service.findById(id);
-		dto.setStatus(ReceiptStatus.VALIDATED.label);
+		dto.setStatus(ReceiptStatus.VALIDATED.name());
 		dto = service.save(dto);
 		if (dto.getPaymentType().equals(PaymentType.DomiciliaciónBancaria.label)) {
 			receiptAthleteService.paidReceiptId(id);
@@ -164,7 +164,7 @@ public class ReceiptController {
 
 	private ReceiptDto calculateLicenseFee(ReceiptDto dto) {
 
-		dto.setStatus("processing");
+		dto.setStatus(ReceiptStatus.PROCESSING.name());
 		final ReceiptDto receiptDto = service.save(dto);
 
 		new Thread(new Runnable() {
@@ -192,11 +192,11 @@ public class ReceiptController {
 							raDto.setLicenseTerritorialFee(
 									dto.getLicenseTypes().contains("territorial") ? athlete.getLicenseTerritorialFee()
 											: 0);
-							raDto.setStatus(ReceiptStatus.PENDING.name().toLowerCase());
+							raDto.setStatus(ReceiptStatus.PENDING.name());
 
 							receiptAthleteService.save(raDto);
 						});
-				receiptDto.setStatus("pending");
+				receiptDto.setStatus(ReceiptStatus.PENDING.name());
 				service.save(receiptDto);
 			}
 		}).start();
@@ -206,7 +206,7 @@ public class ReceiptController {
 
 	private ReceiptDto calculateTrimestralFee(ReceiptDto dto) {
 
-		dto.setStatus("processing");
+		dto.setStatus(ReceiptStatus.PROCESSING.name());
 		final ReceiptDto receiptDto = service.save(dto);
 
 		new Thread(new Runnable() {
@@ -248,29 +248,29 @@ public class ReceiptController {
 								raDto.setSportSchoolAnnualFee((int) fee.getSportSchoolAnnualFee());
 								raDto.setLicenseNationalFee(fee.getLicenseNationalFee());
 								raDto.setLicenseTerritorialFee(fee.getLicenseTerritorialFee());
-								raDto.setStatus(ReceiptStatus.PENDING.name().toLowerCase());
+								raDto.setStatus(ReceiptStatus.PENDING.name());
 
 								// Look for season receipts.
 								Set<ReceiptAthleteDto> receipts = receiptAthleteService
 										.findByAthleteIdAndReceiptStatusAndSeason(athlete.getId(),
-												ReceiptStatus.VALIDATED.label, receiptDto.getSeason());
+												ReceiptStatus.VALIDATED.name(), receiptDto.getSeason());
 								if (receipts != null && !receipts.isEmpty()) {
 									// There are more previous receipts.
-									if (athlete.getFeeType().equals("CLUB")) {
+									if (athlete.getFeeType().equals(FeeTypeEnum.CLUB.name())) {
 
 										// Season Trimestral receipt already paid.
 										boolean paidReceipt = receipts.stream()
 												.anyMatch((ReceiptAthleteDto d) -> d.getStartDate()
 														.compareTo(receiptDto.getStartDate()) == 0
 														&& d.getEndDate().compareTo(receiptDto.getEndDate()) == 0
-														&& d.getStatus().equals(ReceiptStatus.PAID.label));
+														&& d.getStatus().equals(ReceiptStatus.PAID.name()));
 										if (paidReceipt) {
 											raDto.setMonthlyFee(0);
 										} else {
 											// Pending receipts from the same season.
 											boolean pendingReceipts = receipts.stream()
 													.anyMatch((ReceiptAthleteDto d) -> d.getStatus()
-															.equals(ReceiptStatus.RETURN.label));
+															.equals(ReceiptStatus.RETURN.name()));
 											// Remove athlete
 											if (pendingReceipts) {
 												raDto.setMonthlyFee(0);
@@ -279,10 +279,10 @@ public class ReceiptController {
 											}
 
 										}
-									} else if (athlete.getFeeType().equals("CLUB_ANUAL")) {
+									} else if (athlete.getFeeType().equals(FeeTypeEnum.CLUB_ANUAL.name())) {
 										// Annual fee already paid
 										if (receipts.stream().anyMatch((ReceiptAthleteDto d) -> d.getStatus()
-												.equals(ReceiptStatus.PAID.label))) {
+												.equals(ReceiptStatus.PAID.name()))) {
 											raDto.setMonthlyFee(0);
 										}
 									}
@@ -297,7 +297,7 @@ public class ReceiptController {
 								e.printStackTrace();
 							}
 						});
-				receiptDto.setStatus("pending");
+				receiptDto.setStatus(ReceiptStatus.PENDING.name());
 				service.save(receiptDto);
 			}
 		}).start();
@@ -310,7 +310,6 @@ public class ReceiptController {
 			HttpServletResponse response) throws IOException {
 
 		List<ReceiptAthleteDao> daoList = receiptAthleteService.findDaoByReceiptId(id).stream()
-				.filter(r -> r.getAthlete().getPaymentType().equals(PaymentType.DomiciliaciónBancaria.label))
 				.collect(Collectors.toList());
 		ByteArrayOutputStream outputStream = excelService.downloadReceiptAthletesExcel(daoList, concept, "Recibo");
 		IOUtils.copy(new ByteArrayInputStream(outputStream.toByteArray()), response.getOutputStream());
