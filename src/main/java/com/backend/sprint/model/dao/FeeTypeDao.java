@@ -32,12 +32,16 @@ public class FeeTypeDao {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 
-	@ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	@JoinColumn(name = "sport_school_id")
-	private SportSchoolDao sportSchool;
-
 	@NotNull
 	private String name;
+
+	@ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@JoinColumn(name = "updated_by")
+	private UserDao updatedBy;
+
+	@ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@JoinColumn(name = "created_by")
+	private UserDao createdBy;
 
 	@CreationTimestamp
 	private Date createdAt;

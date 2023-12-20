@@ -27,10 +27,9 @@ import com.backend.sprint.model.dao.SportSchoolDao;
 import com.backend.sprint.model.dto.ReceiptAthleteDto;
 import com.backend.sprint.repository.AthleteRepository;
 import com.backend.sprint.repository.ReceiptAthleteRepository;
-import com.backend.sprint.repository.ReceiptRegisteredAthleteRepository;
 import com.backend.sprint.repository.ReceiptRepository;
-import com.backend.sprint.repository.ReceiptUnregisteredAthleteRepository;
 import com.backend.sprint.utils.AthleteUtils;
+import com.backend.sprint.utils.ReceiptStatus;
 
 @Service
 @Transactional
@@ -38,12 +37,6 @@ public class ReceiptAthleteService {
 
 	@Autowired
 	private ReceiptAthleteRepository repository;
-
-	@Autowired
-	private ReceiptUnregisteredAthleteRepository receiptUnregisteredAthleterepository;
-
-	@Autowired
-	private ReceiptRegisteredAthleteRepository receiptRegisteredAthleterepository;
 
 	@Autowired
 	private ReceiptRepository receiptRepository;
@@ -81,16 +74,6 @@ public class ReceiptAthleteService {
 				.map(this::convertToDto).collect(Collectors.toSet());
 	}
 
-//	public Set<ReceiptAthleteDto> findByReceiptStatusAndSeasonAndIsRegistered(String status, String season) {
-//		return repository.findByReceiptStatusAndSeasonAndIsRegistered(status, season).stream().map(this::convertToDto)
-//				.collect(Collectors.toSet());
-//	}
-
-//	public Set<ReceiptAthleteDto> findByReceiptStatusAndSeasonAndIsUnregistered(String status, String season) {
-//		return repository.findByReceiptStatusAndSeasonAndIsUnregistered(status, season).stream().map(this::convertToDto)
-//				.collect(Collectors.toSet());
-//	}
-
 	public Set<ReceiptAthleteDto> findByAthleteIdAndReceiptStatus(long athleteId, String status) {
 		return repository.findByAthleteIdAndReceiptStatus(athleteId, status).stream().map(this::convertToDto)
 				.collect(Collectors.toSet());
@@ -104,11 +87,22 @@ public class ReceiptAthleteService {
 		return repository.findByReceiptId(receiptId);
 	}
 
-	public void validateReceiptId(long receiptId) {
-		repository.validateReceiptId(receiptId);
+	public void paidReceiptId(long receiptId) {
+		repository.receiptStatus(receiptId, ReceiptStatus.PAID.name());
 		repository.athleteMembershipFeePaid(receiptId);
 		repository.ahtleteEnrollmentFeePaid(receiptId);
 		repository.ahtleteSportSchoolAnnualFeePaid(receiptId);
+	}
+
+	public void notPaidReceiptId(long receiptId) {
+		repository.receiptStatus(receiptId, ReceiptStatus.NOT_PAID.name());
+	}
+
+	public void payReceiptAthleteId(long receiptAthleteId) {
+		repository.receiptAthletePaid(receiptAthleteId);
+		repository.receiptAthleteMembershipFeePaid(receiptAthleteId);
+		repository.receiptAhtleteEnrollmentFeePaid(receiptAthleteId);
+		repository.receiptAhtleteSportSchoolAnnualFeePaid(receiptAthleteId);
 	}
 
 	public void deleteByReceiptId(long receiptId) {
@@ -178,7 +172,8 @@ public class ReceiptAthleteService {
 		dto.setLicenseType(athlete.getLicenseType());
 		dto.setIban(athlete.getIban());
 		dto.setPaymentType(athlete.getPaymentType());
-		dto.setFeeType(athlete.getFeeType());
+		dto.setFeeTypeId(athlete.getFeeType().getId());
+		dto.setFeeTypeName(athlete.getFeeType().getName());
 
 		dto.setPaymentType(athlete.getPaymentType());
 

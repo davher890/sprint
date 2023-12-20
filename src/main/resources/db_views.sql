@@ -3,7 +3,7 @@ DROP VIEW IF EXISTS registered_athletes;
 CREATE OR REPLACE VIEW registered_athletes AS
 	SELECT a.*, ss.name as sport_school_name, gs.name as group_name, COALESCE(gs.specialization, false) as specialization, fs.code as family_code, h.date as last_register_date, last_unregister_date,
 		athlete_schedules.num_days as num_days, athlete_schedules.days as days, athlete_schedules.schedule_ids as schedule_ids,
-	    row_number() over (partition by fs.id order by h.date asc) as familiar_number
+	    row_number() over (partition by fs.id order by h.date asc) as familiar_number, fts.name as fee_type_name
 	FROM athletes a
 	inner join sport_schools ss on ss.id = a.sport_school_id
 	inner join families fs on fs.id = a.family_id
@@ -14,6 +14,7 @@ CREATE OR REPLACE VIEW registered_athletes AS
 		from athletes_schedules ass
 		inner join schedules s on ass.schedule_id = s.id group by 1) athlete_schedules on athlete_schedules.athlete_id = a.id
 	left join groups gs on gs.id = a.group_id
+	left join fee_types fts on fts.id = a.fee_type_id
 	left join (select athlete_id, max(date) as last_unregister_date
 		from historic
 		where date <= now() and type = 'UNREGISTER'
@@ -25,7 +26,7 @@ commit;
 DROP VIEW IF EXISTS unregistered_athletes;
 CREATE OR REPLACE VIEW unregistered_athletes AS
 	SELECT a.*, ss.name as sport_school_name, gs.name as group_name, COALESCE(gs.specialization, false) as specialization, fs.code as family_code, last_register_date, h.date as last_unregister_date,
-		athlete_schedules.num_days as num_days, athlete_schedules.days as days
+		athlete_schedules.num_days as num_days, athlete_schedules.days as days, fts.name as fee_type_name
 	FROM athletes a
 	inner join sport_schools ss on ss.id = a.sport_school_id
 	inner join families fs on fs.id = a.family_id
@@ -36,6 +37,7 @@ CREATE OR REPLACE VIEW unregistered_athletes AS
 		from athletes_schedules ass
 		inner join schedules s on ass.schedule_id = s.id group by 1) athlete_schedules on athlete_schedules.athlete_id = a.id
 	left join groups gs on gs.id = a.group_id
+	left join fee_types fts on fts.id = a.fee_type_id
 	left join (select athlete_id, min(date) as last_register_date
 		from historic
 		where date <= now() and type = 'REGISTER'
@@ -48,7 +50,7 @@ DROP VIEW IF EXISTS receipt_unregistered_athletes;
 CREATE OR REPLACE VIEW receipt_unregistered_athletes AS
 	SELECT
 	    ras.*,
-	    ra.name, ra.first_surname, ra.second_surname, ra.payment_type, ra.fee_type, ra.active,
+	    ra.name, ra.first_surname, ra.second_surname, ra.payment_type, ra.fee_type_id, ra.fee_type_name, ra.active,
         ss.id as sport_school_id, ss.name as sport_school_name,
         coalesce(gs.id, 0) as group_id, gs.name as group_name, coalesce(gs.specialization, false) as specialization,
         rs.name as receipt_name, rs.season
@@ -64,7 +66,7 @@ DROP VIEW IF EXISTS receipt_registered_athletes;
 CREATE OR REPLACE VIEW receipt_registered_athletes AS
 	SELECT
 	    ras.*,
-	    ra.name, ra.first_surname, ra.second_surname, ra.payment_type, ra.fee_type, ra.active,
+	    ra.name, ra.first_surname, ra.second_surname, ra.payment_type, ra.fee_type_id, ra.fee_type_name, ra.active,
         ss.id as sport_school_id, ss.name as sport_school_name,
         coalesce(gs.id, 0) as group_id, gs.name as group_name, coalesce(gs.specialization, false) as specialization,
         rs.name as receipt_name, rs.season

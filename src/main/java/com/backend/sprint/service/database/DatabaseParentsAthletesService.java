@@ -169,7 +169,7 @@ public class DatabaseParentsAthletesService extends DatabaseService {
 
 				// Bank Info
 				athlete.setName(name);
-				athlete.setFeeType(feeType);
+				athlete.setFeeTypeName(feeType);
 				athlete.setIban(iban);
 				athlete.setPaymentType(paymentType);
 				athlete.setHolderName(holderName);

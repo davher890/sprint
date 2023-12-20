@@ -13,9 +13,11 @@ public class FeeTypeDto {
 
 	private long id;
 
-	private long sportSchoolId;
-
 	private String name;
+
+	private long createdById;
+
+	private long updatedById;
 
 	private Date createdAt;
 

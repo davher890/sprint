@@ -42,6 +42,10 @@ public class AthleteDao {
 	@JoinColumn(name = "sport_school_id")
 	private SportSchoolDao sportSchool;
 
+	@ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@JoinColumn(name = "fee_type_id")
+	private FeeTypeDao feeType;
+
 	private boolean imageAuth;
 
 	// Personal info
@@ -107,7 +111,6 @@ public class AthleteDao {
 	// Bank info
 	private String iban;
 	private String paymentType;
-	private String feeType;
 	private String holderName;
 	private String holderFirstSurname;
 	private String holderSecondSurname;

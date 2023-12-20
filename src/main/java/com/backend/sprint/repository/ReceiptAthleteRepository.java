@@ -36,8 +36,8 @@ public interface ReceiptAthleteRepository
 	public ReceiptAthleteDao findByAthleteIdAndReceiptId(long athleteId, long receiptId);
 
 	@Modifying
-	@Query(value = "UPDATE receipt_athletes SET status = 'paid' WHERE receipt_id = ?1", nativeQuery = true)
-	void validateReceiptId(long receiptId);
+	@Query(value = "UPDATE receipt_athletes SET status = ?2 WHERE receipt_id = ?1", nativeQuery = true)
+	void receiptStatus(long receiptId, String status);
 
 	@Modifying
 	@Query(value = "UPDATE athletes a SET membership_fee_paid = true FROM receipt_athletes ra WHERE ra.athlete_id = a.id AND ra.receipt_id = ?1", nativeQuery = true)
@@ -50,6 +50,23 @@ public interface ReceiptAthleteRepository
 	@Modifying
 	@Query(value = "UPDATE athletes a SET sport_school_annual_fee_paid = true FROM receipt_athletes ra WHERE ra.athlete_id = a.id AND ra.receipt_id = ?1", nativeQuery = true)
 	public void ahtleteSportSchoolAnnualFeePaid(long receiptId);
+
+	// Receipt Athletes
+	@Modifying
+	@Query(value = "UPDATE receipt_athletes SET status = 'paid' WHERE receipt_id id= ?1", nativeQuery = true)
+	void receiptAthletePaid(long receiptAthleteId);
+
+	@Modifying
+	@Query(value = "UPDATE athletes a SET membership_fee_paid = true FROM receipt_athletes ra WHERE ra.athlete_id = a.id AND ra.id = ?1", nativeQuery = true)
+	public void receiptAthleteMembershipFeePaid(long receiptAthleteId);
+
+	@Modifying
+	@Query(value = "UPDATE athletes a SET enrollment_fee_paid = true FROM receipt_athletes ra WHERE ra.athlete_id = a.id AND ra.id = ?1", nativeQuery = true)
+	public void receiptAhtleteEnrollmentFeePaid(long receiptAthleteId);
+
+	@Modifying
+	@Query(value = "UPDATE athletes a SET sport_school_annual_fee_paid = true FROM receipt_athletes ra WHERE ra.athlete_id = a.id AND ra.id = ?1", nativeQuery = true)
+	public void receiptAhtleteSportSchoolAnnualFeePaid(long receiptAthleteId);
 
 	@Modifying
 	@Query(value = "DELETE FROM receipt_athletes WHERE receipt_id = ?1", nativeQuery = true)

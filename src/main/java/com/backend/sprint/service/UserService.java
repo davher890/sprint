@@ -77,6 +77,18 @@ public class UserService {
 				dto.getSportSchoolIds().add(d.getId());
 				dto.getSportSchoolNames().add(d.getName());
 			});
+
+			dto.setFeeTypeIds(new HashSet<Long>());
+			dto.setFeeTypeNames(new HashSet<String>());
+			dto.setFeeTypeMap(new HashMap<Long, String>());
+
+			dao.getSportSchools().stream().forEach(d -> {
+				d.getFeeTypes().stream().forEach(ft -> {
+					dto.getFeeTypeMap().put(ft.getId(), ft.getName());
+					dto.getFeeTypeIds().add(ft.getId());
+					dto.getFeeTypeNames().add(ft.getName());
+				});
+			});
 		}
 		if (dao.getGroups() != null) {
 			dto.setGroupIds(new HashSet<Long>());

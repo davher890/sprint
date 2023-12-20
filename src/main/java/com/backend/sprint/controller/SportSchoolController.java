@@ -36,6 +36,7 @@ import com.backend.sprint.model.dto.ColumnDto;
 import com.backend.sprint.model.dto.ExcelDataDto;
 import com.backend.sprint.model.dto.ExcelValueDto;
 import com.backend.sprint.model.dto.FeeDto;
+import com.backend.sprint.model.dto.FeeTypeDto;
 import com.backend.sprint.model.dto.GroupDto;
 import com.backend.sprint.model.dto.SelectOptionDto;
 import com.backend.sprint.model.dto.SportSchoolDto;
@@ -110,7 +111,7 @@ public class SportSchoolController {
 	}
 
 	@GetMapping("/{id}/fee_types")
-	public List<SelectOptionDto> findFeeTypesById(@PathVariable int id) {
+	public List<FeeTypeDto> findFeeTypesById(@PathVariable int id) {
 		return service.findFeeTypesById(id);
 	}
 

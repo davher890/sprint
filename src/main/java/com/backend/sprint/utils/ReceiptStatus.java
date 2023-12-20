@@ -2,11 +2,11 @@ package com.backend.sprint.utils;
 
 public enum ReceiptStatus {
 
-	OPEN("open"), VALIDATED("validated"), RETURN("return"), PAID("paid"), SENT_BY_ERROR("sent_by_error");
+	OPEN, VALIDATED, RETURN, NOT_PAID, PAID, PENDING, SENT_BY_ERROR, PROCESSING;
 
-	public final String label;
+//	public final String label;
 
-	private ReceiptStatus(String label) {
-		this.label = label;
-	}
+//	private ReceiptStatus(String label) {
+//		this.label = label;
+//	}
 }

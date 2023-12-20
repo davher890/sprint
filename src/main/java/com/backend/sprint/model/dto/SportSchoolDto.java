@@ -1,6 +1,7 @@
 package com.backend.sprint.model.dto;
 
 import java.util.Date;
+import java.util.Set;
 
 import com.sun.istack.NotNull;
 
@@ -17,6 +18,10 @@ public class SportSchoolDto {
 
 	@NotNull
 	private String name;
+
+	private Set<Long> feeTypeIds;
+
+	private Set<FeeTypeDto> feeTypes;
 
 	private String address;
 

@@ -22,19 +22,18 @@ public class JwtUtils {
 
 		Set<Long> sportShoolIds = userDto.getSportSchoolIds();
 		Set<Long> groupIds = userDto.getGroupIds();
+		Set<Long> feeTypeIds = userDto.getFeeTypeIds();
 		Map<Long, String> sportSchoolMap = userDto.getSportSchoolMap();
 		Map<Long, String> groupMap = userDto.getGroupMap();
-//		Set<String> sportShoolNames = userDto.getSportSchoolNames();
-//		Set<String> groupNames = userDto.getGroupNames();
+		Map<Long, String> feeTypeMap = userDto.getFeeTypeMap();
 		if (sportShoolIds == null) {
 			sportShoolIds = new HashSet<Long>();
+			feeTypeIds = new HashSet<Long>();
 			groupMap = new HashMap<Long, String>();
-//			sportShoolNames = new HashSet<String>();
 		}
 		if (groupIds == null) {
 			groupIds = new HashSet<Long>();
 			groupMap = new HashMap<Long, String>();
-//			groupNames = new HashSet<String>();
 		}
 
 		String token = JWT.create().withSubject(userDto.getUsername())
@@ -45,10 +44,10 @@ public class JwtUtils {
 				.withArrayClaim(SecurityConstants.SPORT_SCHOOL_IDS,
 						sportShoolIds.toArray(new Long[sportShoolIds.size()]))
 				.withArrayClaim(SecurityConstants.GROUP_IDS, groupIds.toArray(new Long[groupIds.size()]))
-				.withClaim(SecurityConstants.GROUP_MAP, new JSONObject(groupMap).toString())
+				.withArrayClaim(SecurityConstants.FEE_TYPE_IDS, feeTypeIds.toArray(new Long[feeTypeIds.size()]))
 				.withClaim(SecurityConstants.SPORT_SCHOOL_MAP, new JSONObject(sportSchoolMap).toString())
-//				.withArrayClaim(SecurityConstants.SPORT_SCHOOL_NAMES,sportShoolNames.toArray(new String[sportShoolNames.size()]))
-//				.withArrayClaim(SecurityConstants.GROUP_NAMES, groupNames.toArray(new String[groupNames.size()]))
+				.withClaim(SecurityConstants.GROUP_MAP, new JSONObject(groupMap).toString())
+				.withClaim(SecurityConstants.FEE_TYPE_MAP, new JSONObject(feeTypeMap).toString())
 				.sign(Algorithm.HMAC512(SecurityConstants.SECRET.getBytes()));
 		return token;
 	}

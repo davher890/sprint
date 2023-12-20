@@ -28,7 +28,8 @@ public class GenericReceiptAthleteDao {
 
 	// Bank info
 	private String paymentType;
-	private String feeType;
+	private long feeTypeId;
+	private String feeTypeName;
 
 	private long receiptId;
 	private long athleteId;

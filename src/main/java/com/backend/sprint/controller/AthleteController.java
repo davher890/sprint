@@ -88,7 +88,7 @@ public class AthleteController {
 
 	@GetMapping("/{id}/receipts")
 	public Set<ReceiptAthleteDto> athleteReceipts(@PathVariable int id) {
-		return receiptAthleteService.findByAthleteIdAndReceiptStatus(id, ReceiptStatus.VALIDATED.label);
+		return receiptAthleteService.findByAthleteIdAndReceiptStatus(id, ReceiptStatus.VALIDATED.name());
 	}
 
 	@GetMapping("/{athleteId}/receipts/{receiptId}/status")
@@ -98,7 +98,7 @@ public class AthleteController {
 		receipt.setStatus(status);
 
 		AthleteDto athlete = service.findById(receipt.getAthleteId());
-		if (status.equals(ReceiptStatus.RETURN.label)) {
+		if (status.equals(ReceiptStatus.RETURN.name())) {
 
 			/*
 			 * If the receipt has enrollment fee or membershipFee unset fee paid
@@ -114,7 +114,7 @@ public class AthleteController {
 			}
 			service.save(athlete);
 
-		} else if (status.equals(ReceiptStatus.PAID.label)) {
+		} else if (status.equals(ReceiptStatus.PAID.name())) {
 
 			/*
 			 * If the receipt has enrollment fee or membershipFee set fee paid
