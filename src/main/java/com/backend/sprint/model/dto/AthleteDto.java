@@ -134,8 +134,12 @@ public class AthleteDto {
 	private String iban;
 	@CsvBindByName(column = "FP")
 	private String paymentType;
+
+//	private String feeType;
+	private long feeTypeId;
 	@CsvBindByName(column = "TIPO CUOTA")
-	private String feeType;
+	private String feeTypeName;
+
 	@CsvBindByName(column = "TITULAR DE LA CUENTA")
 	private String holderName;
 	@CsvBindByName(column = "1er APELLIDO Tit. Cuenta")

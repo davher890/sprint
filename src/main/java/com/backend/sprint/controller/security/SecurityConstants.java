@@ -17,4 +17,7 @@ public class SecurityConstants {
 	public static final String GROUP_IDS = "group_ids";
 	public static final String GROUP_NAMES = "group_names";
 	public static final String GROUP_MAP = "group_map";
+	public static final String FEE_TYPE_IDS = "fee_type_ids";
+	public static final String FEE_TYPE_NAMES = "fee_type_names";
+	public static final String FEE_TYPE_MAP = "fee_type_map";
 }

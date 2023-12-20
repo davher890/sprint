@@ -77,7 +77,9 @@ public class ReceiptUnregisteredAthleteService {
 		dto.setSecondSurname(dao.getSecondSurname());
 
 		dto.setPaymentType(dao.getPaymentType());
-		dto.setFeeType(dao.getFeeType());
+
+		dto.setFeeTypeId(dao.getFeeTypeId());
+		dto.setFeeTypeName(dao.getFeeTypeName());
 
 		return dto;
 	}

@@ -37,6 +37,7 @@ import com.backend.sprint.model.dto.ReceiptDto;
 import com.backend.sprint.service.AthleteService;
 import com.backend.sprint.service.ExcelService;
 import com.backend.sprint.service.FeeService;
+import com.backend.sprint.service.FeeTypeService;
 import com.backend.sprint.service.ReceiptAthleteService;
 import com.backend.sprint.service.ReceiptService;
 import com.backend.sprint.service.RegisteredAthleteService;
@@ -67,6 +68,9 @@ public class ReceiptController {
 
 	@Autowired
 	private FeeService feeService;
+
+	@Autowired
+	private FeeTypeService feeTypeService;
 
 	@Autowired
 	private Utils utils;
@@ -219,7 +223,7 @@ public class ReceiptController {
 				// Save athletes to the receipt
 				List<AthleteDto> registeredAthletes = athleteService.findBySportSchoolIdAndLastRegisterDate(
 						dto.getSportSchoolId(), creationDate.getTime(), dto.getStartDate(), dto.getPaymentType(),
-						Arrays.asList(new String[] { FeeTypeEnum.CLUB.name(), FeeTypeEnum.CLUB_ANUAL.name() }));
+						Arrays.asList(new Long[] { 1L, 2L }));
 
 				FeeDto feeDto = feeService.findBySportSchoolId(dto.getSportSchoolId());
 				registeredAthletes.parallelStream()
@@ -256,7 +260,7 @@ public class ReceiptController {
 												ReceiptStatus.VALIDATED.name(), receiptDto.getSeason());
 								if (receipts != null && !receipts.isEmpty()) {
 									// There are more previous receipts.
-									if (athlete.getFeeType().equals(FeeTypeEnum.CLUB.name())) {
+									if (athlete.getFeeTypeName().equals(FeeTypeEnum.CLUB.label)) {
 
 										// Season Trimestral receipt already paid.
 										boolean paidReceipt = receipts.stream()
@@ -279,7 +283,7 @@ public class ReceiptController {
 											}
 
 										}
-									} else if (athlete.getFeeType().equals(FeeTypeEnum.CLUB_ANUAL.name())) {
+									} else if (athlete.getFeeTypeName().equals(FeeTypeEnum.CLUB_ANUAL.label)) {
 										// Annual fee already paid
 										if (receipts.stream().anyMatch((ReceiptAthleteDto d) -> d.getStatus()
 												.equals(ReceiptStatus.PAID.name()))) {

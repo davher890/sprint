@@ -29,6 +29,7 @@ import com.backend.sprint.model.dto.HistoricDto;
 import com.backend.sprint.model.dto.UserDto;
 import com.backend.sprint.repository.AthleteRepository;
 import com.backend.sprint.repository.FamilyRepository;
+import com.backend.sprint.repository.FeeTypeRepository;
 import com.backend.sprint.repository.GroupRepository;
 import com.backend.sprint.repository.ScheduleRepository;
 import com.backend.sprint.repository.SportSchoolRepository;
@@ -48,6 +49,9 @@ public class AthleteService {
 
 	@Autowired
 	private SportSchoolRepository sportSchoolRepository;
+
+	@Autowired
+	private FeeTypeRepository feeTypeRepository;
 
 	@Autowired
 	private ScheduleRepository scheduleRepository;
@@ -166,7 +170,7 @@ public class AthleteService {
 	}
 
 	public List<AthleteDto> findBySportSchoolIdAndLastRegisterDate(long sportSchoolId, Date lastRegisterDate,
-			Date startPeriod, String paymentType, List<String> feeTypes) {
+			Date startPeriod, String paymentType, List<Long> feeTypeIds) {
 		List<String> paymentTypes = new ArrayList<String>();
 		if (paymentType.equals("DOM")) {
 			paymentTypes.add(paymentType);
@@ -175,7 +179,7 @@ public class AthleteService {
 			paymentTypes.add("MET");
 		}
 		List<AthleteDao> dd = repository.findBySportSchoolIdAndLastRegisterDate(sportSchoolId, lastRegisterDate,
-				paymentTypes, feeTypes, startPeriod);
+				paymentTypes, feeTypeIds, startPeriod);
 		return dd.stream().map(this::convertToDto).collect(Collectors.toList());
 	}
 
@@ -236,6 +240,10 @@ public class AthleteService {
 			dto.setSportSchoolName(dao.getSportSchool().getName());
 		}
 
+		if (dao.getFeeType() != null) {
+			dto.setFeeTypeName(dao.getFeeType().getName());
+		}
+
 		GroupDao group = dao.getGroup();
 		if (group != null) {
 			dto.setGroupName(group.getName());
@@ -266,11 +274,13 @@ public class AthleteService {
 
 			List<HistoricDto> sortedHistoric = historic.stream().filter(d -> d.getDate().isBefore(LocalDate.now()))
 					.sorted((o1, o2) -> o1.getDate().compareTo(o2.getDate())).collect(Collectors.toList());
-			if (sortedHistoric.get(0).getType().equals(HistoricType.REGISTER.name())) {
-				dto.setLastRegisterDate(sortedHistoric.get(0).getDate());
-			}
-			if (sortedHistoric.get(0).getType().equals(HistoricType.UNREGISTER.name())) {
-				dto.setLastUnregisterDate(sortedHistoric.get(0).getDate());
+			if (!sortedHistoric.isEmpty()) {
+				if (sortedHistoric.get(0).getType().equals(HistoricType.REGISTER.name())) {
+					dto.setLastRegisterDate(sortedHistoric.get(0).getDate());
+				}
+				if (sortedHistoric.get(0).getType().equals(HistoricType.UNREGISTER.name())) {
+					dto.setLastUnregisterDate(sortedHistoric.get(0).getDate());
+				}
 			}
 		}
 		return dto;
@@ -294,6 +304,10 @@ public class AthleteService {
 
 		if (dto.getSportSchoolId() != 0) {
 			dao.setSportSchool(sportSchoolRepository.findById(dto.getSportSchoolId()).get());
+		}
+
+		if (dto.getFeeTypeId() != 0) {
+			dao.setFeeType(feeTypeRepository.findById(dto.getFeeTypeId()).get());
 		}
 
 		if (dto.getGroupId() != 0) {

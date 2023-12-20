@@ -1,10 +1,14 @@
 package com.backend.sprint.service;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +30,16 @@ public class FeeTypeService {
 
 	public FeeTypeDto save(FeeTypeDto dto) {
 		return convertToDto(repository.save(convertToDao(dto)));
+	}
+
+	public List<FeeTypeDto> findAll() {
+		return StreamSupport.stream(repository.findAll(Sort.by(Direction.ASC, "name")).spliterator(), false)
+				.filter(d -> d.getName() != null).map(this::convertToDto).collect(Collectors.toList());
+	}
+
+	public List<FeeTypeDto> findBySportSchoolId(long sportSchoolId) {
+		return repository.findBySportSchoolId(sportSchoolId).stream().map(this::convertToDto)
+				.collect(Collectors.toList());
 	}
 
 	public Set<FeeTypeDto> convertToDto(Set<FeeTypeDao> dao) {

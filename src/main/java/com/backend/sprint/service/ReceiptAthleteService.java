@@ -172,7 +172,8 @@ public class ReceiptAthleteService {
 		dto.setLicenseType(athlete.getLicenseType());
 		dto.setIban(athlete.getIban());
 		dto.setPaymentType(athlete.getPaymentType());
-		dto.setFeeType(athlete.getFeeType());
+		dto.setFeeTypeId(athlete.getFeeType().getId());
+		dto.setFeeTypeName(athlete.getFeeType().getName());
 
 		dto.setPaymentType(athlete.getPaymentType());
 

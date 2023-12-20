@@ -42,6 +42,8 @@ public class ExcelService {
 
 		if (dataField.equals("sportSchoolId")) {
 			return new ExcelValueDto(entity.getSportSchoolName(), d);
+		} else if (dataField.equals("feeTypeId")) {
+			return new ExcelValueDto(entity.getFeeTypeName(), d);
 		} else if (dataField.equals("birthDate")) {
 			return new ExcelValueDto(entity.getBirthDate(), d);
 		} else if (dataField.equals("lastRegisterDate")) {
@@ -100,6 +102,8 @@ public class ExcelService {
 			return new ExcelValueDto(String.valueOf(entity.getFamily().getCode()), d);
 		} else if (dataField.equals("sportSchoolId")) {
 			return new ExcelValueDto(entity.getSportSchool().getName(), d);
+		} else if (dataField.equals("feeTypeId")) {
+			return new ExcelValueDto(entity.getFeeType().getName(), d);
 		} else if (dataField.equals("groupName")) {
 			return new ExcelValueDto(entity.getGroup().getName(), d);
 		} else if (dataField.equals("birthDate")) {

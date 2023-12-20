@@ -47,7 +47,9 @@ public class ReceiptAthleteDto {
 	// Bank info
 	private String iban;
 	private String paymentType;
-	private String feeType;
+
+	private long feeTypeId;
+	private String feeTypeName;
 
 	// Receipt info
 	private long receiptId;

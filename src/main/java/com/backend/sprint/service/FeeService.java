@@ -103,7 +103,7 @@ public class FeeService {
 				sportSchoolFee);
 		fee.setEnrollmentFee(enrollmentFee);
 
-		float membershipFee = this.getMembershipFee(athlete.getId(), athlete.getPaymentType(), athlete.getFeeType(),
+		float membershipFee = this.getMembershipFee(athlete.getId(), athlete.getPaymentType(), athlete.getFeeTypeName(),
 				familyAthltes, athlete.isMembershipFeePaid(), sportSchoolFee);
 		fee.setMembershipFee(membershipFee);
 
@@ -151,7 +151,7 @@ public class FeeService {
 
 		float fee = 0;
 
-		if (!paymentType.equals(PaymentType.Subvencionado.label) && !feeType.equals(FeeTypeEnum.CLUB_ANUAL.name())
+		if (!paymentType.equals(PaymentType.Subvencionado.label) && !feeType.equals(FeeTypeEnum.CLUB_ANUAL.label)
 				&& !isMembershipFeePaid) {
 
 			fee = sportSchoolFee.getMembershipFee();
@@ -224,8 +224,8 @@ public class FeeService {
 
 		if (!athlete.getPaymentType().equals(PaymentType.Subvencionado.label)) {
 
-			if (athlete.getFeeType() != null && (athlete.getFeeType().equals(FeeTypeEnum.CLUB.name())
-					|| athlete.getFeeType().equals(FeeTypeEnum.CLUB_ANUAL.name()))) {
+			if (athlete.getFeeTypeName() != null && (athlete.getFeeTypeName().equals(FeeTypeEnum.CLUB.label)
+					|| athlete.getFeeTypeName().equals(FeeTypeEnum.CLUB_ANUAL.label))) {
 				if (athlete.isSpecialization()) {
 					trimestralFee = sportSchoolFee.getQuarterSpecialization();
 				} else {
@@ -244,7 +244,7 @@ public class FeeService {
 						}
 					}
 				}
-				if (athlete.getFeeType() != null && athlete.getFeeType().equals(FeeTypeEnum.CLUB_ANUAL.name())) {
+				if (athlete.getFeeTypeName() != null && athlete.getFeeTypeName().equals(FeeTypeEnum.CLUB_ANUAL.label)) {
 					trimestralFee *= (10. / 3);
 				} else {
 

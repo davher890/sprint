@@ -29,7 +29,6 @@ import com.backend.sprint.model.dto.UserDto;
 import com.backend.sprint.repository.FeeTypeRepository;
 import com.backend.sprint.repository.SportSchoolRepository;
 import com.backend.sprint.repository.UserRepository;
-import com.backend.sprint.utils.FeeTypeEnum;
 
 @Service
 @Transactional
@@ -70,37 +69,8 @@ public class SportSchoolService {
 		return StreamSupport.stream(findAll.spliterator(), false).collect(Collectors.toList());
 	}
 
-	public List<SelectOptionDto> findFeeTypesById(long sportSchoolId) {
-
-		List<SelectOptionDto> options = new ArrayList<SelectOptionDto>();
-		if (sportSchoolId == 1) {
-			// Santa Ana
-			options.add(new SelectOptionDto(FeeTypeEnum.SOCIO.name(), FeeTypeEnum.SOCIO.label));
-			options.add(new SelectOptionDto(FeeTypeEnum.CLUB.name(), FeeTypeEnum.CLUB.label));
-			options.add(new SelectOptionDto(FeeTypeEnum.CLUB_ANUAL.name(), FeeTypeEnum.CLUB_ANUAL.label));
-		} else if (sportSchoolId == 2) {
-
-			// Paracuellos
-			options.add(new SelectOptionDto(FeeTypeEnum.SOCIO.name(), FeeTypeEnum.SOCIO.label));
-			options.add(new SelectOptionDto(FeeTypeEnum.CLUB.name(), FeeTypeEnum.CLUB.label));
-			options.add(new SelectOptionDto(FeeTypeEnum.CLUB_ANUAL.name(), FeeTypeEnum.CLUB_ANUAL.label));
-		} else if (sportSchoolId == 3) {
-
-			// Externos
-			options.add(new SelectOptionDto(FeeTypeEnum.SOCIO.name(), FeeTypeEnum.SOCIO.label));
-			options.add(new SelectOptionDto(FeeTypeEnum.FED.name(), FeeTypeEnum.FED.label));
-		} else if (sportSchoolId == 5) {
-
-			// Padres
-			options.add(new SelectOptionDto(FeeTypeEnum.SOCIO.name(), FeeTypeEnum.SOCIO.label));
-			options.add(new SelectOptionDto(FeeTypeEnum.PISTAS.name(), FeeTypeEnum.PISTAS.label));
-			options.add(new SelectOptionDto(FeeTypeEnum.PISTAS_FED.name(), FeeTypeEnum.PISTAS_FED.label));
-
-		} else {
-			options.add(new SelectOptionDto(FeeTypeEnum.CLUB.name(), FeeTypeEnum.CLUB.label));
-		}
-
-		return options;
+	public List<FeeTypeDto> findFeeTypesById(long sportSchoolId) {
+		return feeTypeService.findBySportSchoolId(sportSchoolId);
 	}
 
 	public List<SelectOptionDto> findCollectionsById(long sportSchoolId) {

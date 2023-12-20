@@ -27,6 +27,12 @@ public class UserDto {
 
 	private Map<Long, String> groupMap;
 
+	private Set<Long> feeTypeIds;
+
+	private Set<String> feeTypeNames;
+
+	private Map<Long, String> feeTypeMap;
+
 	private String username;
 
 	private String email;
