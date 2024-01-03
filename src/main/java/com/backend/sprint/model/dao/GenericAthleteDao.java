@@ -75,7 +75,7 @@ public class GenericAthleteDao {
 	private String iban;
 	private String paymentType;
 
-	private long feeTypeId;
+	private Long feeTypeId;
 	private String feeTypeName;
 
 	private String holderName;

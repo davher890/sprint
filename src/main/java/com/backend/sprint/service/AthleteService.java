@@ -277,9 +277,11 @@ public class AthleteService {
 			if (!sortedHistoric.isEmpty()) {
 				if (sortedHistoric.get(0).getType().equals(HistoricType.REGISTER.name())) {
 					dto.setLastRegisterDate(sortedHistoric.get(0).getDate());
+					dto.setRegistered(true);
 				}
 				if (sortedHistoric.get(0).getType().equals(HistoricType.UNREGISTER.name())) {
 					dto.setLastUnregisterDate(sortedHistoric.get(0).getDate());
+					dto.setRegistered(false);
 				}
 			}
 		}

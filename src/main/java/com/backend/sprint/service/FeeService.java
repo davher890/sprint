@@ -274,7 +274,7 @@ public class FeeService {
 
 				if (startDateCalendar.get(Calendar.MONTH) == registerDateCalendar.get(Calendar.MONTH)
 						&& startDateCalendar.get(Calendar.YEAR) == registerDateCalendar.get(Calendar.YEAR)) {
-					if (registerDateCalendar.get(Calendar.DAY_OF_MONTH) < 25) {
+					if (registerDateCalendar.get(Calendar.DAY_OF_MONTH) < 26) {
 						numMonths++;
 					}
 				} else {

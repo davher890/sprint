@@ -169,8 +169,8 @@ public class AthleteDto {
 	private long code;
 	private long familiarNumber;
 
+	private boolean isRegistered;
 	private LocalDate lastRegisterDate;
-
 	private LocalDate lastUnregisterDate;
 
 	private boolean active = true;

@@ -217,13 +217,14 @@ public class ReceiptController {
 
 			@Override
 			public void run() {
+
 				Calendar creationDate = Calendar.getInstance();
 				creationDate.setTime(Date.from(dto.getCreationDate().atStartOfDay(ZoneId.systemDefault()).toInstant()));
 
 				// Save athletes to the receipt
 				List<AthleteDto> registeredAthletes = athleteService.findBySportSchoolIdAndLastRegisterDate(
 						dto.getSportSchoolId(), creationDate.getTime(), dto.getStartDate(), dto.getPaymentType(),
-						Arrays.asList(new Long[] { 1L, 2L }));
+						Arrays.asList(new Long[] { FeeTypeEnum.CLUB.id, FeeTypeEnum.CLUB_ANUAL.id }));
 
 				FeeDto feeDto = feeService.findBySportSchoolId(dto.getSportSchoolId());
 				registeredAthletes.parallelStream()
@@ -280,14 +281,24 @@ public class ReceiptController {
 												raDto.setMonthlyFee(0);
 												raDto.setEnrollmentFee(0);
 												raDto.setMembershipFee(0);
+											} else {
+												boolean errorReceipts = receipts.stream()
+														.anyMatch((ReceiptAthleteDto d) -> d.getStatus()
+																.equals(ReceiptStatus.SENT_BY_ERROR.name()));
+												if (errorReceipts && !athlete.isRegistered()) {
+													raDto.setMonthlyFee(0);
+													raDto.setEnrollmentFee(0);
+													raDto.setMembershipFee(0);
+												}
 											}
-
 										}
 									} else if (athlete.getFeeTypeName().equals(FeeTypeEnum.CLUB_ANUAL.label)) {
 										// Annual fee already paid
 										if (receipts.stream().anyMatch((ReceiptAthleteDto d) -> d.getStatus()
 												.equals(ReceiptStatus.PAID.name()))) {
 											raDto.setMonthlyFee(0);
+											raDto.setEnrollmentFee(0);
+											raDto.setMembershipFee(0);
 										}
 									}
 								}
