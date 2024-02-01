@@ -1,6 +1,5 @@
 package com.backend.sprint.service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -15,11 +14,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.backend.sprint.model.dao.HistoricDao;
-import com.backend.sprint.model.dto.AthleteDto;
 import com.backend.sprint.model.dto.HistoricDto;
 import com.backend.sprint.repository.AthleteRepository;
 import com.backend.sprint.repository.HistoricRepository;
-import com.backend.sprint.utils.AthleteUtils;
 import com.backend.sprint.utils.HistoricType;
 
 @Service
@@ -28,9 +25,6 @@ public class HistoricService {
 
 	@Autowired
 	private HistoricRepository repository;
-
-	@Autowired
-	private AthleteService athleteService;
 
 	@Autowired
 	private AthleteRepository athleteRepository;
@@ -55,21 +49,7 @@ public class HistoricService {
 
 	public HistoricDto save(HistoricDto dto) throws DataIntegrityViolationException {
 
-		HistoricDto historic = convertToDto(repository.save(convertToDao(dto)));
-
-		long athleteId = historic.getAthleteId();
-
-		AthleteDto athlete = athleteService.findById(athleteId);
-		List<HistoricDto> historics = athlete.getHistoric();
-		if (historics == null) {
-			historics = new ArrayList<HistoricDto>();
-		}
-		historics.add(historic);
-		athlete.setLastRegisterDate(AthleteUtils.getLastRegisterDate(historics));
-		athlete.setLastUnregisterDate(AthleteUtils.getLastUnregisterDate(historics));
-		athleteService.save(athlete);
-
-		return historic;
+		return convertToDto(repository.save(convertToDao(dto)));
 	}
 
 	public HistoricDto register(int id, HistoricDto historic) {
@@ -80,11 +60,6 @@ public class HistoricService {
 	}
 
 	public HistoricDto unregister(int id, HistoricDto historic) {
-
-		// Remove athlete from all groups
-		AthleteDto athlete = athleteService.findById(id);
-		athleteService.save(athlete);
-
 		historic.setAthleteId(id);
 		historic.setType(HistoricType.UNREGISTER.name());
 

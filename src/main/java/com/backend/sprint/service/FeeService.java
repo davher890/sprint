@@ -107,12 +107,18 @@ public class FeeService {
 				familyAthltes, athlete.isMembershipFeePaid(), sportSchoolFee);
 		fee.setMembershipFee(membershipFee);
 
-		float sportSchoolAnnualFee = this.getSportSchoolAnnualFee(sportSchoolFee, athlete.isSportSchoolAnnualFeePaid());
-		fee.setSportSchoolAnnualFee(sportSchoolAnnualFee);
+//		float sportSchoolAnnualFee = this.getSportSchoolAnnualFee(sportSchoolFee, athlete.isSportSchoolAnnualFeePaid());
+//		fee.setSportSchoolAnnualFee(sportSchoolAnnualFee);
 
 		if (receiptDto.getReceiptType() != null && receiptDto.getReceiptType().equals("LICENSE")) {
 			fee.setLicenseNationalFee(athlete.getLicenseNationalFee());
 			fee.setLicenseTerritorialFee(athlete.getLicenseNationalFee());
+		}
+
+		// Externos
+		if (receiptDto.getSportSchoolId() == 3 && athlete.getFeeTypeId() == FeeTypeEnum.FED.id) {
+			fee.setLicenseNationalFee(athlete.getLicenseNationalFee());
+			fee.setLicenseTerritorialFee(athlete.getLicenseTerritorialFee());
 		}
 
 		return fee;

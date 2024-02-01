@@ -77,4 +77,39 @@ public class DatabaseUpdateLicensesService extends DatabaseService {
 		});
 	}
 
+	public void updateAthleteLicenseFee(List<AthleteDto> fileAthletes) {
+		fileAthletes.parallelStream().forEach(fileAthlete -> {
+			List<AthleteDto> athletes = athleteService.findByLicense(fileAthlete.getLicense());
+			if (athletes != null && !athletes.isEmpty()) {
+				for (AthleteDto athlete : athletes) {
+					switch (fileAthlete.getLicenseType().trim().toUpperCase()) {
+					case "T":
+						athlete.setLicenseTerritorialFee(fileAthlete.getLicenseTerritorialFee());
+						athlete.setLicenseType("TERRITORIAL");
+						break;
+					case "N":
+						athlete.setLicenseNationalFee(fileAthlete.getLicenseTerritorialFee());
+						athlete.setLicenseType("NATIONAL");
+						break;
+					default:
+						break;
+					}
+					if (athlete.getLicenseNationalFee() > 0) {
+						athlete.setLicenseType("NATIONAL");
+					} else {
+						athlete.setLicenseType("TERRITORIAL");
+					}
+					logger.info(fileAthlete.getDni() + "; " + fileAthlete.getName() + "; "
+							+ fileAthlete.getFirstSurname() + ";" + fileAthlete.getSecondSurname() + ";"
+							+ athlete.getLicenseType() + ";" + athlete.getLicense() + ";" + athlete.getDorsalCategory()
+							+ ";" + athlete.getDorsalNumber());
+
+					athleteService.save(athlete);
+				}
+			} else {
+				logger.info(fileAthlete.getDni() + "; El atleta no se encontro en la plataforma");
+			}
+		});
+	}
+
 }

@@ -16,9 +16,10 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.backend.sprint.model.dao.AthleteDao;
 import com.backend.sprint.model.dao.FamilyDao;
-import com.backend.sprint.model.dto.AthleteDto;
 import com.backend.sprint.model.dto.FamilyDto;
+import com.backend.sprint.repository.AthleteRepository;
 import com.backend.sprint.repository.FamilyRepository;
 
 @Service
@@ -29,7 +30,7 @@ public class FamilyService {
 	private FamilyRepository repository;
 
 	@Autowired
-	private AthleteService athleteService;
+	private AthleteRepository athleteRepository;
 
 	public Page<FamilyDto> findPagintation(Specification<FamilyDao> specification, Pageable pageable, String sort,
 			Direction sortDirection) {
@@ -64,9 +65,9 @@ public class FamilyService {
 			return null;
 		}
 		FamilyDto dto = new ModelMapper().map(dao, FamilyDto.class);
-		List<AthleteDto> athletes = athleteService.findByFamilyId(dto.getId());
+		List<AthleteDao> athletes = athleteRepository.findByFamilyId(dto.getId());
 		if (athletes != null) {
-			dto.setAthleteIds(athletes.stream().map(AthleteDto::getId).collect(Collectors.toSet()));
+			dto.setAthleteIds(athletes.stream().map(AthleteDao::getId).collect(Collectors.toSet()));
 		} else {
 			dto.setAthleteIds(new HashSet<>());
 		}

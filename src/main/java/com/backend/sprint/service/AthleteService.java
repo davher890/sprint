@@ -123,6 +123,10 @@ public class AthleteService {
 				.collect(Collectors.toList());
 	}
 
+	public List<AthleteDto> findByLicense(String license) {
+		return repository.findByDni(license).stream().map(this::convertToDto).collect(Collectors.toList());
+	}
+
 	public AthleteDto findByCode(long code) {
 		return convertToDto(repository.findByCode(code));
 	}
@@ -248,6 +252,16 @@ public class AthleteService {
 		if (group != null) {
 			dto.setGroupName(group.getName());
 			dto.setSpecialization(group.isSpecialization());
+			if (dao.getSchedules() != null) {
+				dto.setSchedules(dao.getSchedules().parallelStream().map(scheduleService::convertToDto)
+						.collect(Collectors.toSet()));
+				dto.setScheduleIds(
+						dao.getSchedules().parallelStream().sorted(Comparator.comparingInt(ScheduleDao::getDayNumber))
+								.map(ScheduleDao::getId).collect(Collectors.toSet()));
+				dto.setNumDays(dto.getScheduleIds().size());
+				dto.setDays(
+						dao.getSchedules().parallelStream().map(ScheduleDao::getDay).collect(Collectors.joining(",")));
+			}
 		}
 
 		if (dao.getFamily() != null) {
@@ -256,16 +270,6 @@ public class AthleteService {
 
 		if (dao.getUpdatedBy() != null) {
 			dto.setUpdatedById(dao.getUpdatedBy().getId());
-		}
-
-		if (dao.getSchedules() != null) {
-			dto.setSchedules(
-					dao.getSchedules().parallelStream().map(scheduleService::convertToDto).collect(Collectors.toSet()));
-			dto.setScheduleIds(
-					dao.getSchedules().parallelStream().sorted(Comparator.comparingInt(ScheduleDao::getDayNumber))
-							.map(ScheduleDao::getId).collect(Collectors.toSet()));
-			dto.setNumDays(dto.getScheduleIds().size());
-			dto.setDays(dao.getSchedules().parallelStream().map(ScheduleDao::getDay).collect(Collectors.joining(",")));
 		}
 		if (dao.getHistoric() != null && !dao.getHistoric().isEmpty()) {
 			List<HistoricDto> historic = dao.getHistoric().stream().map(d -> historicService.convertToDto(d))
@@ -306,10 +310,14 @@ public class AthleteService {
 
 		if (dto.getSportSchoolId() != 0) {
 			dao.setSportSchool(sportSchoolRepository.findById(dto.getSportSchoolId()).get());
+		} else {
+			dao.setSportSchool(null);
 		}
 
 		if (dto.getFeeTypeId() != 0) {
 			dao.setFeeType(feeTypeRepository.findById(dto.getFeeTypeId()).get());
+		} else {
+			dao.setFeeType(null);
 		}
 
 		if (dto.getGroupId() != 0) {

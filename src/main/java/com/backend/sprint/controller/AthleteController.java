@@ -109,8 +109,9 @@ public class AthleteController {
 			if (receipt.getMembershipFee() > 0) {
 				athlete.setMembershipFeePaid(false);
 			}
-			if (receipt.getSportSchoolAnnualFee() > 0) {
-				athlete.setSportSchoolAnnualFeePaid(false);
+
+			if (receipt.getLicenseNationalFee() > 0 || receipt.getLicenseTerritorialFee() > 0) {
+				athlete.setLicenseFeePaid(false);
 			}
 			service.save(athlete);
 
@@ -125,8 +126,8 @@ public class AthleteController {
 			if (receipt.getMembershipFee() > 0) {
 				athlete.setMembershipFeePaid(true);
 			}
-			if (receipt.getSportSchoolAnnualFee() > 0) {
-				athlete.setSportSchoolAnnualFeePaid(true);
+			if (receipt.getLicenseNationalFee() > 0 || receipt.getLicenseTerritorialFee() > 0) {
+				athlete.setLicenseFeePaid(true);
 			}
 			service.save(athlete);
 		}
