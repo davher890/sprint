@@ -15,8 +15,6 @@ import javax.persistence.Table;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import com.sun.istack.NotNull;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -32,7 +30,6 @@ public class FeeTypeDao {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 
-	@NotNull
 	private String name;
 
 	@ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)

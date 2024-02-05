@@ -35,6 +35,7 @@ import com.backend.sprint.repository.ScheduleRepository;
 import com.backend.sprint.repository.SportSchoolRepository;
 import com.backend.sprint.repository.UserRepository;
 import com.backend.sprint.specifications.AthleteSpecificationConstructor;
+import com.backend.sprint.utils.FeeTypeEnum;
 import com.backend.sprint.utils.HistoricType;
 
 @Service
@@ -124,7 +125,7 @@ public class AthleteService {
 	}
 
 	public List<AthleteDto> findByLicense(String license) {
-		return repository.findByDni(license).stream().map(this::convertToDto).collect(Collectors.toList());
+		return repository.findByLicense(license).stream().map(this::convertToDto).collect(Collectors.toList());
 	}
 
 	public AthleteDto findByCode(long code) {
@@ -304,6 +305,10 @@ public class AthleteService {
 		if (dto.getFamilyId() == 0) {
 			FamilyDto family = newFamily();
 			dto.setFamilyId(family.getId());
+		}
+
+		if (dto.getFeeTypeId() != FeeTypeEnum.SOCIO.id) {
+			dto.setMembershipType(null);
 		}
 
 		AthleteDao dao = new ModelMapper().map(dto, AthleteDao.class);

@@ -20,8 +20,6 @@ import javax.persistence.Table;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import com.sun.istack.NotNull;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -44,7 +42,6 @@ public class SportSchoolDao {
 	@JoinTable(joinColumns = @JoinColumn(name = "sport_school_id"), inverseJoinColumns = @JoinColumn(name = "fee_type_id"))
 	private Set<FeeTypeDao> feeTypes;
 
-	@NotNull
 	private String name;
 
 	private String municipality;

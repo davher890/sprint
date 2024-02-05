@@ -135,10 +135,11 @@ public class AthleteDto {
 	@CsvBindByName(column = "FP")
 	private String paymentType;
 
-//	private String feeType;
 	private long feeTypeId;
 	@CsvBindByName(column = "TIPO CUOTA")
 	private String feeTypeName;
+
+	private String membershipType;
 
 	@CsvBindByName(column = "TITULAR DE LA CUENTA")
 	private String holderName;

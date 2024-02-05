@@ -1,9 +1,17 @@
 package com.backend.sprint.utils;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -12,6 +20,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.backend.sprint.model.dto.ExcelDataDto;
 import com.backend.sprint.model.dto.ExcelValueDto;
@@ -75,4 +84,77 @@ public abstract class ExcelUtils {
 			});
 		});
 	}
+
+	public static BufferedReader convertExcelToCsv(MultipartFile excelFile, String[] mandatoryColumns,
+			char cellSeparator) throws Exception {
+		if (excelFile.isEmpty()) {
+			throw new Exception("File is empty");
+		}
+
+		InputStream inputStream = excelFile.getInputStream();
+		Workbook workbook = new XSSFWorkbook(inputStream);
+		Sheet sheet = workbook.getSheetAt(0); // Assuming you are working with the first sheet
+
+		Row headerRow = sheet.getRow(0);
+		List<String> headers = new ArrayList<String>();
+
+		if (headerRow != null) {
+			Iterator<Cell> cellIterator = headerRow.cellIterator();
+
+			while (cellIterator.hasNext()) {
+				Cell cell = cellIterator.next();
+				headers.add(cell.toString().toUpperCase());
+			}
+		}
+
+		// Check Headers
+		if (mandatoryColumns != null && mandatoryColumns.length > 0) {
+			for (String header : mandatoryColumns) {
+				if (!headers.contains(header)) {
+					throw new Exception("Columna " + header + " no se encontro en el archivo");
+				}
+			}
+		}
+
+		// Iterate through rows and columns to write CSV content
+		Iterator<Row> rowIterator = sheet.iterator();
+//		rowIterator.next(); // Move to the next row (skip headers)
+
+		// Prepare a StringWriter to write CSV content
+		StringWriter csvWriter = new StringWriter();
+
+		while (rowIterator.hasNext()) {
+			int columnLength = 0;
+			Row row = rowIterator.next();
+			Iterator<Cell> cellIterator = row.cellIterator();
+
+			while (cellIterator.hasNext()) {
+				Cell cell = cellIterator.next();
+
+				// Append cell data to CSV content
+				csvWriter.append(cell.toString());
+
+				if (cellIterator.hasNext()) {
+					csvWriter.append(cellSeparator);
+					columnLength++;
+				}
+			}
+
+//			csvWriter.append(cellSeparator);
+			if (rowIterator.hasNext()) {
+				csvWriter.append('\n');
+			}
+		}
+
+		// Save the CSV content to a file
+		String csvFileName = "output.csv";
+		try (BufferedWriter writer = new BufferedWriter(new FileWriter(csvFileName))) {
+			writer.write(csvWriter.toString());
+		}
+
+		workbook.close();
+
+		return new BufferedReader(new InputStreamReader(excelFile.getInputStream(), "UTF-8"));
+	}
+
 }

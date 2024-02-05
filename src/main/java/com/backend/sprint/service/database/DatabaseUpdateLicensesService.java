@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.backend.sprint.model.dto.AthleteDto;
+import com.backend.sprint.model.dto.JobResultLog;
 import com.backend.sprint.service.AthleteService;
 
 @Service
@@ -77,7 +78,10 @@ public class DatabaseUpdateLicensesService extends DatabaseService {
 		});
 	}
 
-	public void updateAthleteLicenseFee(List<AthleteDto> fileAthletes) {
+	public JobResultLog updateAthleteLicenseFee(List<AthleteDto> fileAthletes) {
+
+		JobResultLog log = new JobResultLog();
+
 		fileAthletes.parallelStream().forEach(fileAthlete -> {
 			List<AthleteDto> athletes = athleteService.findByLicense(fileAthlete.getLicense());
 			if (athletes != null && !athletes.isEmpty()) {
@@ -104,12 +108,27 @@ public class DatabaseUpdateLicensesService extends DatabaseService {
 							+ athlete.getLicenseType() + ";" + athlete.getLicense() + ";" + athlete.getDorsalCategory()
 							+ ";" + athlete.getDorsalNumber());
 
-					athleteService.save(athlete);
+					athlete = athleteService.save(athlete);
+					log.getInfoMessages()
+							.add("Cuotas actualizadas para el atleta con licencia " + athlete.getLicense()
+									+ (fileAthlete.getLicenseType().trim().toUpperCase().equals("N")
+											? ".\n Cuota nacional: " + athlete.getLicenseNationalFee()
+											: ".\n Cuota territorial: " + athlete.getLicenseTerritorialFee()));
+//					} else {
+//						log.getInfoMessages().add("No se pudo actualizar las cuotas para el atleta con licencia "
+//								+ athlete.getLicense() + "\n Licencia: " + athlete.getLicense() + "-"
+//								+ fileAthlete.getLicense() + "\n Cuota nacional: " + athlete.getLicenseNationalFee()
+//								+ "-" + fileAthlete.getLicenseNationalFee() + ".\n Cuota territorial: "
+//								+ athlete.getLicenseTerritorialFee() + "-" + fileAthlete.getLicenseTerritorialFee());
+//					}
 				}
 			} else {
+				log.getErrorMessages()
+						.add("El atleta con licencia " + fileAthlete.getLicense() + " no se encontro en la plataforma");
 				logger.info(fileAthlete.getDni() + "; El atleta no se encontro en la plataforma");
 			}
 		});
+		return log;
 	}
 
 }

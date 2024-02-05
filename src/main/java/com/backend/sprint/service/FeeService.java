@@ -25,6 +25,7 @@ import com.backend.sprint.repository.FeeRepository;
 import com.backend.sprint.repository.RegisteredAthleteRepository;
 import com.backend.sprint.repository.SportSchoolRepository;
 import com.backend.sprint.utils.FeeTypeEnum;
+import com.backend.sprint.utils.MembershipTypeEnum;
 import com.backend.sprint.utils.PaymentType;
 
 @Service
@@ -100,26 +101,21 @@ public class FeeService {
 		fee.setMonthlyFee(monthlyFee);
 
 		float enrollmentFee = this.getEnrollmentFee(athlete.getId(), familyAthltes, athlete.isEnrollmentFeePaid(),
-				sportSchoolFee);
+				sportSchoolFee, athlete.getMembershipType());
 		fee.setEnrollmentFee(enrollmentFee);
 
 		float membershipFee = this.getMembershipFee(athlete.getId(), athlete.getPaymentType(), athlete.getFeeTypeName(),
 				familyAthltes, athlete.isMembershipFeePaid(), sportSchoolFee);
 		fee.setMembershipFee(membershipFee);
 
-//		float sportSchoolAnnualFee = this.getSportSchoolAnnualFee(sportSchoolFee, athlete.isSportSchoolAnnualFeePaid());
-//		fee.setSportSchoolAnnualFee(sportSchoolAnnualFee);
-
-		if (receiptDto.getReceiptType() != null && receiptDto.getReceiptType().equals("LICENSE")) {
-			fee.setLicenseNationalFee(athlete.getLicenseNationalFee());
-			fee.setLicenseTerritorialFee(athlete.getLicenseNationalFee());
-		}
+		float nationalLicenseFee = this.getLicenseFee(sportSchoolFee.getSportSchoolId(), athlete.getFeeTypeId(),
+				athlete.getMembershipType(), receiptDto.getReceiptType(), athlete.getLicenseNationalFee());
+		fee.setLicenseNationalFee(nationalLicenseFee);
 
 		// Externos
-		if (receiptDto.getSportSchoolId() == 3 && athlete.getFeeTypeId() == FeeTypeEnum.FED.id) {
-			fee.setLicenseNationalFee(athlete.getLicenseNationalFee());
-			fee.setLicenseTerritorialFee(athlete.getLicenseTerritorialFee());
-		}
+		float territorialLicenseFee = this.getLicenseFee(sportSchoolFee.getSportSchoolId(), athlete.getFeeTypeId(),
+				athlete.getMembershipType(), receiptDto.getReceiptType(), athlete.getLicenseTerritorialFee());
+		fee.setLicenseTerritorialFee(territorialLicenseFee);
 
 		return fee;
 	}
@@ -149,6 +145,23 @@ public class FeeService {
 			dao.setSportSchool(sportSchool.get());
 		}
 		return dao;
+	}
+
+	private float getLicenseFee(long sportSchoolId, long feeTypeId, String membershipType, String receiptType,
+			float territorialLicenseFee) {
+		float fee = 0;
+
+		if (receiptType != null && receiptType.equals("LICENSE")) {
+			fee = territorialLicenseFee;
+		}
+		if (sportSchoolId == 3) {
+			if (feeTypeId == FeeTypeEnum.FED.id || (feeTypeId == FeeTypeEnum.SOCIO.id && membershipType != null
+					&& membershipType.equals(MembershipTypeEnum.ATHLETE.name()))) {
+				fee = territorialLicenseFee;
+			}
+		}
+		return fee;
+
 	}
 
 	// Annually
@@ -187,19 +200,9 @@ public class FeeService {
 		return fee;
 	}
 
-	private float getSportSchoolAnnualFee(FeeDto sportSchoolFee, boolean isSportSchoolAnnualFeePaid) {
-
-		float fee = 0;
-
-		if (!isSportSchoolAnnualFeePaid) {
-			fee = sportSchoolFee.getSportSchoolAnnualFee();
-		}
-		return fee;
-	}
-
 	// Once
 	private float getEnrollmentFee(long id, List<RegisteredAthleteDao> familyAthltes, boolean isEnrollmentFeePaid,
-			FeeDto sportSchoolFee) {
+			FeeDto sportSchoolFee, String membershipType) {
 
 		float fee = 0;
 
@@ -208,14 +211,18 @@ public class FeeService {
 		// If not, one of the new athletes pays the whole fee and the rest pays 1/2 fee
 		boolean existing = familyAthltes.stream().anyMatch(f -> f.isEnrollmentFeePaid());
 
-		if (id == 0 || !isEnrollmentFeePaid) {
-			fee = sportSchoolFee.getEnrollmentFee();
-			if (sportSchoolFee.getSportSchoolId() != 5 && familyAthltes.size() > 1) {
-				if (existing) {
-					fee *= 0.5;
-				} else {
-					if (id != familyAthltes.stream().mapToLong(v -> v.getId()).min().getAsLong()) {
+		if (membershipType == null || (!membershipType.equals(MembershipTypeEnum.SUBSIDIZED.name())
+				&& !membershipType.equals(MembershipTypeEnum.DIRECTOR.name())
+				&& !membershipType.equals(MembershipTypeEnum.TRAINER.name()))) {
+			if (id == 0 || !isEnrollmentFeePaid) {
+				fee = sportSchoolFee.getEnrollmentFee();
+				if (sportSchoolFee.getSportSchoolId() != 5 && familyAthltes.size() > 1) {
+					if (existing) {
 						fee *= 0.5;
+					} else {
+						if (id != familyAthltes.stream().mapToLong(v -> v.getId()).min().getAsLong()) {
+							fee *= 0.5;
+						}
 					}
 				}
 			}

@@ -19,8 +19,6 @@ import javax.persistence.Table;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import com.sun.istack.NotNull;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -48,7 +46,6 @@ public class GroupDao {
 	@JoinColumn(name = "trainer_id")
 	private TrainerDao trainer;
 
-	@NotNull
 	private String name;
 
 	@Column(columnDefinition = "boolean default false")

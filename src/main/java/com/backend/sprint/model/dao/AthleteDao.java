@@ -46,6 +46,8 @@ public class AthleteDao {
 	@JoinColumn(name = "fee_type_id")
 	private FeeTypeDao feeType;
 
+	private String membershipType;
+
 	private boolean imageAuth;
 
 	// Personal info
