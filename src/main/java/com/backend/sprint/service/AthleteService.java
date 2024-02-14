@@ -174,8 +174,8 @@ public class AthleteService {
 		return repository.findByGroupId(id).stream().map(this::convertToDto).collect(Collectors.toList());
 	}
 
-	public List<AthleteDto> findBySportSchoolIdAndLastRegisterDate(long sportSchoolId, Date lastRegisterDate,
-			Date startPeriod, String paymentType, List<Long> feeTypeIds) {
+	public List<AthleteDto> findBySportSchoolIdAndLastRegisterDate(long sportSchoolId, Date creationdDate,
+			Date startPeriod, String paymentType) {
 		List<String> paymentTypes = new ArrayList<String>();
 		if (paymentType.equals("DOM")) {
 			paymentTypes.add(paymentType);
@@ -183,9 +183,9 @@ public class AthleteService {
 			paymentTypes.add("TRANSF");
 			paymentTypes.add("MET");
 		}
-		List<AthleteDao> dd = repository.findBySportSchoolIdAndLastRegisterDate(sportSchoolId, lastRegisterDate,
-				paymentTypes, feeTypeIds, startPeriod);
-		return dd.stream().map(this::convertToDto).collect(Collectors.toList());
+		return repository
+				.findBySportSchoolIdAndLastRegisterDate(sportSchoolId, creationdDate, paymentTypes, startPeriod)
+				.stream().map(this::convertToDto).collect(Collectors.toList());
 	}
 
 	public List<Map<String, Integer>> findRegisteredAthletesByDate(long sportSchoolId, String startDate,
@@ -278,7 +278,7 @@ public class AthleteService {
 			dto.setHistoric(historic);
 
 			List<HistoricDto> sortedHistoric = historic.stream().filter(d -> d.getDate().isBefore(LocalDate.now()))
-					.sorted((o1, o2) -> o1.getDate().compareTo(o2.getDate())).collect(Collectors.toList());
+					.sorted((o1, o2) -> o2.getDate().compareTo(o1.getDate())).collect(Collectors.toList());
 			if (!sortedHistoric.isEmpty()) {
 				if (sortedHistoric.get(0).getType().equals(HistoricType.REGISTER.name())) {
 					dto.setLastRegisterDate(sortedHistoric.get(0).getDate());

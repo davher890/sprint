@@ -63,7 +63,7 @@ public interface AthleteRepository
 
 	@Modifying
 	@Query(value = "UPDATE athletes a SET group_id = null FROM ( "
-			+ "SELECT u.id, type, date, row_number() over (partition by h.athlete_id order by date) as rn FROM unregistered_athletes u LEFT JOIN historic h ON h.athlete_id = u.id AND h.date > now() WHERE group_id IS NOT null "
+			+ "SELECT u.id, type, date, row_number() over (partition by h.athlete_id order by date) as rn FROM unregistered_athletes u LEFT JOIN historic h ON h.athlete_id = u.id AND h.date > now() + interval '100' day WHERE group_id IS NOT null "
 			+ ") as u WHERE u.id = a.id AND rn = 1 AND type is null or type = 'UNREGISTER' ", nativeQuery = true)
 	public void deleteGroupUnregisteredAthletes();
 
@@ -77,13 +77,10 @@ public interface AthleteRepository
 	public List<AthleteDao> findByName(String name, String firstSurname, String secondSurname);
 
 	// For receipts
-	@Query(value = "SELECT ath.* FROM athletes ath INNER JOIN ("
-			+ "SELECT a.code, h.date, h.type, h.athlete_id, ROW_NUMBER() OVER ( PARTITION BY athlete_id ORDER BY date DESC) rn, ABS(EXTRACT(day FROM h.date - LEAD(GREATEST(h.date, ?5)) OVER (PARTITION BY athlete_id ORDER BY h.date DESC))) as delta "
-			+ "FROM athletes a INNER JOIN historic h on a.id = h.athlete_id WHERE sport_school_id = ?1 "
-			+ "AND date < ?2 AND payment_type IN (?3) AND fee_type_id IN (?4) "
-			+ "AND active = true ) his on his.athlete_id = ath.id AND ( (rn = 1 AND type = 'REGISTER' AND DATE_PART('day', ?2 - date) > 30) OR (rn = 1 AND type = 'UNREGISTER' AND date > ?5 AND delta > 30) ) ", nativeQuery = true)
-	public List<AthleteDao> findBySportSchoolIdAndLastRegisterDate(long sportSchoolId, Date lastRegisterDate,
-			List<String> paymentTypes, List<Long> feeTypeIds, Date startPeriod);
+	@Query(value = "WITH aths AS ( SELECT  h.athlete_id, h.date, h.type, ROW_NUMBER() OVER ( PARTITION BY athlete_id ORDER BY date DESC) rn, ABS(EXTRACT(day FROM h.date - ?2)) as delta_registration, ABS(EXTRACT(day FROM h.date - LEAD(h.date) OVER (PARTITION BY athlete_id ORDER BY h.date DESC))) as delta_unregistration FROM athletes a INNER JOIN historic h on a.id = h.athlete_id WHERE sport_school_id = ?1 AND date < ?2 AND payment_type IN ?3 AND active = true) "
+			+ "SELECT a.* FROM athletes a INNER JOIN aths ON aths.athlete_id = a.id WHERE ( ( rn = 1 AND type = 'REGISTER' AND delta_registration > 30 ) OR ( rn = 1 AND type = 'UNREGISTER' AND date > ?4 AND delta_unregistration > 30) )", nativeQuery = true)
+	public List<AthleteDao> findBySportSchoolIdAndLastRegisterDate(long sportSchoolId, Date creationDate,
+			List<String> paymentTypes, Date startPeriod);
 
 	// Get active athletes by date
 	@Query(value = "SELECT date_limit, COUNT(athlete_id) "

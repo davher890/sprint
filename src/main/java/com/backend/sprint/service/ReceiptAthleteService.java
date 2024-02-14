@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.backend.sprint.model.dao.AthleteDao;
 import com.backend.sprint.model.dao.FamilyDao;
+import com.backend.sprint.model.dao.FeeTypeDao;
 import com.backend.sprint.model.dao.GroupDao;
 import com.backend.sprint.model.dao.ReceiptAthleteDao;
 import com.backend.sprint.model.dao.ReceiptDao;
@@ -172,9 +173,11 @@ public class ReceiptAthleteService {
 		dto.setLicenseType(athlete.getLicenseType());
 		dto.setIban(athlete.getIban());
 		dto.setPaymentType(athlete.getPaymentType());
-		dto.setFeeTypeId(athlete.getFeeType().getId());
-		dto.setFeeTypeName(athlete.getFeeType().getName());
-
+		FeeTypeDao feeType = athlete.getFeeType();
+		if (feeType != null) {
+			dto.setFeeTypeId(feeType.getId());
+			dto.setFeeTypeName(feeType.getName());
+		}
 		dto.setPaymentType(athlete.getPaymentType());
 
 		return dto;

@@ -115,10 +115,6 @@ public class GroupService {
 		return convertToDto(repository.findById(id).orElse(null));
 	}
 
-	public GroupDao findDaoById(long id) {
-		return repository.findById(id).get();
-	}
-
 	public List<GroupDto> findByTrainerId(long trainerId) {
 		return repository.findByTrainerId(trainerId).stream().map(this::convertToDto).collect(Collectors.toList());
 	}
@@ -261,7 +257,7 @@ public class GroupService {
 		}
 
 		ids.stream().forEach(id -> {
-			GroupDao group = this.findDaoById(id);
+			GroupDao group = repository.findById(id).get();
 			List<String> scheduleDays = group.getSchedules().parallelStream().map(d -> d.getDay())
 					.collect(Collectors.toList());
 
@@ -356,7 +352,7 @@ public class GroupService {
 	}
 
 	public List<AthleteDto> findGroupAthletes(int id) {
-		return athleteService.findByGroupId(id);
+		return registeredAthleteService.findByGroupId(id);
 	}
 
 	public List<GroupDto> swapGropupsAthletes(long groupAId, long groupBId, List<Long> groupAAthletes,

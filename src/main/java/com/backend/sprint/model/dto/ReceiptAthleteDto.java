@@ -1,6 +1,5 @@
 package com.backend.sprint.model.dto;
 
-import java.time.LocalDate;
 import java.util.Date;
 import java.util.Set;
 
@@ -66,9 +65,6 @@ public class ReceiptAthleteDto {
 	private float licenseTerritorialFee;
 	private float licenseNationalFee;
 	private float totalFee;
-
-	private LocalDate lastRegisterDate;
-	private LocalDate lastUnregisterDate;
 
 	private String receiptName;
 	private Date receiptCreatedAt;
