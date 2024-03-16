@@ -34,7 +34,6 @@ public class SportSchoolExternosFeeService extends SportSchoolFeeService {
 	public float getMembershipFee(long id, String paymentType, String feeType, List<RegisteredAthleteDao> familyAthltes,
 			boolean isMembershipFeePaid, FeeDto sportSchoolFee) {
 
-		
 		if (paymentType.equals(PaymentType.Subvencionado.label)
 				|| (feeType != null && feeType.equals(FeeTypeEnum.CLUB_ANUAL.label)) || isMembershipFeePaid) {
 			return 0;

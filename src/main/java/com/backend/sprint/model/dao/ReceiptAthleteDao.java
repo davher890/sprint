@@ -56,6 +56,8 @@ public class ReceiptAthleteDao {
 	private float licenseTerritorialFee;
 	@Column(columnDefinition = "float default 0")
 	private float licenseNationalFee;
+	@Column(columnDefinition = "float default 0")
+	private float licenseOtherFee;
 
 	private String days;
 	private Integer numDays;

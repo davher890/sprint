@@ -118,8 +118,9 @@ public class ReceiptAthleteService {
 		modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 		ReceiptAthleteDto dto = modelMapper.map(dao, ReceiptAthleteDto.class);
 
-		dto.setTotalFee(dao.getEnrollmentFee() + dao.getMembershipFee() + dao.getMonthlyFee()
-				+ dao.getLicenseNationalFee() + dao.getLicenseTerritorialFee() + dao.getSportSchoolAnnualFee());
+		dto.setTotalFee(
+				dao.getEnrollmentFee() + dao.getMembershipFee() + dao.getMonthlyFee() + dao.getLicenseNationalFee()
+						+ dao.getLicenseTerritorialFee() + dao.getSportSchoolAnnualFee() + dao.getLicenseOtherFee());
 		String translatedDays = "";
 		String days = dto.getDays();
 		if (days != null && !days.isEmpty()) {

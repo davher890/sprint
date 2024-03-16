@@ -29,6 +29,8 @@ public class FeeDto {
 
 	private float licenseNationalFee = 0;
 
+	private float licenseOtherFee = 0;
+
 	private float quarterOneDay = 0;
 
 	private float quarterTwoDays = 0;

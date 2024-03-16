@@ -198,6 +198,22 @@ public class ReceiptService {
 	public ReceiptDto calculateAnnualFee(ReceiptDto dto) {
 
 		dto.setStatus(ReceiptStatus.PROCESSING.name());
+
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyyy-MM-dd");
+		Calendar creationDate = Calendar.getInstance();
+		Calendar startDate = Calendar.getInstance();
+		String season = dto.getSeason();
+		try {
+			creationDate.setTime(sdf.parse(season.split("_")[1] + "-07-01"));
+			startDate.setTime(sdf.parse(season.split("_")[0] + "-08-01"));
+
+			dto.setStartDate(startDate.getTime());
+			dto.setEndDate(creationDate.getTime());
+
+		} catch (ParseException e1) {
+			e1.printStackTrace();
+		}
+
 		final ReceiptDto receiptDto = save(dto);
 
 		new Thread(new Runnable() {
@@ -205,20 +221,8 @@ public class ReceiptService {
 			@Override
 			public void run() {
 
-				SimpleDateFormat sdf = new SimpleDateFormat("yyyyy-MM-dd");
-				Calendar creationDate = Calendar.getInstance();
-				Calendar startDate = Calendar.getInstance();
-				String season = receiptDto.getSeason();
-				try {
-					creationDate.setTime(sdf.parse(season.split("_")[1] + "-07-01"));
-					startDate.setTime(sdf.parse(season.split("_")[0] + "-08-01"));
-				} catch (ParseException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} // all done
-
-				List<AthleteDto> registeredAthletes = athleteService.findBySportSchoolIdAndLastRegisterDate(
-						dto.getSportSchoolId(), creationDate.getTime(), startDate.getTime(), dto.getPaymentType());
+				List<AthleteDto> registeredAthletes = athleteService.findReceiptAnnualAthletes(dto.getSportSchoolId(),
+						dto.getPaymentType());
 
 				FeeDto feeDto = feeService.findBySportSchoolId(dto.getSportSchoolId());
 				SportSchoolFeeService sportSchoolFeeService = getSportSchoolFeeService(dto.getSportSchoolId());
@@ -229,7 +233,6 @@ public class ReceiptService {
 							.filter(d -> Date.from(d.getDate().atStartOfDay(ZoneId.systemDefault()).toInstant())
 									.before(creationDate.getTime()))
 							.collect(Collectors.toList())));
-
 					try {
 						FeeDto fee = sportSchoolFeeService.getAthleteFee(athlete, receiptDto, feeDto);
 						ReceiptAthleteDto raDto = new ReceiptAthleteDto();
@@ -243,6 +246,7 @@ public class ReceiptService {
 						raDto.setSportSchoolAnnualFee(0);
 						raDto.setLicenseNationalFee(fee.getLicenseNationalFee());
 						raDto.setLicenseTerritorialFee(fee.getLicenseTerritorialFee());
+						raDto.setLicenseOtherFee(fee.getLicenseOtherFee());
 						raDto.setStatus(ReceiptStatus.PENDING.name());
 
 						// Look for season receipts.
@@ -270,6 +274,8 @@ public class ReceiptService {
 										raDto.setMonthlyFee(0);
 										raDto.setEnrollmentFee(0);
 										raDto.setMembershipFee(0);
+										raDto.setLicenseNationalFee(0);
+										raDto.setLicenseTerritorialFee(0);
 									} else {
 										boolean errorReceipts = receipts.stream().anyMatch((ReceiptAthleteDto d) -> d
 												.getStatus().equals(ReceiptStatus.SENT_BY_ERROR.name()));
@@ -277,6 +283,8 @@ public class ReceiptService {
 											raDto.setMonthlyFee(0);
 											raDto.setEnrollmentFee(0);
 											raDto.setMembershipFee(0);
+											raDto.setLicenseNationalFee(0);
+											raDto.setLicenseTerritorialFee(0);
 										}
 									}
 								}
@@ -287,11 +295,14 @@ public class ReceiptService {
 									raDto.setMonthlyFee(0);
 									raDto.setEnrollmentFee(0);
 									raDto.setMembershipFee(0);
+									raDto.setLicenseNationalFee(0);
+									raDto.setLicenseTerritorialFee(0);
 								}
 							}
 						}
 
 						if (raDto.getMonthlyFee() > 0 || raDto.getEnrollmentFee() > 0 || raDto.getMembershipFee() > 0
+								|| raDto.getLicenseNationalFee() > 0 || raDto.getLicenseTerritorialFee() > 0
 								|| raDto.getSportSchoolAnnualFee() > 0) {
 							receiptAthleteService.save(raDto);
 						}
@@ -320,7 +331,7 @@ public class ReceiptService {
 				Calendar creationDate = Calendar.getInstance();
 				creationDate.setTime(Date.from(dto.getCreationDate().atStartOfDay(ZoneId.systemDefault()).toInstant()));
 
-				List<AthleteDto> registeredAthletes = athleteService.findBySportSchoolIdAndLastRegisterDate(
+				List<AthleteDto> registeredAthletes = athleteService.findByReceiptTrimestralAthletes(
 						dto.getSportSchoolId(), creationDate.getTime(), dto.getStartDate(), dto.getPaymentType());
 
 				FeeDto feeDto = feeService.findBySportSchoolId(dto.getSportSchoolId());

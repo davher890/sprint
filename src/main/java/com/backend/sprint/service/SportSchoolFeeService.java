@@ -56,14 +56,18 @@ public abstract class SportSchoolFeeService {
 				familyAthltes, athlete.isMembershipFeePaid(), sportSchoolFee);
 		fee.setMembershipFee(membershipFee);
 
+		// Externos
 		float nationalLicenseFee = this.getLicenseFee(sportSchoolFee.getSportSchoolId(), athlete.getFeeTypeId(),
 				athlete.getMembershipType(), receiptDto.getReceiptType(), athlete.getLicenseNationalFee());
 		fee.setLicenseNationalFee(nationalLicenseFee);
 
-		// Externos
 		float territorialLicenseFee = this.getLicenseFee(sportSchoolFee.getSportSchoolId(), athlete.getFeeTypeId(),
 				athlete.getMembershipType(), receiptDto.getReceiptType(), athlete.getLicenseTerritorialFee());
 		fee.setLicenseTerritorialFee(territorialLicenseFee);
+
+		float licenseOtherFee = this.getLicenseFee(sportSchoolFee.getSportSchoolId(), athlete.getFeeTypeId(),
+				athlete.getMembershipType(), receiptDto.getReceiptType(), athlete.getLicenseOtherFee());
+		fee.setLicenseOtherFee(licenseOtherFee);
 
 		return fee;
 	}

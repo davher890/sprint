@@ -174,8 +174,8 @@ public class AthleteService {
 		return repository.findByGroupId(id).stream().map(this::convertToDto).collect(Collectors.toList());
 	}
 
-	public List<AthleteDto> findBySportSchoolIdAndLastRegisterDate(long sportSchoolId, Date creationdDate,
-			Date startPeriod, String paymentType) {
+	public List<AthleteDto> findByReceiptTrimestralAthletes(long sportSchoolId, Date creationdDate, Date startPeriod,
+			String paymentType) {
 		List<String> paymentTypes = new ArrayList<String>();
 		if (paymentType.equals("DOM")) {
 			paymentTypes.add(paymentType);
@@ -183,9 +183,20 @@ public class AthleteService {
 			paymentTypes.add("TRANSF");
 			paymentTypes.add("MET");
 		}
-		return repository
-				.findBySportSchoolIdAndLastRegisterDate(sportSchoolId, creationdDate, paymentTypes, startPeriod)
+		return repository.findByReceiptTrimestralAthletes(sportSchoolId, creationdDate, paymentTypes, startPeriod)
 				.stream().map(this::convertToDto).collect(Collectors.toList());
+	}
+
+	public List<AthleteDto> findReceiptAnnualAthletes(long sportSchoolId, String paymentType) {
+		List<String> paymentTypes = new ArrayList<String>();
+		if (paymentType.equals("DOM")) {
+			paymentTypes.add(paymentType);
+		} else {
+			paymentTypes.add("TRANSF");
+			paymentTypes.add("MET");
+		}
+		return repository.findReceiptAnnualAthletes(sportSchoolId, paymentTypes).stream().map(this::convertToDto)
+				.collect(Collectors.toList());
 	}
 
 	public List<Map<String, Integer>> findRegisteredAthletesByDate(long sportSchoolId, String startDate,

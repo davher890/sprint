@@ -78,9 +78,13 @@ public interface AthleteRepository
 
 	// For receipts
 	@Query(value = "WITH aths AS ( SELECT  h.athlete_id, h.date, h.type, ROW_NUMBER() OVER ( PARTITION BY athlete_id ORDER BY date DESC) rn, ABS(EXTRACT(day FROM h.date - ?2)) as delta_registration, ABS(EXTRACT(day FROM h.date - LEAD(h.date) OVER (PARTITION BY athlete_id ORDER BY h.date DESC))) as delta_unregistration FROM athletes a INNER JOIN historic h on a.id = h.athlete_id WHERE sport_school_id = ?1 AND date < ?2 AND payment_type IN ?3 AND active = true) "
-			+ "SELECT a.* FROM athletes a INNER JOIN aths ON aths.athlete_id = a.id WHERE ( ( rn = 1 AND type = 'REGISTER' AND delta_registration > 30 ) OR ( rn = 1 AND type = 'UNREGISTER' AND date > ?4 AND delta_unregistration > 30) )", nativeQuery = true)
-	public List<AthleteDao> findBySportSchoolIdAndLastRegisterDate(long sportSchoolId, Date creationDate,
+			+ "SELECT a.* FROM athletes a INNER JOIN aths ON aths.athlete_id = a.id WHERE ( ( rn = 1 AND type = 'REGISTER' AND delta_registration > 15 ) OR ( rn = 1 AND type = 'UNREGISTER' AND date > ?4 AND delta_unregistration > 30) )", nativeQuery = true)
+	public List<AthleteDao> findByReceiptTrimestralAthletes(long sportSchoolId, Date creationDate,
 			List<String> paymentTypes, Date startPeriod);
+
+	@Query(value = "WITH aths AS ( SELECT  h.athlete_id, h.date, h.type, ROW_NUMBER() OVER ( PARTITION BY athlete_id ORDER BY date DESC) rn FROM athletes a INNER JOIN historic h on a.id = h.athlete_id WHERE sport_school_id = ?1 AND date < now() AND payment_type IN ?2 AND active = true) "
+			+ "SELECT a.* FROM athletes a INNER JOIN aths ON aths.athlete_id = a.id WHERE rn = 1 AND type = 'REGISTER'", nativeQuery = true)
+	public List<AthleteDao> findReceiptAnnualAthletes(long sportSchoolId, List<String> paymentTypes);
 
 	// Get active athletes by date
 	@Query(value = "SELECT date_limit, COUNT(athlete_id) "
@@ -92,5 +96,9 @@ public interface AthleteRepository
 			+ "GROUP BY 1 ORDER BY 1 DESC;", nativeQuery = true)
 	public List<Map<String, Integer>> findRegisteredAthletesByDate(long sportSchoolId, String startDate,
 			String endDate);
+
+	@Modifying
+	@Query(value = "UPDATE athletes SET license_territorial_fee = 0, license_national_fee = 0, license_other_fee = 0 WHERE license_territorial_fee > 0 OR license_national_fee > 0", nativeQuery = true)
+	public void removeLicenses();
 
 }

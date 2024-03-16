@@ -64,6 +64,7 @@ public class ReceiptAthleteDto {
 	private int sportSchoolAnnualFee;
 	private float licenseTerritorialFee;
 	private float licenseNationalFee;
+	private float licenseOtherFee;
 	private float totalFee;
 
 	private String receiptName;

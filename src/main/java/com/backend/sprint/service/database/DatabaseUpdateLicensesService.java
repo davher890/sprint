@@ -9,8 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.backend.sprint.model.dao.AthleteDao;
 import com.backend.sprint.model.dto.AthleteDto;
+import com.backend.sprint.model.dto.AthleteLicenseDto;
 import com.backend.sprint.model.dto.JobResultLog;
+import com.backend.sprint.repository.AthleteRepository;
 import com.backend.sprint.service.AthleteService;
 
 @Service
@@ -21,6 +24,9 @@ public class DatabaseUpdateLicensesService extends DatabaseService {
 
 	@Autowired
 	private AthleteService athleteService;
+
+	@Autowired
+	private AthleteRepository athleteRepository;
 
 	private Logger logger = LoggerFactory.getLogger(DatabaseUpdateLicensesService.class);
 
@@ -78,21 +84,27 @@ public class DatabaseUpdateLicensesService extends DatabaseService {
 		});
 	}
 
-	public JobResultLog updateAthleteLicenseFee(List<AthleteDto> fileAthletes) {
+	@Transactional
+	public void removeLicenses() {
+		athleteRepository.removeLicenses();
+	}
+
+	public JobResultLog updateAthleteLicenseFee(List<AthleteLicenseDto> fileAthletes) {
 
 		JobResultLog log = new JobResultLog();
 
 		fileAthletes.parallelStream().forEach(fileAthlete -> {
-			List<AthleteDto> athletes = athleteService.findByLicense(fileAthlete.getLicense());
+			List<AthleteDao> athletes = athleteRepository.findByLicense(fileAthlete.getNumLicencia());
 			if (athletes != null && !athletes.isEmpty()) {
-				for (AthleteDto athlete : athletes) {
-					switch (fileAthlete.getLicenseType().trim().toUpperCase()) {
+				for (AthleteDao athlete : athletes) {
+					String tipoLicencia = fileAthlete.getTipoLicencia().trim().toUpperCase();
+					switch (tipoLicencia) {
 					case "T":
-						athlete.setLicenseTerritorialFee(fileAthlete.getLicenseTerritorialFee());
+						athlete.setLicenseTerritorialFee(fileAthlete.getCuotaLicencia());
 						athlete.setLicenseType("TERRITORIAL");
 						break;
 					case "N":
-						athlete.setLicenseNationalFee(fileAthlete.getLicenseTerritorialFee());
+						athlete.setLicenseNationalFee(fileAthlete.getCuotaLicencia());
 						athlete.setLicenseType("NATIONAL");
 						break;
 					default:
@@ -103,31 +115,24 @@ public class DatabaseUpdateLicensesService extends DatabaseService {
 					} else {
 						athlete.setLicenseType("TERRITORIAL");
 					}
-					logger.info(fileAthlete.getDni() + "; " + fileAthlete.getName() + "; "
-							+ fileAthlete.getFirstSurname() + ";" + fileAthlete.getSecondSurname() + ";"
-							+ athlete.getLicenseType() + ";" + athlete.getLicense() + ";" + athlete.getDorsalCategory()
-							+ ";" + athlete.getDorsalNumber());
-
-					athlete = athleteService.save(athlete);
-					log.getInfoMessages()
-							.add("Cuotas actualizadas para el atleta con licencia " + athlete.getLicense()
-									+ (fileAthlete.getLicenseType().trim().toUpperCase().equals("N")
-											? ".\n Cuota nacional: " + athlete.getLicenseNationalFee()
-											: ".\n Cuota territorial: " + athlete.getLicenseTerritorialFee()));
-//					} else {
-//						log.getInfoMessages().add("No se pudo actualizar las cuotas para el atleta con licencia "
-//								+ athlete.getLicense() + "\n Licencia: " + athlete.getLicense() + "-"
-//								+ fileAthlete.getLicense() + "\n Cuota nacional: " + athlete.getLicenseNationalFee()
-//								+ "-" + fileAthlete.getLicenseNationalFee() + ".\n Cuota territorial: "
-//								+ athlete.getLicenseTerritorialFee() + "-" + fileAthlete.getLicenseTerritorialFee());
-//					}
+					athlete.setLicenseOtherFee(fileAthlete.getCAdaptacionTerritorial() + fileAthlete.getCEmisionCarnet()
+							+ fileAthlete.getCIndeAClub() + fileAthlete.getCClubAInde()
+							+ fileAthlete.getCFueraPlazoInde() + fileAthlete.getCFueraPlazo()
+							+ fileAthlete.getCClubOtraAutonomia() + fileAthlete.getCIndependiente()
+							+ fileAthlete.getCPasoTAN() + fileAthlete.getCAdaptacionMundial()
+							+ fileAthlete.getCAdaptacionEuropa() + fileAthlete.getCSeguroTraiLn()
+							+ fileAthlete.getCSeguroDep());
+					athleteRepository.save(athlete);
 				}
 			} else {
-				log.getErrorMessages()
-						.add("El atleta con licencia " + fileAthlete.getLicense() + " no se encontro en la plataforma");
-				logger.info(fileAthlete.getDni() + "; El atleta no se encontro en la plataforma");
+				log.getErrorMessages().add(
+						"El atleta con licencia " + fileAthlete.getNumLicencia() + " no se encontro en la plataforma");
+				logger.info(fileAthlete.getNumId() + "; El atleta no se encontro en la plataforma");
 			}
 		});
+		if (log.getErrorMessages() == null || log.getErrorMessages().isEmpty()) {
+			log.getInfoMessages().add("Se actualizaron las licencias de todos los atletas.");
+		}
 		return log;
 	}
 

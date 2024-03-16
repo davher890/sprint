@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.backend.sprint.model.dto.AthleteDto;
+import com.backend.sprint.model.dto.AthleteLicenseDto;
 import com.backend.sprint.model.dto.JobResultLog;
 import com.backend.sprint.service.database.DatabaseUpdateLicensesService;
 import com.opencsv.bean.CsvToBean;
@@ -45,11 +45,12 @@ public class LicenseController {
 
 		} else {
 			fileReader = new BufferedReader(new InputStreamReader(file.getInputStream(), "UTF-8"));
-			CsvToBean<AthleteDto> csvToAthlete = new CsvToBeanBuilder<AthleteDto>(fileReader)
+			CsvToBean<AthleteLicenseDto> csvToAthlete = new CsvToBeanBuilder<AthleteLicenseDto>(fileReader)
 					.withProfile("update_licenses").withSeparator(CELL_SEPARATOR).withIgnoreLeadingWhiteSpace(true)
-					.withIgnoreEmptyLine(true).withType(AthleteDto.class).build();
-			List<AthleteDto> athletes = (List<AthleteDto>) csvToAthlete.parse();
+					.withIgnoreEmptyLine(true).withType(AthleteLicenseDto.class).build();
+			List<AthleteLicenseDto> athletes = (List<AthleteLicenseDto>) csvToAthlete.parse();
 
+			updateLicensesService.removeLicenses();
 			return updateLicensesService.updateAthleteLicenseFee(athletes);
 		}
 

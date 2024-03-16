@@ -263,9 +263,9 @@ public class ExcelService {
 			dataDto.getData().add(new ExcelValueDto(concept, CellType.STRING));
 			dataDto.getData()
 					.add(new ExcelValueDto(
-							String.valueOf(
-									entity.getMonthlyFee() + entity.getEnrollmentFee() + entity.getMembershipFee()
-											+ entity.getLicenseNationalFee() + entity.getLicenseTerritorialFee()),
+							String.valueOf(entity.getMonthlyFee() + entity.getEnrollmentFee()
+									+ entity.getMembershipFee() + entity.getLicenseNationalFee()
+									+ entity.getLicenseTerritorialFee() + entity.getLicenseOtherFee()),
 							CellType.NUMERIC));
 			dataDto.getData().add(new ExcelValueDto(concept, CellType.STRING));
 			dataDto.getData().add(new ExcelValueDto("RCUR", CellType.STRING));

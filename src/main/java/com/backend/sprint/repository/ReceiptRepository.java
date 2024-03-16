@@ -23,6 +23,6 @@ public interface ReceiptRepository
 	@Query(value = "SELECT COALESCE(SUM(monthly_fee), 0) FROM receipt_athletes WHERE receipt_id = ?1", nativeQuery = true)
 	public float getSumMonthlyFee(long receiptId);
 
-	@Query(value = "SELECT COALESCE(SUM(license_national_fee), 0) + COALESCE(SUM(license_territorial_fee), 0) FROM receipt_athletes WHERE receipt_id = ?1", nativeQuery = true)
+	@Query(value = "SELECT COALESCE(SUM(license_national_fee), 0) + COALESCE(SUM(license_territorial_fee), 0) + COALESCE(SUM(license_other_fee), 0) FROM receipt_athletes WHERE receipt_id = ?1", nativeQuery = true)
 	public float getSumLicenseFee(long receiptId);
 }
