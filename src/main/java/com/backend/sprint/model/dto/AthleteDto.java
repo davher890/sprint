@@ -159,7 +159,7 @@ public class AthleteDto {
 	@CsvBindByNames(value = { @CsvBindByName(column = "CODIGO ATLETA"),
 			@CsvBindByName(column = "COD ATLETA", profiles = "update_relatives") })
 	private long code;
-	private long familiarNumber;
+//	private long familiarNumber;
 
 	private boolean isRegistered;
 	private LocalDate lastRegisterDate;

@@ -11,6 +11,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -31,7 +32,7 @@ import lombok.ToString;
 @Setter
 @ToString
 @Entity
-@Table(name = "athletes")
+@Table(name = "athletes", indexes = @Index(columnList = "sport_school_id"))
 public class AthleteDao {
 
 	@Id

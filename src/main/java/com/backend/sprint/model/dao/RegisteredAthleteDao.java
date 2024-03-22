@@ -22,6 +22,6 @@ public class RegisteredAthleteDao extends GenericAthleteDao {
 	private long id;
 
 	private String scheduleIds;
-	private long familiarNumber;
+//	private long familiarNumber;
 
 }
