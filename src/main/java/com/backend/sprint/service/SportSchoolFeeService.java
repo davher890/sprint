@@ -3,74 +3,27 @@ package com.backend.sprint.service;
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.backend.sprint.model.dao.AthleteDao;
 import com.backend.sprint.model.dao.RegisteredAthleteDao;
 import com.backend.sprint.model.dto.AthleteDto;
 import com.backend.sprint.model.dto.FeeDto;
 import com.backend.sprint.model.dto.HistoricDto;
 import com.backend.sprint.model.dto.ReceiptDto;
-import com.backend.sprint.repository.AthleteRepository;
-import com.backend.sprint.repository.RegisteredAthleteRepository;
 import com.backend.sprint.utils.HistoricType;
 
 @Service
 @Transactional
 public abstract class SportSchoolFeeService {
 
-	@Autowired
-	private AthleteRepository athleteRepository;
-
-	@Autowired
-	private RegisteredAthleteRepository registeredAthleteRepository;
-
-	public FeeDto getAthleteFee(AthleteDto athlete, ReceiptDto receiptDto, FeeDto sportSchoolFee)
-			throws ParseException {
-
-		List<AthleteDao> athletes = athleteRepository.findByFamilyId(athlete.getFamilyId());
-		List<RegisteredAthleteDao> familyAthltes = null;
-		if (athletes != null) {
-			Set<Long> familyAthleteIds = athletes.stream().map(AthleteDao::getId).collect(Collectors.toSet());
-			familyAthltes = registeredAthleteRepository.findByAthleteIds(new ArrayList<Long>(familyAthleteIds));
-		}
-
-		FeeDto fee = new FeeDto();
-		float monthlyFee = this.getMonthlyFee(athlete, receiptDto, sportSchoolFee);
-		fee.setMonthlyFee(monthlyFee);
-
-		float enrollmentFee = this.getEnrollmentFee(athlete.getId(), familyAthltes, athlete.isEnrollmentFeePaid(),
-				sportSchoolFee, athlete.getMembershipType());
-		fee.setEnrollmentFee(enrollmentFee);
-
-		float membershipFee = this.getMembershipFee(athlete.getId(), athlete.getPaymentType(), athlete.getFeeTypeName(),
-				familyAthltes, athlete.isMembershipFeePaid(), sportSchoolFee);
-		fee.setMembershipFee(membershipFee);
-
-		// Externos
-		float nationalLicenseFee = this.getLicenseFee(sportSchoolFee.getSportSchoolId(), athlete.getFeeTypeId(),
-				athlete.getMembershipType(), receiptDto.getReceiptType(), athlete.getLicenseNationalFee());
-		fee.setLicenseNationalFee(nationalLicenseFee);
-
-		float territorialLicenseFee = this.getLicenseFee(sportSchoolFee.getSportSchoolId(), athlete.getFeeTypeId(),
-				athlete.getMembershipType(), receiptDto.getReceiptType(), athlete.getLicenseTerritorialFee());
-		fee.setLicenseTerritorialFee(territorialLicenseFee);
-
-		float licenseOtherFee = this.getLicenseFee(sportSchoolFee.getSportSchoolId(), athlete.getFeeTypeId(),
-				athlete.getMembershipType(), receiptDto.getReceiptType(), athlete.getLicenseOtherFee());
-		fee.setLicenseOtherFee(licenseOtherFee);
-
-		return fee;
-	}
+	public abstract FeeDto getAthleteFee(AthleteDto athlete, ReceiptDto receiptDto, FeeDto sportSchoolFee)
+			throws ParseException;
 
 	public abstract float getLicenseFee(long sportSchoolId, long feeTypeId, String membershipType, String receiptType,
 			float territorialLicenseFee);

@@ -8,7 +8,6 @@ import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -31,8 +30,10 @@ import com.backend.sprint.model.dto.ReceiptDto;
 import com.backend.sprint.repository.ReceiptAthleteRepository;
 import com.backend.sprint.repository.ReceiptRepository;
 import com.backend.sprint.repository.SportSchoolRepository;
+import com.backend.sprint.service.impl.SportSchoolExternosFeeService;
+import com.backend.sprint.service.impl.SportSchoolFuencarralFeeService;
+import com.backend.sprint.service.impl.SportSchoolParacuellosFeeService;
 import com.backend.sprint.utils.AthleteUtils;
-import com.backend.sprint.utils.FeeTypeEnum;
 import com.backend.sprint.utils.ReceiptStatus;
 
 @Service
@@ -166,27 +167,24 @@ public class ReceiptService {
 				List<AthleteDto> registeredAthletes = registeredAthleteService.findBySportSchoolIdAndLicense(
 						dto.getSportSchoolId(), dto.getPaymentType(), dto.getLicenseTypes());
 
-				registeredAthletes.parallelStream()
-//					.filter(a -> a.getId() == 856 || a.getId() == 995)
-						.forEach(athlete -> {
+				registeredAthletes.parallelStream().forEach(athlete -> {
 
-							ReceiptAthleteDto raDto = new ReceiptAthleteDto();
-							raDto.setDays(athlete.getDays());
-							raDto.setNumDays(athlete.getNumDays());
-							raDto.setAthleteId(athlete.getId());
-							raDto.setReceiptId(receiptDto.getId());
-							raDto.setMonthlyFee(0);
-							raDto.setEnrollmentFee(0);
-							raDto.setMembershipFee(0);
-							raDto.setLicenseNationalFee(
-									dto.getLicenseTypes().contains("national") ? athlete.getLicenseNationalFee() : 0);
-							raDto.setLicenseTerritorialFee(
-									dto.getLicenseTypes().contains("territorial") ? athlete.getLicenseTerritorialFee()
-											: 0);
-							raDto.setStatus(ReceiptStatus.PENDING.name());
+					ReceiptAthleteDto raDto = new ReceiptAthleteDto();
+					raDto.setDays(athlete.getDays());
+					raDto.setNumDays(athlete.getNumDays());
+					raDto.setAthleteId(athlete.getId());
+					raDto.setReceiptId(receiptDto.getId());
+					raDto.setMonthlyFee(0);
+					raDto.setEnrollmentFee(0);
+					raDto.setMembershipFee(0);
+					raDto.setLicenseNationalFee(
+							dto.getLicenseTypes().contains("national") ? athlete.getLicenseNationalFee() : 0);
+					raDto.setLicenseTerritorialFee(
+							dto.getLicenseTypes().contains("territorial") ? athlete.getLicenseTerritorialFee() : 0);
+					raDto.setStatus(ReceiptStatus.PENDING.name());
 
-							receiptAthleteService.save(raDto);
-						});
+					receiptAthleteService.save(raDto);
+				});
 				receiptDto.setStatus(ReceiptStatus.PENDING.name());
 				save(receiptDto);
 			}
@@ -249,58 +247,6 @@ public class ReceiptService {
 						raDto.setLicenseOtherFee(fee.getLicenseOtherFee());
 						raDto.setStatus(ReceiptStatus.PENDING.name());
 
-						// Look for season receipts.
-						Set<ReceiptAthleteDto> receipts = receiptAthleteService
-								.findByAthleteIdAndReceiptStatusAndSeason(athlete.getId(),
-										ReceiptStatus.VALIDATED.name(), season);
-						if (receipts != null && !receipts.isEmpty()) {
-							// There are more previous receipts.
-							if (athlete.getFeeTypeName().equals(FeeTypeEnum.CLUB.label)) {
-
-								// Season Trimestral receipt already paid.
-								boolean paidReceipt = receipts.stream()
-										.anyMatch((ReceiptAthleteDto d) -> d.getStartDate()
-												.compareTo(receiptDto.getStartDate()) == 0
-												&& d.getEndDate().compareTo(receiptDto.getEndDate()) == 0
-												&& d.getStatus().equals(ReceiptStatus.PAID.name()));
-								if (paidReceipt) {
-									raDto.setMonthlyFee(0);
-								} else {
-									// Pending receipts from the same season.
-									boolean pendingReceipts = receipts.stream().anyMatch(
-											(ReceiptAthleteDto d) -> d.getStatus().equals(ReceiptStatus.RETURN.name()));
-									// Remove athlete
-									if (pendingReceipts) {
-										raDto.setMonthlyFee(0);
-										raDto.setEnrollmentFee(0);
-										raDto.setMembershipFee(0);
-										raDto.setLicenseNationalFee(0);
-										raDto.setLicenseTerritorialFee(0);
-									} else {
-										boolean errorReceipts = receipts.stream().anyMatch((ReceiptAthleteDto d) -> d
-												.getStatus().equals(ReceiptStatus.SENT_BY_ERROR.name()));
-										if (errorReceipts && !athlete.isRegistered()) {
-											raDto.setMonthlyFee(0);
-											raDto.setEnrollmentFee(0);
-											raDto.setMembershipFee(0);
-											raDto.setLicenseNationalFee(0);
-											raDto.setLicenseTerritorialFee(0);
-										}
-									}
-								}
-							} else if (athlete.getFeeTypeName().equals(FeeTypeEnum.CLUB_ANUAL.label)) {
-								// Annual fee already paid
-								if (receipts.stream().anyMatch(
-										(ReceiptAthleteDto d) -> d.getStatus().equals(ReceiptStatus.PAID.name()))) {
-									raDto.setMonthlyFee(0);
-									raDto.setEnrollmentFee(0);
-									raDto.setMembershipFee(0);
-									raDto.setLicenseNationalFee(0);
-									raDto.setLicenseTerritorialFee(0);
-								}
-							}
-						}
-
 						if (raDto.getMonthlyFee() > 0 || raDto.getEnrollmentFee() > 0 || raDto.getMembershipFee() > 0
 								|| raDto.getLicenseNationalFee() > 0 || raDto.getLicenseTerritorialFee() > 0
 								|| raDto.getSportSchoolAnnualFee() > 0) {
@@ -362,54 +308,6 @@ public class ReceiptService {
 								raDto.setLicenseNationalFee(fee.getLicenseNationalFee());
 								raDto.setLicenseTerritorialFee(fee.getLicenseTerritorialFee());
 								raDto.setStatus(ReceiptStatus.PENDING.name());
-
-								// Look for season receipts.
-								Set<ReceiptAthleteDto> receipts = receiptAthleteService
-										.findByAthleteIdAndReceiptStatusAndSeason(athlete.getId(),
-												ReceiptStatus.VALIDATED.name(), receiptDto.getSeason());
-								if (receipts != null && !receipts.isEmpty()) {
-									// There are more previous receipts.
-									if (athlete.getFeeTypeName().equals(FeeTypeEnum.CLUB.label)) {
-
-										// Season Trimestral receipt already paid.
-										boolean paidReceipt = receipts.stream()
-												.anyMatch((ReceiptAthleteDto d) -> d.getStartDate()
-														.compareTo(receiptDto.getStartDate()) == 0
-														&& d.getEndDate().compareTo(receiptDto.getEndDate()) == 0
-														&& d.getStatus().equals(ReceiptStatus.PAID.name()));
-										if (paidReceipt) {
-											raDto.setMonthlyFee(0);
-										} else {
-											// Pending receipts from the same season.
-											boolean pendingReceipts = receipts.stream()
-													.anyMatch((ReceiptAthleteDto d) -> d.getStatus()
-															.equals(ReceiptStatus.RETURN.name()));
-											// Remove athlete
-											if (pendingReceipts) {
-												raDto.setMonthlyFee(0);
-												raDto.setEnrollmentFee(0);
-												raDto.setMembershipFee(0);
-											} else {
-												boolean errorReceipts = receipts.stream()
-														.anyMatch((ReceiptAthleteDto d) -> d.getStatus()
-																.equals(ReceiptStatus.SENT_BY_ERROR.name()));
-												if (errorReceipts && !athlete.isRegistered()) {
-													raDto.setMonthlyFee(0);
-													raDto.setEnrollmentFee(0);
-													raDto.setMembershipFee(0);
-												}
-											}
-										}
-									} else if (athlete.getFeeTypeName().equals(FeeTypeEnum.CLUB_ANUAL.label)) {
-										// Annual fee already paid
-										if (receipts.stream().anyMatch((ReceiptAthleteDto d) -> d.getStatus()
-												.equals(ReceiptStatus.PAID.name()))) {
-											raDto.setMonthlyFee(0);
-											raDto.setEnrollmentFee(0);
-											raDto.setMembershipFee(0);
-										}
-									}
-								}
 
 								if (raDto.getMonthlyFee() > 0 || raDto.getEnrollmentFee() > 0
 										|| raDto.getMembershipFee() > 0 || raDto.getSportSchoolAnnualFee() > 0) {

@@ -1,29 +1,104 @@
-package com.backend.sprint.service;
+package com.backend.sprint.service.impl;
 
+import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.backend.sprint.model.dao.AthleteDao;
+import com.backend.sprint.model.dao.ReceiptAthleteDao;
 import com.backend.sprint.model.dao.RegisteredAthleteDao;
 import com.backend.sprint.model.dto.AthleteDto;
 import com.backend.sprint.model.dto.FeeDto;
 import com.backend.sprint.model.dto.ReceiptDto;
+import com.backend.sprint.repository.AthleteRepository;
+import com.backend.sprint.repository.ReceiptAthleteRepository;
+import com.backend.sprint.repository.RegisteredAthleteRepository;
+import com.backend.sprint.service.SportSchoolFeeService;
 import com.backend.sprint.utils.FeeTypeEnum;
 import com.backend.sprint.utils.MembershipTypeEnum;
 import com.backend.sprint.utils.PaymentType;
+import com.backend.sprint.utils.ReceiptStatus;
 
 @Service
 @Transactional
 public class SportSchoolPadresFeeService extends SportSchoolFeeService {
 
+	@Autowired
+	private ReceiptAthleteRepository receiptAthleteRepository;
+
+	@Autowired
+	private AthleteRepository athleteRepository;
+
+	@Autowired
+	private RegisteredAthleteRepository registeredAthleteRepository;
+
+	@Override
+	public FeeDto getAthleteFee(AthleteDto athlete, ReceiptDto receiptDto, FeeDto sportSchoolFee)
+			throws ParseException {
+
+		List<AthleteDao> athletes = athleteRepository.findByFamilyId(athlete.getFamilyId());
+		List<RegisteredAthleteDao> familyAthltes = null;
+		if (athletes != null) {
+			Set<Long> familyAthleteIds = athletes.stream().map(AthleteDao::getId).collect(Collectors.toSet());
+			familyAthltes = registeredAthleteRepository.findByAthleteIds(new ArrayList<Long>(familyAthleteIds));
+		}
+
+		FeeDto fee = new FeeDto();
+		float monthlyFee = this.getMonthlyFee(athlete, receiptDto, sportSchoolFee);
+		fee.setMonthlyFee(monthlyFee);
+
+		float enrollmentFee = this.getEnrollmentFee(athlete.getId(), familyAthltes, athlete.isEnrollmentFeePaid(),
+				sportSchoolFee, athlete.getMembershipType());
+		fee.setEnrollmentFee(enrollmentFee);
+
+		float membershipFee = this.getMembershipFee(athlete.getId(), athlete.getPaymentType(), athlete.getFeeTypeName(),
+				familyAthltes, athlete.isMembershipFeePaid(), sportSchoolFee);
+		fee.setMembershipFee(membershipFee);
+
+		// Externos
+		float nationalLicenseFee = this.getLicenseFee(sportSchoolFee.getSportSchoolId(), athlete.getFeeTypeId(),
+				athlete.getMembershipType(), receiptDto.getReceiptType(), athlete.getLicenseNationalFee());
+		fee.setLicenseNationalFee(nationalLicenseFee);
+
+		float territorialLicenseFee = this.getLicenseFee(sportSchoolFee.getSportSchoolId(), athlete.getFeeTypeId(),
+				athlete.getMembershipType(), receiptDto.getReceiptType(), athlete.getLicenseTerritorialFee());
+		fee.setLicenseTerritorialFee(territorialLicenseFee);
+
+		float licenseOtherFee = this.getLicenseFee(sportSchoolFee.getSportSchoolId(), athlete.getFeeTypeId(),
+				athlete.getMembershipType(), receiptDto.getReceiptType(), athlete.getLicenseOtherFee());
+		fee.setLicenseOtherFee(licenseOtherFee);
+
+		// Look for season receipts.
+		List<ReceiptAthleteDao> receipts = receiptAthleteRepository.findByAthleteIdAndReceiptStatusAndSeason(
+				athlete.getId(), ReceiptStatus.VALIDATED.name(), receiptDto.getSeason());
+
+		if (receipts != null && !receipts.isEmpty()) {
+			// There are more previous receipts.
+
+			// Annual fee already paid
+			if (receipts.stream().anyMatch((ReceiptAthleteDao d) -> d.getStatus().equals(ReceiptStatus.PAID.name()))) {
+				fee.setMonthlyFee(0);
+				fee.setEnrollmentFee(0);
+				fee.setMembershipFee(0);
+				fee.setLicenseNationalFee(0);
+				fee.setLicenseTerritorialFee(0);
+			}
+		}
+
+		return fee;
+	}
+
 	@Override
 	public float getLicenseFee(long sportSchoolId, long feeTypeId, String membershipType, String receiptType,
 			float territorialLicenseFee) {
 		float fee = 0;
-
 		return fee;
-
 	}
 
 	@Override
@@ -95,7 +170,6 @@ public class SportSchoolPadresFeeService extends SportSchoolFeeService {
 	@Override
 	public float getMonthlyFee(AthleteDto athlete, ReceiptDto receiptDto, FeeDto sportSchoolFee) {
 
-		
 		if (!athlete.getPaymentType().equals(PaymentType.Subvencionado.label)) {
 			return 0;
 		} else {
@@ -131,9 +205,9 @@ public class SportSchoolPadresFeeService extends SportSchoolFeeService {
 					trimestralFee *= (float) diffMonths / 3;
 				}
 			}
-		
-		return trimestralFee;
-	}
+
+			return trimestralFee;
+		}
 
 	}
 
