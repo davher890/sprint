@@ -100,11 +100,25 @@ public class DatabaseUpdateLicensesService extends DatabaseService {
 					String tipoLicencia = fileAthlete.getTipoLicencia().trim().toUpperCase();
 					switch (tipoLicencia) {
 					case "T":
-						athlete.setLicenseTerritorialFee(fileAthlete.getCuotaLicencia());
+						athlete.setLicenseTerritorialFee(
+								fileAthlete.getCuotaLicencia() + fileAthlete.getCAdaptacionTerritorial()
+										+ fileAthlete.getCEmisionCarnet() + fileAthlete.getCIndeAClub()
+										+ fileAthlete.getCClubAInde() + fileAthlete.getCFueraPlazoInde()
+										+ fileAthlete.getCFueraPlazo() + fileAthlete.getCClubOtraAutonomia()
+										+ fileAthlete.getCIndependiente() + fileAthlete.getCPasoTAN()
+										+ fileAthlete.getCAdaptacionMundial() + fileAthlete.getCAdaptacionEuropa()
+										+ fileAthlete.getCSeguroTraiLn() + fileAthlete.getCSeguroDep());
 						athlete.setLicenseType("TERRITORIAL");
 						break;
 					case "N":
-						athlete.setLicenseNationalFee(fileAthlete.getCuotaLicencia());
+						athlete.setLicenseNationalFee(
+								fileAthlete.getCuotaLicencia() + fileAthlete.getCAdaptacionTerritorial()
+										+ fileAthlete.getCEmisionCarnet() + fileAthlete.getCIndeAClub()
+										+ fileAthlete.getCClubAInde() + fileAthlete.getCFueraPlazoInde()
+										+ fileAthlete.getCFueraPlazo() + fileAthlete.getCClubOtraAutonomia()
+										+ fileAthlete.getCIndependiente() + fileAthlete.getCPasoTAN()
+										+ fileAthlete.getCAdaptacionMundial() + fileAthlete.getCAdaptacionEuropa()
+										+ fileAthlete.getCSeguroTraiLn() + fileAthlete.getCSeguroDep());
 						athlete.setLicenseType("NATIONAL");
 						break;
 					default:

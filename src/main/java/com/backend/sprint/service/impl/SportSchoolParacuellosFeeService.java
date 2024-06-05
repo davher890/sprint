@@ -75,8 +75,8 @@ public class SportSchoolParacuellosFeeService extends SportSchoolFeeService {
 		fee.setLicenseOtherFee(licenseOtherFee);
 
 		// Look for season receipts.
-		List<ReceiptAthleteDao> receipts = receiptAthleteRepository.findByAthleteIdAndReceiptStatusAndSeason(
-				athlete.getId(), ReceiptStatus.VALIDATED.name(), receiptDto.getSeason());
+		List<ReceiptAthleteDao> receipts = receiptAthleteRepository.findByAthleteIdAndReceiptStatusAndSeasonAndType(
+				athlete.getId(), ReceiptStatus.VALIDATED.name(), receiptDto.getSeason(), receiptDto.getReceiptType());
 
 		if (receipts != null && !receipts.isEmpty()) {
 			// There are more previous receipts.

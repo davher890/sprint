@@ -74,6 +74,11 @@ public class AthleteController {
 		return service.findBySurnames(firstSurname, secondSurname);
 	}
 
+	@GetMapping("/delete_old")
+	public void deleteOldAthletes() {
+		service.deleteGroupUnregisteredAthletes();
+	}
+
 	@GetMapping("/{id}")
 	public AthleteDto findById(@PathVariable int id) {
 		return service.findById(id);
