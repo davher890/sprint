@@ -26,6 +26,7 @@ import com.backend.sprint.controller.utils.Utils;
 import com.backend.sprint.model.dao.ReceiptAthleteDao;
 import com.backend.sprint.model.dto.ReceiptDto;
 import com.backend.sprint.service.ExcelService;
+import com.backend.sprint.service.MailService;
 import com.backend.sprint.service.ReceiptAthleteService;
 import com.backend.sprint.service.ReceiptService;
 import com.backend.sprint.specifications.ReceiptSpecificationConstructor;
@@ -44,6 +45,9 @@ public class ReceiptController {
 
 	@Autowired
 	private ReceiptAthleteService receiptAthleteService;
+
+	@Autowired
+	private MailService mailService;
 
 	@Autowired
 	private Utils utils;
@@ -114,6 +118,15 @@ public class ReceiptController {
 		} else {
 			dto = service.calculateTrimestralFee(dto);
 		}
+		String subject = "";
+		if (receiptData.getId() > 0) {
+			subject += "Remesa reprocesada: " + receiptData.getName();
+		} else {
+			subject += "Nueva remesa creada: " + receiptData.getName();
+		}
+		String body = "Remesa: " + dto.getId() + "\n\nURL: http://sportclubsmanager.com/receipts/" + dto.getId();
+		mailService.sendMail("davher890@gmail.com", subject, body);
+
 		return dto;
 
 	}
