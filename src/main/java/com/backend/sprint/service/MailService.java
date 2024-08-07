@@ -27,10 +27,39 @@ import com.backend.sprint.model.dto.UserDto;
 public class MailService {
 
 	// Sender's email ID needs to be mentioned
-	String from = "davher890@gmail.com";
+	String adminMail = "sportclubsmngr@gmail.com";
 
 	// Assuming you are sending email from through gmails smtp
 	String host = "smtp.gmail.com";
+
+	public void sendContactMail(String from, String subject, String text) {
+
+		Session session = getSession();
+
+		try {
+			// Create a default MimeMessage object.
+			MimeMessage message = new MimeMessage(session);
+
+			// Set From: header field of the header.
+			message.setFrom(new InternetAddress(adminMail));
+
+			// Set To: header field of the header.
+			message.addRecipient(Message.RecipientType.TO, new InternetAddress(adminMail));
+			message.addRecipient(Message.RecipientType.TO, new InternetAddress(from));
+
+			// Set Subject: header field
+			message.setSubject(subject);
+
+			// Now set the actual message
+			message.setText(text);
+
+			// Send message
+			Transport.send(message);
+		} catch (MessagingException mex) {
+			mex.printStackTrace();
+		}
+
+	}
 
 	public void sendMail(String to, String subject, String text) {
 
@@ -41,7 +70,7 @@ public class MailService {
 			MimeMessage message = new MimeMessage(session);
 
 			// Set From: header field of the header.
-			message.setFrom(new InternetAddress(from));
+			message.setFrom(new InternetAddress(adminMail));
 
 			// Set To: header field of the header.
 			message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
@@ -73,7 +102,7 @@ public class MailService {
 		// Get the Session object.// and pass username and password
 		Session session = Session.getInstance(properties, new javax.mail.Authenticator() {
 			protected PasswordAuthentication getPasswordAuthentication() {
-				return new PasswordAuthentication("davher890@gmail.com", "REDACTED");
+				return new PasswordAuthentication(adminMail, "REDACTED");
 			}
 		});
 
@@ -97,7 +126,7 @@ public class MailService {
 			MimeMessage message = new MimeMessage(session);
 
 			// Set From: header field of the header.
-			message.setFrom(new InternetAddress(from));
+			message.setFrom(new InternetAddress(adminMail));
 
 			// Set To: header field of the header.
 			message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));

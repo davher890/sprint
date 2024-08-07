@@ -17,6 +17,8 @@ import com.backend.sprint.model.dao.SportdataDao;
 import com.backend.sprint.model.dto.SportdataDto;
 import com.backend.sprint.repository.AthleteRepository;
 import com.backend.sprint.repository.SportdataRepository;
+import com.backend.sprint.utils.AthleteUtils;
+import com.backend.sprint.utils.Category;
 
 @Service
 @Transactional
@@ -60,7 +62,8 @@ public class SportdataService {
 		}
 		SportdataDto dto = new ModelMapper().map(dao, SportdataDto.class);
 		dto.setAthleteId(dao.getAthlete().getId());
-		dto.setCategory(dao.getAthlete().getCategory());
+		Category category = AthleteUtils.calculateCategory(dao.getAthlete().getBirthDate().getYear());
+		dto.setCategory(category.name());
 		return dto;
 	}
 

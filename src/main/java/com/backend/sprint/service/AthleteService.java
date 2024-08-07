@@ -35,6 +35,8 @@ import com.backend.sprint.repository.ScheduleRepository;
 import com.backend.sprint.repository.SportSchoolRepository;
 import com.backend.sprint.repository.UserRepository;
 import com.backend.sprint.specifications.AthleteSpecificationConstructor;
+import com.backend.sprint.utils.AthleteUtils;
+import com.backend.sprint.utils.Category;
 import com.backend.sprint.utils.FeeTypeEnum;
 import com.backend.sprint.utils.HistoricType;
 
@@ -301,6 +303,9 @@ public class AthleteService {
 				}
 			}
 		}
+
+		Category category = AthleteUtils.calculateCategory(dao.getBirthDate().getYear());
+		dto.setCategory(category.name());
 		return dto;
 	}
 
@@ -337,7 +342,24 @@ public class AthleteService {
 		}
 
 		if (dto.getGroupId() != 0) {
-			dao.setGroup(groupRepository.findById(dto.getGroupId()).get());
+			GroupDao group = groupRepository.findById(dto.getGroupId()).get();
+			dao.setGroup(group);
+			Set<ScheduleDao> groupSchedules = group.getSchedules();
+
+			if (dto.getScheduleIds() != null && groupSchedules != null && !groupSchedules.isEmpty()) {
+				Set<Long> groupScheduleIds = groupSchedules.stream().map(ScheduleDao::getId)
+						.collect(Collectors.toSet());
+
+				dao.setSchedules(dto.getScheduleIds().stream().map(scheduleId -> {
+					if (groupScheduleIds.contains(scheduleId)) {
+						return scheduleRepository.findById(scheduleId).get();
+					} else {
+						return null;
+					}
+				}).filter(e -> e != null).collect(Collectors.toSet()));
+			} else {
+				dao.setSchedules(null);
+			}
 		} else {
 			dao.setGroup(null);
 		}
@@ -357,14 +379,6 @@ public class AthleteService {
 		if (dto.getCode() == 0) {
 			FamilyDto family = familyService.findById(dao.getFamily().getId());
 			dao.setCode(Long.valueOf(family.getCode() + "" + (family.getAthleteIds().size() + 1)));
-		}
-
-		if (dto.getScheduleIds() != null) {
-			dao.setSchedules(dto.getScheduleIds().stream().map(scheduleId -> {
-				return scheduleRepository.findById(scheduleId).get();
-			}).collect(Collectors.toSet()));
-		} else {
-			dao.setSchedules(null);
 		}
 		return dao;
 	}

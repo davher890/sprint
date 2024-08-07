@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.backend.sprint.model.dao.UserDao;
+import com.backend.sprint.model.dto.SignUpDto;
 import com.backend.sprint.model.dto.UserDto;
 import com.backend.sprint.repository.GroupRepository;
 import com.backend.sprint.repository.SportSchoolRepository;
@@ -58,6 +59,12 @@ public class UserService {
 
 	public UserDto save(UserDto dto) {
 		return convertToDto(repository.save(convertToDao(dto)));
+	}
+
+	public UserDto save(SignUpDto dto) {
+		UserDto user = new ModelMapper().map(dto, UserDto.class);
+		user.setManager(true);
+		return convertToDto(repository.save(convertToDao(user)));
 	}
 
 	private UserDto convertToDto(UserDao dao) {

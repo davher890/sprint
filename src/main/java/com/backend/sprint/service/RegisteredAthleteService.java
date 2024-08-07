@@ -20,6 +20,7 @@ import com.backend.sprint.model.dao.RegisteredAthleteDao;
 import com.backend.sprint.model.dto.AthleteDto;
 import com.backend.sprint.repository.RegisteredAthleteRepository;
 import com.backend.sprint.utils.AthleteUtils;
+import com.backend.sprint.utils.Category;
 
 @Service
 @Transactional
@@ -90,6 +91,9 @@ public class RegisteredAthleteService {
 					.map(day -> AthleteUtils.dayTranslateSP.get(day.trim())).collect(Collectors.joining(","));
 		}
 		dto.setDays(translatedDays);
+
+		Category category = AthleteUtils.calculateCategory(dao.getBirthDate().getYear());
+		dto.setCategory(category.name());
 		return dto;
 	}
 }

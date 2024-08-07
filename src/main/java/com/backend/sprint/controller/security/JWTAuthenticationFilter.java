@@ -13,7 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.backend.sprint.beans.UserDetailsBean;
-import com.backend.sprint.model.dto.UserDto;
+import com.backend.sprint.model.dto.LoginDto;
 import com.backend.sprint.utils.JwtUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -30,7 +30,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 	@Override
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) {
 		try {
-			UserDto creds = new ObjectMapper().readValue(request.getInputStream(), UserDto.class);
+			LoginDto creds = new ObjectMapper().readValue(request.getInputStream(), LoginDto.class);
 
 			UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
 					creds.getEmail(), creds.getPassword(), new ArrayList<>());

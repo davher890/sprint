@@ -30,6 +30,7 @@ import com.backend.sprint.repository.AthleteRepository;
 import com.backend.sprint.repository.ReceiptAthleteRepository;
 import com.backend.sprint.repository.ReceiptRepository;
 import com.backend.sprint.utils.AthleteUtils;
+import com.backend.sprint.utils.Category;
 import com.backend.sprint.utils.ReceiptStatus;
 
 @Service
@@ -141,6 +142,8 @@ public class ReceiptAthleteService {
 
 		dto = convertAthleteFieldsToDto(dto, dao.getAthlete());
 
+		Category category = AthleteUtils.calculateCategory(dao.getAthlete().getBirthDate().getYear());
+		dto.setCategory(category.name());
 		return dto;
 	}
 
@@ -167,7 +170,8 @@ public class ReceiptAthleteService {
 		dto.setFirstSurname(athlete.getFirstSurname());
 		dto.setSecondSurname(athlete.getSecondSurname());
 
-		dto.setCategory(athlete.getCategory());
+		Category category = AthleteUtils.calculateCategory(athlete.getBirthDate().getYear());
+		dto.setCategory(category.name());
 		dto.setDorsalCategory(athlete.getDorsalCategory());
 		dto.setDorsalNumber(athlete.getDorsalNumber());
 		dto.setLicense(athlete.getLicense());

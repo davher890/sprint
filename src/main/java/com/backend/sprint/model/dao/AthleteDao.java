@@ -1,3 +1,4 @@
+
 package com.backend.sprint.model.dao;
 
 import java.time.LocalDate;
@@ -91,7 +92,6 @@ public class AthleteDao {
 	private String familiarTwoMail;
 
 	// Sport info
-	private String category;
 	private String dorsalCategory;
 	private long dorsalNumber;
 	private String license;

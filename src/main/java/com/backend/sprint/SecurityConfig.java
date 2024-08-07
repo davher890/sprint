@@ -35,12 +35,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	private static final String[] SWAGGER_URL = { "/herokuapp**", "/localhost**" };
 	private static final String LOGIN_URL = "/login/**";
+	private static final String CONTACT_URL = "/contact/**";
+	private static final String SIGNUP_URL = "/signup/**";
 //	private static final String USERS_URL = "/users/**";
 	private static final String DATABASE_URL = "/database/**";
 
 	@Override
 	protected void configure(HttpSecurity httpSecurity) throws Exception {
-		httpSecurity.csrf().disable().cors().and().authorizeRequests().antMatchers(LOGIN_URL).permitAll()
+		httpSecurity.csrf().disable().cors().and().authorizeRequests().antMatchers(SIGNUP_URL, LOGIN_URL, CONTACT_URL)
+				.permitAll()
 //				.antMatchers(USERS_URL).permitAll()
 				.antMatchers(DATABASE_URL).permitAll().anyRequest().authenticated().and()
 				.addFilter(new JWTAuthenticationFilter(authenticationManager()))
