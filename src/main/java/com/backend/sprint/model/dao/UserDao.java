@@ -57,6 +57,8 @@ public class UserDao {
 	@NotNull
 	private String password;
 
+	private String stripeId;
+
 	@Column(columnDefinition = "boolean default false")
 	private boolean isAdmin;
 

@@ -15,12 +15,15 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.backend.sprint.model.dto.UserDto;
+import com.backend.sprint.service.PaymentService;
 import com.backend.sprint.service.UserService;
 import com.backend.sprint.utils.JwtUtils;
 
 public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 
 	private UserService userService;
+
+	private PaymentService paymentService;
 
 	public JWTAuthorizationFilter(AuthenticationManager authManager, UserService userService) {
 		super(authManager);
@@ -60,6 +63,7 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 				Long userId = decodedJwtToken.getClaim(SecurityConstants.USER_ID).asLong();
 
 				UserDto user = userService.findById(userId);
+
 
 				String token = JwtUtils.generateJwtToken(user);
 				response.addHeader(SecurityConstants.HEADER_STRING, SecurityConstants.TOKEN_PREFIX + " " + token);

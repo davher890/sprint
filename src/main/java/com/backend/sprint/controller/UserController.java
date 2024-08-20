@@ -43,6 +43,7 @@ public class UserController {
 			return service.findPagintation(new UserSpecificationConstructor<>(filters), pageable, sort, sortDirection);
 		} else if (user.isManager()) {
 			List<Long> userIds = service.findManagerUserUserIds(user.getId());
+			userIds.add(user.getId());
 			filters.add("id__in__" + userIds.stream().map(String::valueOf).collect(Collectors.joining(",")));
 			return service.findPagintation(new UserSpecificationConstructor<>(filters), pageable, sort, sortDirection);
 		} else {

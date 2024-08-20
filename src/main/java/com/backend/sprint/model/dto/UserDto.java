@@ -45,6 +45,8 @@ public class UserDto {
 
 	private String token;
 
+	private String stripeId;
+
 	private boolean isAdmin;
 
 	private boolean isManager;

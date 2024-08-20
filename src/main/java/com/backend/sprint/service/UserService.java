@@ -41,6 +41,9 @@ public class UserService {
 	@Autowired
 	private GroupRepository groupRepository;
 
+	@Autowired
+	private PaymentService paymentService;
+
 	public Page<UserDto> findPagintation(Specification<UserDao> specification, Pageable pageable, String sort,
 			Direction sortDirection) {
 		Page<UserDao> daoPage = repository.findAll(specification,
@@ -140,7 +143,12 @@ public class UserService {
 	}
 
 	public UserDto findByEmail(String email) {
-		return convertToDto(repository.findByEmail(email));
+		UserDto user = convertToDto(repository.findByEmail(email));
+
+		if (user.getStripeId() == null) {
+			paymentService.createStripeCustomer(user.getEmail(), user.getUsername(), user.getId());
+		}
+		return user;
 	}
 
 	public List<UserDto> findAdminUsers() {

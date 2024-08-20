@@ -3,6 +3,7 @@ package com.backend.sprint.repository;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
@@ -22,4 +23,9 @@ public interface UserRepository extends PagingAndSortingRepository<UserDao, Long
 			+ "INNER JOIN users_sport_schools uss2 ON uss1.sport_school_id = uss2.sport_school_id "
 			+ "WHERE uss1.user_id = ?1 ", nativeQuery = true)
 	List<Long> findManagerUserUserIds(long id);
+
+	@Modifying
+	@Query(value = "UPDATE users SET stripe_id = ?1 WHERE id = ?2", nativeQuery = true)
+	public void setUserStripeId(String stripeId, long id);
+
 }
