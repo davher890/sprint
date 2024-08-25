@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
@@ -125,7 +126,7 @@ public class ReceiptController {
 			subject += "Nueva remesa creada: " + receiptData.getName();
 		}
 		String body = "Remesa: " + dto.getId() + "\n\nURL: http://sportclubsmanager.com/receipts/" + dto.getId();
-		mailService.sendMail("davher890@gmail.com", subject, body);
+		mailService.sendMail(Set.of("davher890@gmail.com"), subject, body);
 
 		return dto;
 

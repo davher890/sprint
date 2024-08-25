@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -61,7 +62,7 @@ public class MailService {
 
 	}
 
-	public void sendMail(String to, String subject, String text) {
+	public void sendMail(Set<String> to, String subject, String body) {
 
 		Session session = getSession();
 
@@ -73,13 +74,22 @@ public class MailService {
 			message.setFrom(new InternetAddress(adminMail));
 
 			// Set To: header field of the header.
-			message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
+			to.parallelStream().forEach(address -> {
+				try {
+//					message.addRecipient(Message.RecipientType.TO, new InternetAddress(address));
+					message.addRecipient(Message.RecipientType.TO, new InternetAddress("davher890@gmail.com"));
+				} catch (MessagingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			});
+			message.addRecipient(Message.RecipientType.BCC, new InternetAddress(adminMail));
 
 			// Set Subject: header field
 			message.setSubject(subject);
 
 			// Now set the actual message
-			message.setText(text);
+			message.setText(body);
 
 			// Send message
 			Transport.send(message);

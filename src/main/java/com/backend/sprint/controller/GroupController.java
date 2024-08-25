@@ -5,6 +5,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -33,6 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.backend.sprint.model.dao.RegisteredAthleteDao;
 import com.backend.sprint.model.dto.AthleteDto;
 import com.backend.sprint.model.dto.ColumnDto;
+import com.backend.sprint.model.dto.CommunicationDto;
 import com.backend.sprint.model.dto.ExcelDataDto;
 import com.backend.sprint.model.dto.ExcelValueDto;
 import com.backend.sprint.model.dto.GroupDto;
@@ -40,6 +42,7 @@ import com.backend.sprint.model.dto.ScheduleDto;
 import com.backend.sprint.model.dto.UserDto;
 import com.backend.sprint.service.ExcelService;
 import com.backend.sprint.service.GroupService;
+import com.backend.sprint.service.MailService;
 import com.backend.sprint.service.RegisteredAthleteService;
 import com.backend.sprint.service.ScheduleService;
 import com.backend.sprint.specifications.GroupSpecificationConstructor;
@@ -60,6 +63,9 @@ public class GroupController {
 
 	@Autowired
 	private ExcelService excelService;
+
+	@Autowired
+	private MailService mailService;
 
 	@GetMapping("")
 	public Page<GroupDto> findPagintation(@RequestParam(value = "filters", required = false) List<String> filters,
@@ -151,6 +157,22 @@ public class GroupController {
 	@PostMapping("")
 	public GroupDto save(@RequestBody GroupDto dto) {
 		return service.save(dto);
+	}
+
+	@PostMapping("/{id}/communication")
+	public void sendCommunication(@PathVariable("id") int id, @RequestBody CommunicationDto dto) {
+
+		List<AthleteDto> athletes = service.findGroupAthletes(id);
+
+		dto.setTo(new HashSet<String>());
+
+		athletes.parallelStream().forEach(a -> {
+			dto.getTo().add(a.getMail());
+			dto.getTo().add(a.getFamiliarOneMail());
+			dto.getTo().add(a.getFamiliarTwoMail());
+		});
+
+		mailService.sendMail(dto.getTo(), dto.getSubject(), dto.getBody());
 	}
 
 	@GetMapping("/{id}/attendance")

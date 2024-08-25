@@ -1,5 +1,7 @@
 package com.backend.sprint.controller;
 
+import java.util.Set;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -41,11 +43,11 @@ public class IncidenceCommentController {
 		String body = "Incidencia: " + incidence.getTitle() + "\n\nTexto: " + dto.getMessage()
 				+ "\n\nhttp://sportclubsmanager.com/incidences/" + incidence.getId();
 
-		mailService.sendMail("davher890@gmail.com", subject, body);
+		mailService.sendMail(Set.of("davher890@gmail.com"), subject, body);
 
 		UserDto user = userService.findById(incidence.getCreatedById());
 		if (user != null) {
-			mailService.sendMail(user.getEmail(), subject, body);
+			mailService.sendMail(Set.of(user.getEmail()), subject, body);
 		}
 		return dto;
 	}

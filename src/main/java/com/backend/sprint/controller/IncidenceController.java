@@ -2,6 +2,7 @@ package com.backend.sprint.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -58,7 +59,7 @@ public class IncidenceController {
 	public IncidenceDto save(@RequestBody IncidenceDto dto) {
 
 		dto = service.save(dto);
-		mailService.sendMail("davher890@gmail.com", "Nueva incidencia: " + dto.getTitle(),
+		mailService.sendMail(Set.of("davher890@gmail.com"), "Nueva incidencia: " + dto.getTitle(),
 				"Texto: " + dto.getDescription() + "\n http://sportclubsmanager.com/incidences/" + dto.getId());
 		return dto;
 	}
