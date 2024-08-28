@@ -19,7 +19,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.backend.sprint.model.dto.UserDto;
+import com.backend.sprint.model.dto.UserStatisticsDto;
 import com.backend.sprint.service.UserService;
+import com.backend.sprint.service.UserStatisticsService;
 import com.backend.sprint.specifications.UserSpecificationConstructor;
 
 @RestController
@@ -28,6 +30,9 @@ public class UserController {
 
 	@Autowired
 	private UserService service;
+
+	@Autowired
+	private UserStatisticsService userStatisticsService;
 
 	@GetMapping("")
 	public Page<UserDto> findPagintation(@RequestParam(value = "filters", required = false) List<String> filters,
@@ -54,6 +59,11 @@ public class UserController {
 	@GetMapping("/{id}")
 	public UserDto findById(@PathVariable long id) {
 		return service.findById(id);
+	}
+
+	@GetMapping("/{id}/statistics")
+	public UserStatisticsDto findUserStatistics(@PathVariable long id) {
+		return userStatisticsService.findByUserId(id);
 	}
 
 	@PostMapping("")
