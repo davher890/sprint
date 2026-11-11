@@ -59,7 +59,7 @@ public class IncidenceController {
 	public IncidenceDto save(@RequestBody IncidenceDto dto) {
 
 		dto = service.save(dto);
-		mailService.sendMail(Set.of("davher890@gmail.com"), "Nueva incidencia: " + dto.getTitle(),
+		mailService.sendMail(Set.of(MailService.NOTIFICATION_EMAIL), "Nueva incidencia: " + dto.getTitle(),
 				"Texto: " + dto.getDescription() + "\n http://sportclubsmanager.com/incidences/" + dto.getId());
 		return dto;
 	}

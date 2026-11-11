@@ -2,7 +2,7 @@ package com.backend.sprint.controller.security;
 
 public class SecurityConstants {
 
-	public static final String SECRET = "SECRET_KEY";
+	public static final String SECRET = requireEnv("JWT_SECRET");
 	public static final long EXPIRATION_TIME = 18000_000; // 300 mins = 5 hours
 	public static final String TOKEN_PREFIX = "Bearer";
 	public static final String HEADER_STRING = "Authorization";
@@ -20,4 +20,12 @@ public class SecurityConstants {
 	public static final String FEE_TYPE_IDS = "fee_type_ids";
 	public static final String FEE_TYPE_NAMES = "fee_type_names";
 	public static final String FEE_TYPE_MAP = "fee_type_map";
+
+	private static String requireEnv(String name) {
+		String value = System.getenv(name);
+		if (value == null || value.isBlank()) {
+			throw new IllegalStateException("Missing required environment variable: " + name);
+		}
+		return value;
+	}
 }

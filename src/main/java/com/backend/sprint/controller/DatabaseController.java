@@ -116,7 +116,7 @@ public class DatabaseController {
 		updateLicensesService.updateAthleteLicenses(athletes
 		// .parallelStream()
 		// .filter(d ->
-		// d.getDni().toUpperCase().equals("REDACTED")).collect(Collectors.toList())
+		// d.getDni().toUpperCase().equals("<DNI>")).collect(Collectors.toList())
 		);
 
 		return athletes;
@@ -136,7 +136,7 @@ public class DatabaseController {
 		updateRelativesService.updateAthleteRelatives(athletes
 		// .parallelStream()
 		// .filter(d ->
-		// d.getDni().toUpperCase().equals("REDACTED")).collect(Collectors.toList())
+		// d.getDni().toUpperCase().equals("<DNI>")).collect(Collectors.toList())
 		);
 
 		return athletes;

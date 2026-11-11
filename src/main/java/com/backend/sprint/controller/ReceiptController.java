@@ -126,7 +126,7 @@ public class ReceiptController {
 			subject += "Nueva remesa creada: " + receiptData.getName();
 		}
 		String body = "Remesa: " + dto.getId() + "\n\nURL: http://sportclubsmanager.com/receipts/" + dto.getId();
-		mailService.sendMail(Set.of("davher890@gmail.com"), subject, body);
+		mailService.sendMail(Set.of(MailService.NOTIFICATION_EMAIL), subject, body);
 
 		return dto;
 

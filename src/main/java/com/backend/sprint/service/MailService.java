@@ -28,7 +28,13 @@ import com.backend.sprint.model.dto.UserDto;
 public class MailService {
 
 	// Sender's email ID needs to be mentioned
-	String adminMail = "sportclubsmngr@gmail.com";
+	String adminMail = System.getenv("MAIL_USERNAME");
+
+	// App password for the sender account
+	String adminMailPassword = System.getenv("MAIL_PASSWORD");
+
+	// Address that receives internal notifications (incidences, receipts)
+	public static final String NOTIFICATION_EMAIL = System.getenv("NOTIFICATION_EMAIL");
 
 	// Assuming you are sending email from through gmails smtp
 	String host = "smtp.gmail.com";
@@ -77,7 +83,7 @@ public class MailService {
 			to.parallelStream().forEach(address -> {
 				try {
 //					message.addRecipient(Message.RecipientType.TO, new InternetAddress(address));
-					message.addRecipient(Message.RecipientType.TO, new InternetAddress("davher890@gmail.com"));
+					message.addRecipient(Message.RecipientType.TO, new InternetAddress(NOTIFICATION_EMAIL));
 				} catch (MessagingException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -112,7 +118,7 @@ public class MailService {
 		// Get the Session object.// and pass username and password
 		Session session = Session.getInstance(properties, new javax.mail.Authenticator() {
 			protected PasswordAuthentication getPasswordAuthentication() {
-				return new PasswordAuthentication(adminMail, "REDACTED");
+				return new PasswordAuthentication(adminMail, adminMailPassword);
 			}
 		});
 

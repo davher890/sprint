@@ -43,7 +43,7 @@ public class IncidenceCommentController {
 		String body = "Incidencia: " + incidence.getTitle() + "\n\nTexto: " + dto.getMessage()
 				+ "\n\nhttp://sportclubsmanager.com/incidences/" + incidence.getId();
 
-		mailService.sendMail(Set.of("davher890@gmail.com"), subject, body);
+		mailService.sendMail(Set.of(MailService.NOTIFICATION_EMAIL), subject, body);
 
 		UserDto user = userService.findById(incidence.getCreatedById());
 		if (user != null) {
